@@ -24,10 +24,6 @@ class BadRetroArchResponse(RetroArchException):
     pass
 
 
-class VersionError(Exception):
-    pass
-
-
 class RetroArchStatus(Enum):
     UNKNOWN = 1
     PAUSED = 2
@@ -64,6 +60,7 @@ class RetroArch:
         self.socket.setblocking(False)
 
     def send(self, b):
+        logger.debug(f"> {b}")
         if type(b) is str:
             b = b.encode("ascii")
         self.socket.sendto(b, (self.address, self.port))
@@ -71,6 +68,7 @@ class RetroArch:
     def recv(self):
         select.select([self.socket], [], [])
         response, _ = self.socket.recvfrom(4096)
+        logger.debug(f"< {response}")
         return response
 
     async def async_recv(self, timeout=1.0):
@@ -115,3 +113,60 @@ class RetroArch:
             rom_name.decode("ascii", errors="replace"),
             rom_crc,
         )
+
+    async def read_memory_block(self, address: int, size: int):
+        block = bytearray()
+        remaining_size = size
+        while remaining_size:
+            chunk = await self.async_read_memory(address + len(block), remaining_size)
+            remaining_size -= len(chunk)
+            block += chunk
+
+        return block
+
+    async def async_read_memory(self, address, size=1):
+        command = "READ_CORE_MEMORY"
+
+        self.send(f"{command} {hex(address)} {size}\n")
+        response = await self.async_recv()
+        self.check_command_response(command, response)
+        response = response[:-1]
+        splits = response.decode().split(" ", 2)
+        try:
+            response_addr = int(splits[1], 16)
+        except ValueError:
+            raise BadRetroArchResponse()
+
+        if response_addr != address:
+            raise BadRetroArchResponse()
+
+        ret = bytearray.fromhex(splits[2])
+        if len(ret) > size:
+            raise BadRetroArchResponse()
+        return ret
+
+    def write_memory(self, address, bytes: bytearray | bytes):
+        command = "WRITE_CORE_MEMORY"
+
+        self.send(f'{command} {hex(address)} {" ".join(hex(b) for b in bytes)}')
+        select.select([self.socket], [], [])
+        response, _ = self.socket.recvfrom(4096)
+        self.check_command_response(command, response)
+        splits = response.decode().split(" ", 3)
+
+        assert splits[0] == command
+
+        if splits[2] == "-1":
+            logger.info(splits[3])
+
+    async def get_flag(self, address: int, mask: int) -> bool:
+        value = (await self.async_read_memory(address))[0]
+        return bool(value & mask)
+
+    async def set_flag(self, address: int, mask: int, set: bool = True):
+        value = (await self.async_read_memory(address))[0]
+        if set:
+            value |= mask
+        else:
+            value &= ~mask
+        self.write_memory(address, value.to_bytes())
