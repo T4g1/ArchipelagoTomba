@@ -111,7 +111,7 @@ class Items(str):
     BANANAS = "Bananas"
     BARON = "Baron"
     BIG_KEY = "Big Key"
-    BITTING_PLANT_FLOWER = "Bitting Plant Flower"
+    BITING_PLANT_FLOWER = "Biting Plant Flower"
     BLACK_CANDY = "Black Candy"
     BLACK_WATER = "Black Water"
     BLACKJACK = "Blackjack"
@@ -267,7 +267,7 @@ class Events(str):
     BACCUS_VILLAGE = "Baccus Village"
     BARONS_STRENGTH = "Baron's Strength"
     BEGINNERS_DWARF_LANGUAGE = "Beginner's Dwarf Language"
-    BITTING_PLANT_FLOWER = "Bitting Plant Flower"
+    BITING_PLANT_FLOWER = "Biting Plant Flower"
     BLUE_HIDDEN_POWERS = "Blue Hidden Powers"
     BREAK_THE_MAGIC_EGG = "Break the Magic Egg!"
     BREAK_THE_RUSTY_DOOR = "Break the Rusty Door!"
@@ -385,38 +385,9 @@ class Events(str):
 
 class EventStatus(IntEnum):
     """Status of in-game events"""
-
     UNDISCOVERED = 0x00
     STARTED = 0x01
     CLEARED = 0xFF
-
-
-class MenuState(IntEnum):
-    OPEN = 0x01
-    CLOSED = 0x00
-
-
-class GameState(Enum):
-    UNKNOWN = 0
-    IN_MENU = 1
-    NO_HUD = 2
-    PLAYING = 3
-    CUTSCENE = 4
-
-
-class HudState(IntEnum):
-    HIDDEN = 0x00
-    VISIBLE = 0x01
-
-
-class SFX(IntEnum):
-    """RAM code associated with each SFX"""
-
-    ACQUIRED = 0x0A
-    LAUGH = 0x20
-    CRY = 0x25
-    EVENT_STARTED = 0x2A
-    FART = 0x32
 
 
 class Addresses(IntEnum):
@@ -430,7 +401,6 @@ class Addresses(IntEnum):
 
     LIVES = 0x09BCE8  # Shown amount = Stored - 1
 
-    CREDITS_VISIBILITY = 0x09BCC8
     SHOW_FOG = 0x09BCCE  # Also determines if can use FURIOUS TORNADO OR NOT
 
     MAILBOX_STATE = 0x09BCEC
@@ -453,10 +423,13 @@ class Addresses(IntEnum):
     HUD_VISIBILITY = 0x0B0770
     HUD_VISIBILITY_TIMER = 0x0B0774
 
-    PV_MAX = 0x09BCD9
     PV_CURRENT = 0x09BCD8
+    PV_MAX = 0x09BCD9
 
-    MENU_STATE = 0x1F8001C6
+    MENU_STATE = 0x1F8001C6 # In game menu (inventory, events, map, status, pause)
+    #SCREEN_STATE_PTR = 0x1F8001D4
+    MAIN_SCREEN_STATE = 0x001FD848 # Indicates the main state: title screen or in game
+    #SUB_SCREEN_STATE = 0x001FD84C # Accessing load/save in game for example
 
     I_STAT = 0x1F801070
     I_MASK = 0x1F801074
@@ -483,7 +456,7 @@ class Addresses(IntEnum):
     PIPE_STATE = 0x09C269
     GOLD_FLOWER_STATE = 0x09C34C
     GOLDEN_BOWL_STATE = 0x09C3E7
-    BITTING_PLANT_FLOWER_STATE = 0x09C3E3
+    BITING_PLANT_FLOWER_STATE = 0x09C3E3
 
     VILLAGE_OF_ALL_BEGINNING_EVENT_CONTROL = 0x09BCEC
 
@@ -491,10 +464,54 @@ class Addresses(IntEnum):
     SELECTED_SECTION = 0x9BCCA
 
     SECTION_STATE = 0x09BCFC  # Bit flag for each item/object taken/broken
+    # SECTION OFFSET = TOTAL SECTION PRECEDING (per AREA FLATTENED) * 4, AREA 1 SECTION 2 = 8 * 4 = 32 = 0x20
+
+
+class MenuState(IntEnum):
+    """In game menu status"""
+    OPEN = 0x01
+    CLOSED = 0x00
+
+
+class GameState(Enum):
+    """Abstract state based on game status"""
+    UNKNOWN = 0
+    IN_MENU = 1
+    NO_HUD = 2
+    PLAYING = 3
+    CUTSCENE = 4
+    OPTIONS = 5
+    TITLE = 6
+
+
+class HudState(IntEnum):
+    """In game HUD status"""
+    HIDDEN = 0x00
+    VISIBLE = 0x01
+
+
+class Screens(IntEnum):
+    """Possible screen displayed in game"""
+    TITLE_SCREEN = 0x04
+    GAME_SCREEN = 0x01
+    TRAILER_SCREEN = 0x03
+    OPTION_SCREEN = 0x02
+
+
+class SFX(IntEnum):
+    """RAM code associated with each SFX"""
+
+    ACQUIRED = 0x0A
+    LAUGH = 0x20
+    CRY = 0x25
+    EVENT_STARTED = 0x2A
+    FART = 0x32
 
 
 class SectionEventMask(IntEnum):
-    SECTION_1_BITTING_FLOWER_BLUE_APPLE = 0x20  # Byte 0
+    # Count bit with MSB on the left from left to right
+    AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE = 0x20  # Byte 2
+    AREA_1_SECTION_2_BARREL_STATE = 0x40 # Byte 0
 
 
 class EventControlState(IntEnum):
@@ -507,7 +524,7 @@ class EventControlMask(IntEnum):
     MAILBOX_OPENNED = 0x01
 
 
-class BittingPlantFlowerState(IntEnum):
+class BitingPlantFlowerState(IntEnum):
     NORMAL = 0x00
     BLOOM = 0x01
     GRABBED = 0x02
@@ -520,6 +537,5 @@ class MailboxState(IntEnum):
 
 class CustomCommand(IntEnum):
     """Masks for custom commands"""
-
     CLEAR_STACK = 0x00000001  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x00000010  # Bit 1 R/W = 1: Display info message (B142 and B143)

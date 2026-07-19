@@ -1,22 +1,50 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from rule_builder.rules import Has, Rule, CanReachRegion, CanReachLocation
 
-from .constants import Regions, Events
+from .constants import Regions, Events, Items
+
+
+def Started(event_name: str):
+    return f"{event_name} Started"
+
+
+def Cleared(event_name: str):
+    return f"{event_name} Cleared"
+
+
+def HasStarted(event_name: str):
+    return CanReachLocation(Started(event_name))
+
+
+def HasCleared(event_name: str):
+    return CanReachLocation(Cleared(event_name))
 
 
 @dataclass
 class EventData:
     id: int
     name: str
-    started_region: str  # Region that needs to be accessible to start this
-    cleared_region: str  # Region that needs to be accessible to complete this
+    region: str
+    started_rule: Rule # Check to start the event
+    cleared_rule: Rule  # Check to clear the event
 
-    def __init__(self, id, name: str, started_region: str, cleared_region: str | None = None):
+
+    def __init__(self, id, name: str, region: str, started_rule: Rule | None=None, cleared_rule: Rule | None=None):
         self.id = id
         self.name = name
-        self.started_region = started_region
-        self.cleared_region = cleared_region if cleared_region is not None else started_region
+        self.region = region
+
+        if started_rule is None:
+            started_rule = CanReachRegion(self.region)
+
+        if cleared_rule is None:
+            cleared_rule = CanReachRegion(self.region)
+            
+        self.started_rule = started_rule
+        self.cleared_rule = cleared_rule
+
 
     def __repr__(self) -> str:
         return self.name
@@ -25,36 +53,56 @@ class EventData:
 class EventHandler:
     event_table: list[EventData] = [
         # EventData(0x00, Events.GRANDPAS_BRACELET, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.THE_STRANGE_SMALL_ROOM),
-        EventData(0x01, Events.THE_100_YEAR_OLD_WISE_MAN, Regions.FOREST_OF_ALL_BEGINNINGS),
-        EventData(0x02, Events.CLEAR_THE_FOG, Regions.VILLAGE_OF_ALL_BEGINNINGS),
-        EventData(0x03, Events.TAKE_ME_HOME, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.OL_POND),
+        EventData(0x01, Events.THE_100_YEAR_OLD_WISE_MAN, Regions.FOREST_OF_ALL_BEGINNINGS,
+                  started_rule=CanReachRegion(Regions.VILLAGE_OF_ALL_BEGINNINGS)),
+        EventData(0x02, Events.CLEAR_THE_FOG, Regions.VILLAGE_OF_ALL_BEGINNINGS,
+                  cleared_rule=Has(Items.FURIOUS_TORNADO)),
+        EventData(0x03, Events.TAKE_ME_HOME, Regions.OL_POND),
         # EventData(0x04, Events.MOTOCROSS_COURSE, Regions.),
-        EventData(0x05, Events.WHO_ARE_YOU, Regions.FOREST_OF_ALL_BEGINNINGS),
+        EventData(0x05, Events.WHO_ARE_YOU, Regions.FOREST_OF_ALL_BEGINNINGS,
+                  cleared_rule=HasCleared(Events.THE_100_YEAR_OLD_WISE_MAN)),
         # EventData(0x06, Events., Regions.), # Unused
-        EventData(0x07, Events.HIDE_AND_GO_SEEK, Regions.FOREST_OF_ALL_BEGINNINGS),
+        EventData(0x07, Events.HIDE_AND_GO_SEEK, Regions.FOREST_OF_ALL_BEGINNINGS,
+                  started_rule=HasCleared(Events.WHO_ARE_YOU),
+                  cleared_rule=CanReachRegion(Regions.HIDDEN_VILLAGE) & Has(Items.JEWEL_OF_FIRE)),
         EventData(0x08, Events.I_CANT_SWIM, Regions.OL_POND),
-        EventData(
-            0x09, Events.INSIDE_THE_KOKKA_EGGS, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.FOREST_OF_ALL_BEGINNINGS
-        ),
+        EventData(0x09, Events.INSIDE_THE_KOKKA_EGGS, Regions.VILLAGE_OF_ALL_BEGINNINGS,
+                  cleared_rule=Has(Items.CHICK, 4)),
         # EventData(0x0A, Events.TALE_OF_THE_EVIL_PIGS, Regions.),
         # EventData(0x0B, Events.THE_1000_YEAR_OLD_MAN, Regions.),
-        EventData(0x0C, Events.DWARF_ELDER, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.WOBBLY_WHARF),
-        EventData(0x0D, Events.BEGINNERS_DWARF_LANGUAGE, Regions.FOREST_OF_100_FLOWERS, Regions.DWARF_VILLAGE),
-        EventData(0x0E, Events.A_LOST_CHILD, Regions.DWARF_VILLAGE, Regions.WATCH_TOWER),
+        EventData(0x0C, Events.DWARF_ELDER, Regions.DWARF_VILLAGE,
+                  started_rule=CanReachRegion(Regions.FOREST_OF_ALL_BEGINNINGS)),
+        EventData(0x0D, Events.BEGINNERS_DWARF_LANGUAGE, Regions.DWARF_VILLAGE),
+        EventData(0x0E, Events.A_LOST_CHILD, Regions.DWARF_VILLAGE),
         # EventData(0x0F, Events.FLOWER_SEEDS, Regions.),
         EventData(0x10, Events.THE_AP_BOX, Regions.FOREST_OF_ALL_BEGINNINGS),
-        EventData(0x11, Events.SAVE_THE_DWARVES, Regions.DWARF_VILLAGE),
+        EventData(0x11, Events.SAVE_THE_DWARVES, Regions.DWARF_VILLAGE,
+                  started_rule=HasCleared(Events.BEGINNERS_DWARF_LANGUAGE)),
         # EventData(0x12, Events., Regions.), # Unused
-        EventData(0x13, Events.LOST_AND_FOUND, Regions.WATCH_TOWER),
-        # EventData(0x14, Events.STOP_THE_FIGHT, Regions.),
-        # EventData(0x15, Events.THE_GREAT_ESCAPE, Regions.),
+        EventData(0x13, Events.LOST_AND_FOUND, Regions.FOREST_OF_100_FLOWERS,
+                  started_rule=HasStarted(Events.SAVE_THE_DWARVES),
+                  cleared_rule=CanReachRegion(Regions.CHARITY_SQUARE)),
+        EventData(0x14, Events.STOP_THE_FIGHT, Regions.DWARF_VILLAGE,
+                  started_rule=HasCleared(Events.WHERED_THE_LIGHTS_GO),
+                  cleared_rule=Has(Items.BROKEN_VASE)),
+        EventData(0x15, Events.THE_GREAT_ESCAPE, Regions.DWARF_VILLAGE,
+                  started_rule=HasCleared(Events.STOP_THE_FIGHT)),
         EventData(0x16, Events.LOOK_AND_SEE, Regions.WATCH_TOWER),
-        EventData(0x17, Events.A_MANS_BEST_FRIEND, Regions.WOBBLY_WHARF),
+        EventData(0x17, Events.A_MANS_BEST_FRIEND, Regions.DWARF_VILLAGE,
+                  started_rule=HasStarted(Events.SAVE_THE_DWARVES),
+        #          cleared_rule=
+        #            Has(Cleared(Events.DELICIOUS_KNOWLEDGE_FRUIT)) & 
+        #            Has(Cleared(Events.HEALING_HERBS_FOR_BARON)) &
+        #            Has(Cleared(Events.SEAWEED_FOR_YOUR_HEALTH)) 
+        ),
         EventData(0x18, Events.WHAT_IS_THIS, Regions.WATCH_TOWER),
-        # EventData(0x19, Events.TREASURES_FROM_THE_MANSION, Regions.),
-        EventData(0x1A, Events.TO_PHOENIX_MOUNTAIN, Regions.WOBBLY_WHARF),
-        # EventData(0x1B, Events.THE_BROKEN_FOUNTAIN, Regions.),
-        # EventData(0x1C, Events.A_FAMILIAR_LOOKING_MANSION, Regions.),
+        EventData(0x19, Events.TREASURES_FROM_THE_MANSION, Regions.MANSION,
+                  started_rule=HasStarted(Events.THE_GREAT_ESCAPE)),
+        EventData(0x1A, Events.TO_PHOENIX_MOUNTAIN, Regions.DWARF_VILLAGE,
+                  started_rule=HasCleared(Events.SAVE_THE_DWARVES)),
+        EventData(0x1B, Events.THE_BROKEN_FOUNTAIN, Regions.CHARITY_SQUARE,
+                  cleared_rule=Has(Items.FLOWER_TEARS)),
+        EventData(0x1C, Events.A_FAMILIAR_LOOKING_MANSION, Regions.MANSION),
         # EventData(0x1D, Events.A_STORMY_PIG_BAG, Regions.),
         # EventData(0x1E, Events.PHOENIX_MOUNTAIN, Regions.),
         # EventData(0x1F, Events.WHERE_DID_I_COME_FROM, Regions.),
@@ -106,13 +154,18 @@ class EventHandler:
         # EventData(0x4D, Events.THE_CIVILIZATION_MACHINE, Regions.),
         # EventData(0x4E, Events.FIND_CHARLES, Regions.),
         # EventData(0x4F, Events.WHATS_UNDER_THE_FOREST, Regions.),
-        EventData(0x50, Events.THE_100_FLOWER_FOREST, Regions.WOBBLY_WHARF),
+        EventData(0x50, Events.THE_100_FLOWER_FOREST, Regions.WOBBLY_WHARF,
+                  started_rule=HasCleared(Events.SAVE_THE_DWARVES),
+        #          cleared_rule=HasCleared(Events.UNBREAKABLE_WIRE) # TODO: When that event is coded
+        ),
         # EventData(0x51, Events.THE_BOSS_TREASURE, Regions.),
         # EventData(0x52, Events.IM_SO_HUNGRY, Regions.),
         # EventData(0x53, Events., Regions.), # Unused
         # EventData(0x54, Events., Regions.), # Unused
         # EventData(0x55, Events.THE_DEEP_JUNGLE_PIG, Regions.),
-        EventData(0x56, Events.HEALING_HERBS_FOR_BARON, Regions.WOBBLY_WHARF),
+        EventData(0x56, Events.HEALING_HERBS_FOR_BARON, Regions.WOBBLY_WHARF,
+                  started_rule=HasStarted(Events.SAVE_THE_DWARVES),
+                  cleared_rule=Has(Items.HEALING_HERBS)),
         # EventData(0x57, Events.DELICIOUS_KNOWLEDGE_FRUIT, Regions.),
         # EventData(0x58, Events.SEAWEED_FOR_YOUR_HEALTH, Regions.),
         # EventData(0x59, Events.BLUE_HIDDEN_POWERS, Regions.),
@@ -193,9 +246,14 @@ class EventHandler:
         # EventData(0xA4, Events.THE_FLOWER_TOWER, Regions.),
         # EventData(0xA5, Events., Regions.), # Unused
         EventData(0xA6, Events.A_HUNGRY_MONKEY, Regions.VILLAGE_OF_ALL_BEGINNINGS),
-        EventData(0xA7, Events.PEACH_FLOWER_GAS, Regions.VILLAGE_OF_ALL_BEGINNINGS),
-        EventData(0xA8, Events.THE_EVIL_PIG_BAG, Regions.WOBBLY_WHARF),
-        EventData(0xA9, Events.BITTING_PLANT_FLOWER, Regions.FOREST_OF_ALL_BEGINNINGS),
+        EventData(0xA7, Events.PEACH_FLOWER_GAS, Regions.VILLAGE_OF_ALL_BEGINNINGS,
+                  cleared_rule=CanReachRegion(Regions.BACCUS_VILLAGE)),
+        EventData(0xA8, Events.THE_EVIL_PIG_BAG, Regions.DWARF_VILLAGE,
+                  started_rule=HasCleared(Events.SAVE_THE_DWARVES),
+                  cleared_rule=HasCleared(Events.SAVE_THE_DWARVES)),
+        EventData(0xA9, Events.BITING_PLANT_FLOWER, Regions.FOREST_OF_ALL_BEGINNINGS,
+        #          cleared_rule=HasStarted(Events.LETS_MAKE_CANDY) # TODO:
+        ),
         # EventData(0xAA, Events.WHEN_THE_WIND_DIES_DOWN, Regions.),
         # EventData(0xAB, Events.THE_PHOENIXS_FAVORITE, Regions.),
         # EventData(0xAC, Events.THE_FIRE_PIG_BAG, Regions.),
@@ -203,32 +261,35 @@ class EventHandler:
         # EventData(0xAE, Events.THE_HAUNTED_PIG_BAG, Regions.),
         EventData(0xAF, Events.THE_WORLDS_GREATEST_SMILE, Regions.MUSHROOM_FOREST),
         EventData(0xB0, Events.THE_WORLDS_GREATEST_POUT, Regions.MUSHROOM_FOREST),
-        EventData(0xB1, Events.SOMETHINGS_COOKIN, Regions.WOBBLY_WHARF),
-        # EventData(0xB2, Events.LEAF_BUTTERFLIES, Regions.),
-        EventData(0xB3, Events.WHERED_THE_LIGHTS_GO, Regions.DWARF_JAIL),
-        EventData(0xB4, Events.WHERE_THE_BARREL_ROLLS, Regions.WOBBLY_WHARF),
-        # EventData(0xB5, Events.READY_SET_GO, Regions.),
-        EventData(0xB6, Events.A_MAGIC_MIRROR, Regions.WATCH_TOWER),
+        EventData(0xB1, Events.SOMETHINGS_COOKIN, Regions.FOREST_OF_100_FLOWERS,
+                  cleared_rule=Has(Items.BAKED_YAM)),
+        EventData(0xB2, Events.LEAF_BUTTERFLIES, Regions.CHARITY_SQUARE,
+                  started_rule=CanReachRegion(Regions.FOREST_OF_100_FLOWERS),
+                  cleared_rule=Has(Items.LEAF_BUTTERFLY, 29)),
+        EventData(0xB3, Events.WHERED_THE_LIGHTS_GO, Regions.DWARF_JAIL,
+                  started_rule=HasStarted(Events.TO_PHOENIX_MOUNTAIN),
+                  cleared_rule=Has(Items.TORCH)),
+        EventData(0xB4, Events.WHERE_THE_BARREL_ROLLS, Regions.WOBBLY_WHARF,
+                  cleared_rule=HasCleared(Events.I_CANT_SWIM)),
+        EventData(0xB5, Events.READY_SET_GO, Regions.STORMY_MOUNTAIN,
+                  started_rule=HasCleared(Events.THE_GREAT_ESCAPE)),
+        EventData(0xB6, Events.A_MAGIC_MIRROR, Regions.WATCH_TOWER,
+                  cleared_rule=Has(Items.DIRTY_MIRROR)),
         # EventData(0xB7, Events.THE_JUNGLE_PIG_BAG, Regions.),
         # EventData(0xB8, Events., Regions.), # Unused
         # EventData(0xB9, Events.A_PRECIOUS_TREASURE_CHEST, Regions.),
         # EventData(0xBA, Events., Regions.), # Unused
-        # EventData(0xBB, Events.THE_MYSTERIOUS_MUSHROOM, Regions.),
-        # EventData(0xBC, Events.LEAF_SLIDER, Regions.),
-        # EventData(0xBD, Events.RED_BLUE, Regions.),
+        EventData(0xBB, Events.THE_MYSTERIOUS_MUSHROOM, Regions.CHARITY_SQUARE,
+                  cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)),
+        EventData(0xBC, Events.LEAF_SLIDER, Regions.CHARITY_SQUARE),
+        EventData(0xBD, Events.RED_BLUE, Regions.CHARITY_SQUARE,
+                  cleared_rule=Has(Items.BLUE_POWDER)),
         # EventData(0xBE, Events.THE_TROUBLED_THIEF, Regions.),
         # EventData(0xBF, Events.WHAT_THE_THIEF_FORGOT, Regions.),
     ]
 
-    by_name = {}
-
+    by_name: dict[str, EventData] = {}
+    by_id: dict[int, EventData] = {}
     for index, event in enumerate(event_table):
         by_name[event.name] = event
-
-
-def Started(event_name: str):
-    return f"{event_name} Started"
-
-
-def Cleared(event_name: str):
-    return f"{event_name} Cleared"
+        by_id[event.id] = event

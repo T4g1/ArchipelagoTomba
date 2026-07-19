@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 from dataclasses import dataclass
+from rule_builder.rules import Has
 
 from BaseClasses import Region, CollectionRule
 
 from .constants import Areas, Regions, Items, Events
-from .events import Started
+from .events import Started, Cleared
 
 if TYPE_CHECKING:
     from .world import TombaWorld
@@ -331,14 +332,14 @@ def connect_regions(world: TombaWorld) -> None:
         world,
         Regions.VILLAGE_OF_ALL_BEGINNINGS,
         Regions.FOREST_OF_ALL_BEGINNINGS,
-        lambda state: state.has(Items.FURIOUS_TORNADO, world.player),
+        Has(Items.FURIOUS_TORNADO),
     )
 
     connect(
         world,
         Regions.FOREST_OF_ALL_BEGINNINGS,
         Regions.FOREST_OF_100_FLOWERS,
-        lambda state: state.has(Items.CHICK, world.player, 4),
+        Has(Items.CHICK, 4),
     )
     connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.OL_POND)
 
@@ -347,45 +348,57 @@ def connect_regions(world: TombaWorld) -> None:
         world,
         Regions.FOREST_OF_100_FLOWERS,
         Regions.WOBBLY_WHARF,
-        lambda state: state.has(Started(Events.SAVE_THE_DWARVES), world.player),
+        lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
     )
     connect(
         world,
         Regions.FOREST_OF_100_FLOWERS,
         Regions.WATCH_TOWER,
-        lambda state: state.has(Started(Events.SAVE_THE_DWARVES), world.player),
+        lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
     )
 
     connect(
         world,
         Regions.CHARITY_SQUARE,
         Regions.HIDDEN_VILLAGE,
-        lambda state: state.has(Items.LEAF_BUTTERFLY, world.player, 29),
+        Has(Items.LEAF_BUTTERFLY, 29),
     )
 
     connect(
         world,
         Regions.DWARF_VILLAGE,
         Regions.DWARF_JAIL,
-        lambda state: state.has(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
     )
 
     connect(
         world,
         Regions.WATCH_TOWER,
         Regions.MUSHROOM_FOREST,
-        lambda state: state.has(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
     )
     connect(
         world,
         Regions.WATCH_TOWER,
         Regions.CHARITY_SQUARE,
-        lambda state: state.has(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
     )
 
     connect(
         world,
         Regions.WOBBLY_WHARF,
         Regions.CHARITY_SQUARE,
-        lambda state: state.has(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
     )
+
+    connect(world, Regions.MUSHROOM_FOREST, Regions.MANSION)
+    connect(
+        world, 
+        Regions.MUSHROOM_FOREST, 
+        Regions.STORMY_MOUNTAIN,
+        lambda state: state.can_reach_location(Cleared(Events.THE_WORLDS_GREATEST_POUT), world.player)
+    )
+
+    # TODO
+    connect(world, Regions.STORMY_MOUNTAIN, Regions.PHOENIX_MOUNTAIN)
+    connect(world, Regions.PHOENIX_MOUNTAIN, Regions.BACCUS_VILLAGE)

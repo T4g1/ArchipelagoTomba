@@ -2,7 +2,7 @@ from CommonClient import logger
 
 from .compiler import Compiler
 from .retroarch import RetroArch
-from ..constants import Addresses, BittingPlantFlowerState, SectionEventMask
+from ..constants import Addresses, BitingPlantFlowerState, SectionEventMask
 
 FEATURE_PATCH = "worlds/tomba/client/src/interface.asm"
 ADD_ITEM_PATCH = "worlds/tomba/client/src/add_item.asm"
@@ -30,8 +30,12 @@ class Patcher:
             logger.critical(e)
             raise PatchException("Unable to initialize the patching interface")
 
+
     async def patch_game(self):
         """Patch a custom method to play SFX on demand"""
+        if await self.is_patched():
+            return
+        
         logger.info("Patching custom methods...")
 
         add_item_patch = bytes.fromhex(self.add_item_patch)
@@ -43,23 +47,30 @@ class Patcher:
         self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
 
         # Prevent missable location
-        self.playstation.write_memory(Addresses.BITTING_PLANT_FLOWER_STATE, BittingPlantFlowerState.BLOOM.to_bytes())
+        self.playstation.write_memory(Addresses.BITING_PLANT_FLOWER_STATE, BitingPlantFlowerState.BLOOM.to_bytes())
 
         # Indicates that the game is patched
         self.playstation.write_memory(Addresses.IS_PATCHED, bytes.fromhex("01"))
 
         logger.info("Game patched")
 
+
     async def patch_save(self):
         """Pre-trigger some event to avoid glitches"""
+        if await self.is_save_patched():
+            return
+        
         await self.playstation.set_flag(
-            Addresses.SECTION_STATE + 4, SectionEventMask.SECTION_1_BITTING_FLOWER_BLUE_APPLE
+            Addresses.SECTION_STATE + 4, SectionEventMask.AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE
         )
+
 
     async def is_patched(self) -> bool:
         return (await self.playstation.async_read_memory(Addresses.IS_PATCHED))[0] != 0
 
+
     async def is_save_patched(self) -> bool:
+        """DEPRECATED: Set it to 0 if event not started instead"""
         return await self.playstation.get_flag(
-            Addresses.SECTION_STATE + 4, SectionEventMask.SECTION_1_BITTING_FLOWER_BLUE_APPLE
+            Addresses.SECTION_STATE + 4, SectionEventMask.AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE
         )
