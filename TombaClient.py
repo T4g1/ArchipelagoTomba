@@ -47,7 +47,6 @@ class TombaContext(CommonContext):
     # List of items found by the player to process
     found_items: list[ItemData] = []
 
-
     def __init__(
         self,
         server_address: str | None = None,
@@ -64,7 +63,6 @@ class TombaContext(CommonContext):
 
         self.won = False
 
-
     def run_gui(self):
         from kvui import GameManager
 
@@ -75,7 +73,6 @@ class TombaContext(CommonContext):
         self.ui = TombaManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
 
-
     def event_invalid_slot(self):
         # The next time we try to connect, reset the game loop for new auth
         self.had_invalid_slot_data = True
@@ -83,7 +80,6 @@ class TombaContext(CommonContext):
         # Don't try to autoreconnect, it will just fail
         self.disconnected_intentionally = True
         CommonContext.event_invalid_slot(self)
-
 
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
@@ -105,15 +101,12 @@ class TombaContext(CommonContext):
         self.auth = self.tomba.auth
         await self.send_connect()
 
-
     def on_package(self, cmd: str, args: dict):
         callback = self.package_handlers.get(cmd, self.on_unhandled_package)
         callback(cmd, args)
 
-
     def on_unhandled_package(self, cmd: str, args: dict):
         pass
-
 
     def on_connected(self, cmd: str, args: dict):
         self.connection_status = ConnectionStatus.NOT_CONNECTED
@@ -136,11 +129,9 @@ class TombaContext(CommonContext):
 
         self.connection_status = ConnectionStatus.CONNECTED
 
-
     async def sync(self):
         sync_msg = [{"cmd": "Sync"}]
         await self.send_msgs(sync_msg)
-
 
     async def process_items_received(self):
         """Process items sent by Archipelago"""
@@ -153,7 +144,6 @@ class TombaContext(CommonContext):
 
             if await self.tomba.receive_item(network_item.item, network_item.player):
                 self.tomba.set_saved_archipelago_index(index + 1)
-
 
     async def update_found_items(self):
         """Update the list of found items to be processed in the main loop"""
@@ -172,7 +162,6 @@ class TombaContext(CommonContext):
         if len(newly_found_items):
             await self.tomba.request_clear_obtained_items()
 
-
     async def process_found_items(self):
         if len(self.found_items) <= 0:
             return
@@ -181,7 +170,6 @@ class TombaContext(CommonContext):
         if not await self.on_item_get(item):
             # Put back the item in the queue if it fails to process
             self.found_items.append(item)
-
 
     async def on_item_get(self, item: ItemData) -> bool:
         if item.behavior is ItemBehavior.ORIGINAL:
@@ -205,20 +193,17 @@ class TombaContext(CommonContext):
         await self.check_locations([location_id])
         return True
 
-
     async def on_victory(self):
-        pass  # await self.send_victory()
-
+        await self.send_victory()
 
     async def on_event_update(self, id: int, status: EventStatus):
-        if not status is EventStatus.CLEARED:
+        if status is not EventStatus.CLEARED:
             return
-        
+
         event = EventHandler.by_id[id]
         location = LocationHandler.by_name[get_event_cleared_name(event)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
-
 
     async def send_victory(self):
         if not self.won:
@@ -226,7 +211,6 @@ class TombaContext(CommonContext):
             logger.info("victory!")
             await self.send_msgs(message)
             self.won = True
-
 
     async def game_loop(self) -> None:
         # yield to allow UI to start

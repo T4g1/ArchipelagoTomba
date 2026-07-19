@@ -385,6 +385,7 @@ class Events(str):
 
 class EventStatus(IntEnum):
     """Status of in-game events"""
+
     UNDISCOVERED = 0x00
     STARTED = 0x01
     CLEARED = 0xFF
@@ -426,10 +427,10 @@ class Addresses(IntEnum):
     PV_CURRENT = 0x09BCD8
     PV_MAX = 0x09BCD9
 
-    MENU_STATE = 0x1F8001C6 # In game menu (inventory, events, map, status, pause)
-    #SCREEN_STATE_PTR = 0x1F8001D4
-    MAIN_SCREEN_STATE = 0x001FD848 # Indicates the main state: title screen or in game
-    #SUB_SCREEN_STATE = 0x001FD84C # Accessing load/save in game for example
+    MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
+    # SCREEN_STATE_PTR = 0x1F8001D4
+    MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
+    # SUB_SCREEN_STATE = 0x001FD84C # Accessing load/save in game for example
 
     I_STAT = 0x1F801070
     I_MASK = 0x1F801074
@@ -469,12 +470,14 @@ class Addresses(IntEnum):
 
 class MenuState(IntEnum):
     """In game menu status"""
+
     OPEN = 0x01
     CLOSED = 0x00
 
 
 class GameState(Enum):
     """Abstract state based on game status"""
+
     UNKNOWN = 0
     IN_MENU = 1
     NO_HUD = 2
@@ -486,12 +489,14 @@ class GameState(Enum):
 
 class HudState(IntEnum):
     """In game HUD status"""
+
     HIDDEN = 0x00
     VISIBLE = 0x01
 
 
 class Screens(IntEnum):
     """Possible screen displayed in game"""
+
     TITLE_SCREEN = 0x04
     GAME_SCREEN = 0x01
     TRAILER_SCREEN = 0x03
@@ -511,7 +516,7 @@ class SFX(IntEnum):
 class SectionEventMask(IntEnum):
     # Count bit with MSB on the left from left to right
     AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE = 0x20  # Byte 2
-    AREA_1_SECTION_2_BARREL_STATE = 0x40 # Byte 0
+    AREA_1_SECTION_2_BARREL_STATE = 0x40  # Byte 0
 
 
 class EventControlState(IntEnum):
@@ -537,5 +542,6 @@ class MailboxState(IntEnum):
 
 class CustomCommand(IntEnum):
     """Masks for custom commands"""
+
     CLEAR_STACK = 0x00000001  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x00000010  # Bit 1 R/W = 1: Display info message (B142 and B143)

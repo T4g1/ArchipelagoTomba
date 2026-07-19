@@ -30,12 +30,11 @@ class Patcher:
             logger.critical(e)
             raise PatchException("Unable to initialize the patching interface")
 
-
     async def patch_game(self):
         """Patch a custom method to play SFX on demand"""
         if await self.is_patched():
             return
-        
+
         logger.info("Patching custom methods...")
 
         add_item_patch = bytes.fromhex(self.add_item_patch)
@@ -54,20 +53,17 @@ class Patcher:
 
         logger.info("Game patched")
 
-
     async def patch_save(self):
         """Pre-trigger some event to avoid glitches"""
         if await self.is_save_patched():
             return
-        
+
         await self.playstation.set_flag(
             Addresses.SECTION_STATE + 4, SectionEventMask.AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE
         )
 
-
     async def is_patched(self) -> bool:
         return (await self.playstation.async_read_memory(Addresses.IS_PATCHED))[0] != 0
-
 
     async def is_save_patched(self) -> bool:
         """DEPRECATED: Set it to 0 if event not started instead"""
