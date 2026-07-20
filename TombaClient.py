@@ -18,8 +18,8 @@ from worlds.tomba import constants
 from worlds.tomba.constants import EventStatus
 from worlds.tomba.world import TombaWorld
 from worlds.tomba.items import ItemHandler, ItemData, ItemBehavior
-from worlds.tomba.locations import LocationHandler, get_event_cleared_name
-from worlds.tomba.events import EventHandler
+from worlds.tomba.locations import LocationHandler
+from worlds.tomba.events import EventHandler, Cleared
 from worlds.tomba.client.retroarch import RetroArchException
 from worlds.tomba.client.game import TombaGame, TombaException
 
@@ -201,7 +201,7 @@ class TombaContext(CommonContext):
             return
 
         event = EventHandler.by_id[id]
-        location = LocationHandler.by_name[get_event_cleared_name(event)]
+        location = LocationHandler.by_name[Cleared(event.name)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
 

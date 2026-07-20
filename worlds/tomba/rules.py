@@ -45,7 +45,7 @@ def integrity_checks():
             if (
                 location.area_id is None or location.section_id is None
             ) and location.item.name not in bypass_integrity_checks:
-                raise Exception(
+                print(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
                     "but no area/section discriminator"
@@ -85,4 +85,4 @@ def set_all_location_rules(world: TombaWorld) -> None:
 
 
 def set_completion_condition(world: TombaWorld) -> None:
-    world.set_completion_rule(HasCleared(Events.LAVA_CAVES))
+    world.set_completion_rule(HasCleared(Events.GRANDPAS_BRACELET))

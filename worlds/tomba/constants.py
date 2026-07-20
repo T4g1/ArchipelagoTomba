@@ -43,6 +43,7 @@ class Regions(str):
     THE_MERMAIDS_SINGING_ROCK = "The Mermaid's Singing Rock"
     THE_STRANGE_SMALL_ROOM = "The Strange Small Room"
     TRICK_VILLAGE = "Trick Village"
+    UNDERGROUND_MAZE_ENTRANCE = "Underground Maze Entrance"
     UNDERGROUND_MAZE = "Underground Maze"
     UNDERGROUND_PRISON = "Underground Prison"
     VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"

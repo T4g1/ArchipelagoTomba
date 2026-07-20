@@ -329,6 +329,7 @@ def connect(world: TombaWorld, source_name: str, target_name: str, rule: Collect
 
 def connect_regions(world: TombaWorld) -> None:
     connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.FOREST_OF_ALL_BEGINNINGS, Has(Items.FURIOUS_TORNADO))
+    connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.THE_MERMAIDS_SINGING_ROCK, Has(Items.FUEL_BAR))
 
     connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.FOREST_OF_100_FLOWERS, Has(Items.CHICK, 4))
     connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.OL_POND)
@@ -368,6 +369,12 @@ def connect_regions(world: TombaWorld) -> None:
         Regions.CHARITY_SQUARE,
         lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
     )
+    connect(
+        world,
+        Regions.WATCH_TOWER,
+        Regions.UNDERGROUND_MAZE_ENTRANCE,
+        lambda state: state.can_reach_location(Cleared(Events.WE_NEED_POWER), world.player),
+    )
 
     connect(
         world,
@@ -390,11 +397,11 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         world,
         Regions.LAVA_CAVES,
-        Regions.PHOENIX_MOUNTAIN,
+        Regions.PHOENIXS_NEST,
         lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), world.player),
     )
 
-    connect(world, Regions.PHOENIX_MOUNTAIN, Regions.MASAKARI_JUNGLE, Has(Items.BUNK_FLOWER, 5))
+    connect(world, Regions.PHOENIXS_NEST, Regions.MASAKARI_JUNGLE, Has(Items.BUNK_FLOWER, 5))
 
     connect(world, Regions.BACCUS_VILLAGE, Regions.MUSHROOM_FOREST)
     connect(world, Regions.BACCUS_VILLAGE, Regions.CENTRAL_PARK)
@@ -411,5 +418,52 @@ def connect_regions(world: TombaWorld) -> None:
         lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
     )
 
-    # TODO
-    connect(world, Regions.MASAKARI_JUNGLE, Regions.VILLAGE_OF_CIVILIZATION)
+    connect(
+        world,
+        Regions.MASAKARI_JUNGLE,
+        Regions.OLD_TREE_HILL,
+        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+    )
+    connect(world, Regions.MASAKARI_JUNGLE, Regions.Y_CROSSING, Has(Items.MINERS_HAT))
+
+    connect(world, Regions.Y_CROSSING, Regions.CLOCK_TOWER)
+    connect(
+        world,
+        Regions.Y_CROSSING,
+        Regions.IRON_CASTLE,
+        lambda state: state.can_reach_location(Started(Events.WE_NEED_POWER), world.player),
+    )
+    connect(
+        world,
+        Regions.Y_CROSSING,
+        Regions.LUMBERJACK_FACTORY,
+        lambda state: state.can_reach_location(Started(Events.WE_NEED_POWER), world.player),
+    )
+
+    connect(
+        world,
+        Regions.OL_POND,
+        Regions.TRICK_VILLAGE,
+        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player)
+        and state.has(Items.KEY_TO_OL_POND, world.player),
+    )
+    connect(
+        world,
+        Regions.UNDERGROUND_MAZE_ENTRANCE,
+        Regions.UNDERGROUND_MAZE,
+        Has(Items.THIEFS_WIRE),
+    )
+    connect(world, Regions.UNDERGROUND_MAZE, Regions.THE_STRANGE_SMALL_ROOM)
+
+    connect(
+        world,
+        Regions.THE_MERMAIDS_SINGING_ROCK,
+        Regions.OLD_TREE_HILL,
+        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+    )
+    connect(
+        world,
+        Regions.THE_MERMAIDS_SINGING_ROCK,
+        Regions.MASAKARI_JUNGLE,
+        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+    )
