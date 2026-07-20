@@ -1,6 +1,7 @@
 import asyncio
 import sys
 import time
+import traceback
 from argparse import Namespace
 from enum import Enum
 
@@ -14,9 +15,11 @@ from CommonClient import (
 from NetUtils import ClientStatus
 
 from worlds.tomba import constants
+from worlds.tomba.constants import EventStatus
 from worlds.tomba.world import TombaWorld
 from worlds.tomba.items import ItemHandler, ItemData, ItemBehavior
 from worlds.tomba.locations import LocationHandler
+from worlds.tomba.events import EventHandler, Cleared
 from worlds.tomba.client.retroarch import RetroArchException
 from worlds.tomba.client.game import TombaGame, TombaException
 
@@ -55,7 +58,7 @@ class TombaContext(CommonContext):
             "Connected": self.on_connected,
         }
 
-        self.tomba = TombaGame()
+        self.tomba = TombaGame(self.on_victory, self.on_event_update)
         self.had_invalid_slot_data = None
 
         self.won = False
@@ -120,13 +123,9 @@ class TombaContext(CommonContext):
                 f"the world this game was generated on ({generated_version.as_simple_string()})"
             )
 
-        # DEBUG
-        logger.info("missing locations")
-        logger.info(self.missing_locations)
-        logger.info("checked locations")
-        logger.info(self.checked_locations)
-        logger.info("items received")
-        logger.info(self.items_received)
+        logger.debug("missing locations:", self.missing_locations)
+        logger.debug("checked locations:", self.checked_locations)
+        logger.debug("items received:", self.items_received)
 
         self.connection_status = ConnectionStatus.CONNECTED
 
@@ -195,7 +194,16 @@ class TombaContext(CommonContext):
         return True
 
     async def on_victory(self):
-        pass  # await self.send_victory()
+        await self.send_victory()
+
+    async def on_event_update(self, id: int, status: EventStatus):
+        if status is not EventStatus.CLEARED:
+            return
+
+        event = EventHandler.by_id[id]
+        location = LocationHandler.by_name[Cleared(event.name)]
+        logger.info(f"Sending location check to server for {event}")
+        await self.check_locations([location.id])
 
     async def send_victory(self):
         if not self.won:
@@ -226,7 +234,7 @@ class TombaContext(CommonContext):
                 last_tick = time.time()
                 while True:
                     if self.connection_status == ConnectionStatus.CONNECTED:
-                        await self.tomba.main_tick(self.on_victory)
+                        await self.tomba.main_tick()
 
                         await self.process_items_received()
 
@@ -242,6 +250,7 @@ class TombaContext(CommonContext):
             except (TimeoutError, RetroArchException, TombaException):
                 await asyncio.sleep(1.0)
             except Exception:  # DEBUG
+                logger.critical(traceback.format_exc())
                 await asyncio.sleep(1.0)
 
 

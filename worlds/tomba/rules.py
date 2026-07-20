@@ -2,19 +2,76 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from rule_builder.rules import Has
-
-from .constants import Events
-from .locations import Cleared, LocationHandler
+from .constants import Items, Events
+from .locations import Cleared, Started, LocationHandler, HasCleared
+from .items import ItemHandler
 
 if TYPE_CHECKING:
     from .world import TombaWorld
 
 
 def set_all_rules(world: TombaWorld) -> None:
+    integrity_checks()
     set_all_entrance_rules(world)
     set_all_location_rules(world)
     set_completion_condition(world)
+
+
+def integrity_checks():
+    bypass_integrity_checks = [Items.LEAF_BUTTERFLY]
+
+    used_names = []
+
+    for location in LocationHandler.location_table:
+        if location.item is None:
+            if Started(location.name) in used_names:
+                raise Exception(f"Trying to re-use the location name {Started(location.name)}")
+
+            if Cleared(location.name) in used_names:
+                raise Exception(f"Trying to re-use the location name {Cleared(location.name)}")
+
+            used_names.append(Started(location.name))
+            used_names.append(Cleared(location.name))
+
+            continue
+
+        if location.name in used_names:
+            raise Exception(f"Trying to re-use the location name {location.name}")
+
+        used_names.append(location.name)
+
+        # Make sure that every location that has a countable items has AREA and SECTION set
+        if location.item.countable:
+            if (
+                location.area_id is None or location.section_id is None
+            ) and location.item.name not in bypass_integrity_checks:
+                print(
+                    f"Trying to create a location {location.name} "
+                    f"with a countable item {location.item.name} "
+                    "but no area/section discriminator"
+                )
+        elif location.area_id is not None or location.section_id is not None:
+            raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
+
+    for item in ItemHandler.item_table:
+        location_ids = LocationHandler.by_item_id[item.id]
+
+        if not item.countable and len(location_ids) > 1:
+            raise Exception(f"Unique item {item.name} reused across several locations")
+
+        used_areas_sections = []
+        for id in location_ids:
+            location = LocationHandler.by_id[id]
+            if location.area_id is None or location.section_id is None:
+                continue
+
+            area_section = f"{location.area_id}/{location.section_id}"
+            if area_section in used_areas_sections:
+                # TODO: Missing valid discriminator for those (use camera positions ?)
+                print(f"Duplicate area/section discriminator for item {item.name}: {area_section}")
+                # raise Exception(f"Duplicate area/section discriminator for item {item.name}: {area_section}")
+
+            used_areas_sections.append(area_section)
 
 
 def set_all_entrance_rules(_: TombaWorld) -> None:
@@ -28,4 +85,4 @@ def set_all_location_rules(world: TombaWorld) -> None:
 
 
 def set_completion_condition(world: TombaWorld) -> None:
-    world.set_completion_rule(Has(Cleared(Events.INSIDE_THE_KOKKA_EGGS)))
+    world.set_completion_rule(HasCleared(Events.GRANDPAS_BRACELET))
