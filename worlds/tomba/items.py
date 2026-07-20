@@ -70,7 +70,7 @@ class ItemHandler:
         ItemData(0x0B, IC.progression, Items.TELESCOPE),
         ItemData(0x0C, IC.progression, Items.TEAR_JAR),
         ItemData(0x0D, IC.progression, Items.FLOWER_TEARS),
-        ItemData(0x0E, IC.filler, Items.BARON),
+        ItemData(0x0E, IC.deprioritized, Items.BARON),
         ItemData(0x0F, IC.progression, Items.BAKED_YAM),
         ItemData(0x10, IC.progression, Items.LEAF_BUTTERFLY, True, 29),
         ItemData(0x11, IC.progression, Items.TORCH),
@@ -90,7 +90,7 @@ class ItemHandler:
         ItemData(0x1F, IC.filler, Items.LARGE_LUNCH_BOX, True),
         ItemData(0x20, IC.deprioritized, Items.NORMAL_PANTS),
         ItemData(0x21, IC.progression, Items.GRAPPLE),
-        ItemData(0x22, IC.filler, Items.GRAPPLEJACK),
+        ItemData(0x22, IC.progression, Items.GRAPPLEJACK),
         ItemData(0x23, IC.progression, Items.BABY_PIG),
         ItemData(0x24, IC.progression, Items.THOUSAND_YEAR_OLD_KEY),
         ItemData(0x25, IC.progression, Items.RED_EVIL_PIG_BAG),
@@ -256,6 +256,15 @@ class ItemHandler:
         itempool += [world.create_filler() for _ in range(needed_number_of_filler_items)]
 
         world.multiworld.itempool += itempool
+
+        normal_pants = world.create_item(Items.NORMAL_PANTS)
+        world.push_precollected(normal_pants)
+
+        blackjack = world.create_item(Items.BLACKJACK)
+        world.push_precollected(blackjack)
+
+        baron = world.create_item(Items.BARON)
+        world.push_precollected(baron)
 
 
 class TombaItem(Item):

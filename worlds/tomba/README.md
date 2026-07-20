@@ -34,7 +34,10 @@
 * Force clear the TAKE OUT event if yan's already found (Hide and Go Seek cleared) and/or prevent usage of Yan lunch box
 * Prevent player out of lunch box for the event in hidden village
 * Take out reward cheese: rule the 5 locations for it to happen ?
-* Possible softlock if has fuel bar and goes to the mermaid singing rock without knowing how to swim (spawn with baron ?)
+* Possible softlock if has fuel bar and goes to the mermaid singing rock without knowing how to swim (spawn with baron ?) as only exit is masakari river
+* Remove starting player inventory (at least blackjack and unequip it ? is that possible ?)
+* Can't open chests with 10.000 year old key if given
+* Can't use baron if given
 
 
 # Reverse engineering stuff

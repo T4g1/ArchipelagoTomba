@@ -17,11 +17,11 @@ from NetUtils import ClientStatus
 from worlds.tomba import constants
 from worlds.tomba.constants import EventStatus
 from worlds.tomba.world import TombaWorld
-from worlds.tomba.items import ItemHandler, ItemData, ItemBehavior
+from worlds.tomba.items import ItemBehavior
 from worlds.tomba.locations import LocationHandler
 from worlds.tomba.events import EventHandler, Cleared
 from worlds.tomba.client.retroarch import RetroArchException
-from worlds.tomba.client.game import TombaGame, TombaException
+from worlds.tomba.client.game import TombaGame, TombaException, FoundItem
 
 MIN_TICK_DURATION = 0.1
 
@@ -45,7 +45,7 @@ class TombaContext(CommonContext):
     connection_status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
 
     # List of items found by the player to process
-    found_items: list[ItemData] = []
+    found_items: list[FoundItem] = []
 
     def __init__(
         self,
@@ -151,13 +151,8 @@ class TombaContext(CommonContext):
         if newly_found_items is None:
             return
 
-        for game_id in newly_found_items:
-            item = ItemHandler.by_game_id.get(game_id, None)
-            if item is None:
-                logger.error(f"Player got an unknown item game ID: {game_id}")
-                return
-
-            self.found_items.append(item)
+        for found_item in newly_found_items:
+            self.found_items.append(found_item)
 
         if len(newly_found_items):
             await self.tomba.request_clear_obtained_items()
@@ -171,11 +166,14 @@ class TombaContext(CommonContext):
             # Put back the item in the queue if it fails to process
             self.found_items.append(item)
 
-    async def on_item_get(self, item: ItemData) -> bool:
+    async def on_item_get(self, found_item: FoundItem) -> bool:
+        item = found_item.item
         if item.behavior is ItemBehavior.ORIGINAL:
             return await self.tomba.receive_item(item.id, 0)
 
-        location_ids = LocationHandler.filter(item.id, self.tomba.area_id, self.tomba.section_id)
+        location_ids = LocationHandler.filter(
+            item.id, found_item.area_id, found_item.section_id, found_item.camera_horizontal, found_item.camera_vertical
+        )
         if location_ids is None:
             logger.error(f"Player got an item with no location: {item.name}")
             return await self.tomba.receive_item(item.id, 0)
@@ -200,7 +198,11 @@ class TombaContext(CommonContext):
         if status is not EventStatus.CLEARED:
             return
 
-        event = EventHandler.by_id[id]
+        event = EventHandler.by_id.get(id, None)
+        if event is None:
+            logger.warning(f"Received an update for event ID {id} to status {status} but that event does not exists...")
+            return
+
         location = LocationHandler.by_name[Cleared(event.name)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])

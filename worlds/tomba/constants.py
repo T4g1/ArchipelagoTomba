@@ -10,6 +10,9 @@ MAX_LIVES = 99
 VICTORY = "Victory"
 VILLAGE_OF_ALL_BEGINNINGS_FOG_DISSIPATED = "Village Of All Beginnings Fog Dissipated"
 
+# Handling of found items in game
+FOUND_ITEM_STRUCTURE_SIZE = 8
+
 
 class Locations(str):
     AP_150_000 = "150,000 AP"
@@ -441,7 +444,6 @@ class Addresses(IntEnum):
     FOUND_ITEMS_STACK = 0xB401
 
     # Where we put the sound to be played
-    IS_PATCHED = 0xB13F
     PLAY_SFX = 0xB140
     MESSAGE = 0xB142
 
@@ -452,8 +454,9 @@ class Addresses(IntEnum):
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
 
-    CAMERA_HORIZONTAL_OFFSET = 0x1F8000EC  # 2bytes, Left: 0xA0
-    CAMERA_VERTICAL_OFFSET = 0x1F8000F0  # 2bytes, Bottom: 0xFF88
+    # Those two are stored in little endian (@EE: B0  @EF: B1)
+    CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
+    CAMERA_VERTICAL_OFFSET = 0x1F8000F2  # 2bytes, Bottom: 0xFF88
 
     PIPE_STATE = 0x09C269
     GOLD_FLOWER_STATE = 0x09C34C

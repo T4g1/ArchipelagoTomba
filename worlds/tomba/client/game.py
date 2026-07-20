@@ -19,7 +19,7 @@ from ..constants import (
     SectionEventMask,
 )
 from ..client import retroarch
-from ..items import ItemHandler
+from ..items import ItemHandler, ItemData
 from ..events import EventHandler
 from .patcher import Patcher
 
@@ -28,6 +28,36 @@ CORE_TYPE = "playstation"
 
 class TombaException(Exception):
     pass
+
+
+@dataclass
+class FoundItem:
+    item: ItemData
+    camera_horizontal: int
+    camera_vertical: int
+    area_id: int
+    section_id: int
+
+    @staticmethod
+    def from_bytes(data: bytearray):
+        # Item Structure:
+        # * ITEM_ID: 1
+        # * CAMERA_H: 2
+        # * CAMERA_V: 2
+        # * AREA: 1
+        # * SECTION: 1
+        game_id = data[0]
+        item = ItemHandler.by_game_id.get(game_id, None)
+        if item is None:
+            raise TombaException(f"Player got an unknown item game ID: {game_id}")
+
+        return FoundItem(
+            item=item,
+            camera_horizontal=int.from_bytes(data[1:3], byteorder="little", signed=False),
+            camera_vertical=int.from_bytes(data[3:5], byteorder="little", signed=False),
+            area_id=data[5],
+            section_id=data[6],
+        )
 
 
 @dataclass
@@ -70,9 +100,8 @@ class TombaGame:
         self.handlers: list[Handler] = [
             Handler(self.update_status, interval_ms=500),
             Handler(self.patcher.patch_game, interval_ms=1000),
-            Handler(self.patcher.patch_save, interval_ms=1000),
             Handler(self.update_area_and_section, interval_ms=2000),
-            Handler(self.check_softlock, interval_ms=5000),
+            Handler(self.prevent_softlock, interval_ms=5000),
         ]
 
         self.add_handler(self.check_win_conditions, interval_ms=10000, on_victory_achieved=self.on_victory_achieved)
@@ -195,11 +224,20 @@ class TombaGame:
     async def get_found_items_counter(self) -> int:
         return (await self.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
 
-    async def get_found_items_stack(self) -> bytearray:
-        size = await self.get_found_items_counter()
-        return await self.playstation.read_memory_block(Addresses.FOUND_ITEMS_STACK, size)
+    async def get_found_items_stack(self) -> list[FoundItem]:
+        count = await self.get_found_items_counter()
+        data = await self.playstation.read_memory_block(
+            Addresses.FOUND_ITEMS_STACK, count * constants.FOUND_ITEM_STRUCTURE_SIZE
+        )
 
-    async def get_pending_found_items(self) -> list[int] | None:
+        found_items = []
+        for i in range(count):
+            start_index = i * constants.FOUND_ITEM_STRUCTURE_SIZE
+            item_data = data[start_index : start_index + constants.FOUND_ITEM_STRUCTURE_SIZE]
+            found_items.append(FoundItem.from_bytes(item_data))
+        return found_items
+
+    async def get_pending_found_items(self) -> list[FoundItem] | None:
         """Give list of found items from the game.
 
         Returns:
@@ -213,8 +251,7 @@ class TombaGame:
             # Wait until the emulator has cleared the stack before processing it again
             return []
 
-        item_stack = await self.get_found_items_stack()
-        return list(item_stack)
+        return await self.get_found_items_stack()
 
     # --------
     # Handle victory conditions
@@ -225,7 +262,7 @@ class TombaGame:
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
-        return self.event_states[event.id]
+        return EventStatus(self.event_states[event.id])
 
     async def update_events(self, on_event_updated):
         old_states = self.event_states
@@ -300,7 +337,7 @@ class TombaGame:
         try:
             return Screens(screen_raw)
         except Exception:
-            logger.warning(f"Unusported screen state: {screen_raw}")
+            logger.debug(f"Unsuported screen state: {screen_raw}")
             return Screens.TITLE_SCREEN
 
     async def is_hud_visible(self):
@@ -329,9 +366,15 @@ class TombaGame:
         self.area_id = (await self.playstation.async_read_memory(Addresses.SELECTED_AREA))[0]
         self.section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
 
-    async def check_softlock(self):
+    async def prevent_softlock(self):
         if self.screen != Screens.GAME_SCREEN:
             return
+
+        # Put back the apple for biting flower plant in Village of the Beginning
+        if self.area_id == 0x00:
+            await self.playstation.set_flag(
+                Addresses.SECTION_STATE + 4, SectionEventMask.AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE, False
+            )
 
         # Put back the barrel if the event is not discovered
         if await self.get_event_state(Events.WHERE_THE_BARREL_ROLLS) == EventStatus.UNDISCOVERED:

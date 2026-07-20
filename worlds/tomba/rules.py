@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .constants import Items, Events
-from .locations import Cleared, Started, LocationHandler, HasCleared
+from .locations import Cleared, Started, LocationHandler, HasCleared, ItemLocData
 from .items import ItemHandler
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ def integrity_checks():
             if (
                 location.area_id is None or location.section_id is None
             ) and location.item.name not in bypass_integrity_checks:
-                print(
+                raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
                     "but no area/section discriminator"
@@ -62,14 +62,18 @@ def integrity_checks():
         used_areas_sections = []
         for id in location_ids:
             location = LocationHandler.by_id[id]
+            if not isinstance(location, ItemLocData):
+                continue
+
             if location.area_id is None or location.section_id is None:
+                continue
+
+            if location.x is not None and location.y is not None:
                 continue
 
             area_section = f"{location.area_id}/{location.section_id}"
             if area_section in used_areas_sections:
-                # TODO: Missing valid discriminator for those (use camera positions ?)
-                print(f"Duplicate area/section discriminator for item {item.name}: {area_section}")
-                # raise Exception(f"Duplicate area/section discriminator for item {item.name}: {area_section}")
+                pass  # raise Exception(f"Duplicate area/section discriminator for item {item.name}: {area_section}")
 
             used_areas_sections.append(area_section)
 

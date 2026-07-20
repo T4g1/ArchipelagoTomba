@@ -60,6 +60,9 @@ class LocationData:
 
 @dataclass
 class ItemLocData(LocationData):
+    x: int | None
+    y: int | None
+
     def __init__(
         self,
         name: str,
@@ -67,6 +70,8 @@ class ItemLocData(LocationData):
         item_name: str,
         area_id: int | None = None,
         section_id: int | None = None,
+        x: int | None = None,
+        y: int | None = None,
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
     ):
@@ -78,6 +83,16 @@ class ItemLocData(LocationData):
 
         super().__init__(name, region, item, area_id, section_id, progress_type, rule)
 
+        self.x = x
+        self.y = y
+
+    def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
+        # In case position is not relevant
+        if self.x is None or self.y is None:
+            return 0
+
+        return (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
+
 
 class LocationHandler:
     location_table: list[LocationData] = [
@@ -87,7 +102,12 @@ class LocationHandler:
             Items.MAGIC_MIRROR,
             rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.DIRTY_MIRROR) & Has(Items.THREE_CRYSTAL_BALLS),
         ),
-        ItemLocData("Magic Mirror", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.GRAPPLEJACK),
+        ItemLocData(
+            "Magic Mirror",
+            Regions.VILLAGE_OF_ALL_BEGINNINGS,
+            Items.GRAPPLEJACK,
+            rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.GRAPPLE) & Has(Items.GRAPPLEJACK),
+        ),
         ItemLocData(
             "Make Candy",
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
@@ -109,18 +129,18 @@ class LocationHandler:
             Items.HUNDRED_YEAR_OLD_BELL,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData("Bitting Plant", Regions.FOREST_OF_ALL_BEGINNINGS, Items.BITING_PLANT_FLOWER, 0x00, 0x01),
+        ItemLocData("Biting Plant", Regions.FOREST_OF_ALL_BEGINNINGS, Items.BITING_PLANT_FLOWER, 0x00, 0x01),
         ItemLocData(
             "10,000 Year Chest",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.LUNCH_BOX,
             0x00,
             0x01,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Kokka Egg near the elevator", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, 0x00, 0x01),
-        ItemLocData("Kokka Egg near the Hut 1", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, 0x00, 0x02),
-        ItemLocData("Kokka Egg near the Hut 2", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, 0x00, 0x02),
+        ItemLocData("Kokka Egg near the Elevator", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, 0x00, 0x01),
+        ItemLocData("Kokka Egg near the Pond", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, 0x00, 0x02, 2560, 65010),
+        ItemLocData("Kokka Egg near the Top", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, 0x00, 0x02, 3000, 64415),
         ItemLocData(
             "100 Year Chest near the Hut",
             Regions.FOREST_OF_ALL_BEGINNINGS,
@@ -129,7 +149,12 @@ class LocationHandler:
             0x02,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData("100 Year Old Reward", Regions.FOREST_OF_ALL_BEGINNINGS, Items.HUNDRED_YEAR_OLD_KEY),
+        ItemLocData(
+            "100 Year Old Reward",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.HUNDRED_YEAR_OLD_KEY,
+            rule=Has(Items.CHICK, 4),
+        ),
         ItemLocData("Drown", Regions.OL_POND, Items.BANANAS, 0x00, 0x05),
         ItemLocData("AP Box", Regions.OL_POND, Items.CHEESE, 0x00, 0x05),
         ItemLocData(
@@ -649,6 +674,8 @@ class LocationHandler:
             "Needlegator Teeth",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.NEEDLEGATOR_TEETH,
+            0x02,
+            0x03,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData(
@@ -741,6 +768,8 @@ class LocationHandler:
             "Butamashi Thorn",
             Regions.UNDERGROUND_MAZE,
             Items.BUTAMUSHI_THORN,
+            0x02,
+            0x03,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData(
@@ -757,19 +786,6 @@ class LocationHandler:
             Items.MILLION_YEAR_OLD_KEY,
             rule=Has(Items.STRONG_WIRE) & Has(Items.THIEFS_WIRE),
         ),
-        # Those can happens in any of the 5 locations Yan is in
-        ItemLocData(
-            "Take Out 1",
-            Regions.HIDDEN_VILLAGE,
-            Items.CHEESE,
-            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-        ),
-        ItemLocData(
-            "Take Out 2",
-            Regions.HIDDEN_VILLAGE,
-            Items.CHEESE,
-            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-        ),
         ItemLocData("Bronze Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.BRONZE_MEDAL),
         ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),
         ItemLocData("Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL),
@@ -777,6 +793,20 @@ class LocationHandler:
         ItemLocData("Wing 2", Regions.THE_MERMAIDS_SINGING_ROCK, Items.CHARITY_WINGS, 0x06, 0x00),
         ItemLocData("Wing 3", Regions.THE_MERMAIDS_SINGING_ROCK, Items.CHARITY_WINGS, 0x06, 0x00),
         ItemLocData("Lunch Box", Regions.THE_MERMAIDS_SINGING_ROCK, Items.LUNCH_BOX, 0x06, 0x00),
+        # Those can happens in any of the 5 locations Yan is in
+        # TODO: How to handle those two ?
+        # ItemLocData(
+        #     "Take Out 1",
+        #     Regions.HIDDEN_VILLAGE,
+        #     Items.CHEESE,
+        #     rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+        # ),
+        # ItemLocData(
+        #     "Take Out 2",
+        #     Regions.HIDDEN_VILLAGE,
+        #     Items.CHEESE,
+        #     rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+        # ),
     ]
 
     for event in EventHandler.event_table:
@@ -799,15 +829,22 @@ class LocationHandler:
         name_to_id[location.name] = location.id
 
     @staticmethod
-    def filter(item_id: int, area_id: int, section_id: int) -> list[int]:
-        return [
-            location.id
+    def filter(item_id: int, area_id: int, section_id: int, camera_horizontal: int, camera_vertical: int) -> list[int]:
+        filtered_locations = [
+            location
             for location in LocationHandler.location_table
-            if location.item is not None
+            if isinstance(location, ItemLocData)
+            and location.item is not None
             and location.item.id == item_id
             and (location.area_id is None or location.area_id == area_id)
             and (location.section_id is None or location.section_id == section_id)
         ]
+
+        filtered_locations = sorted(
+            filtered_locations, key=lambda item: item.get_distance(camera_horizontal, camera_vertical)
+        )
+
+        return [location.id for location in filtered_locations]
 
 
 class TombaLocation(Location):
