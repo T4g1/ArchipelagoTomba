@@ -10,7 +10,6 @@ from ...regions import Section
 from ...items import ItemData, ItemHandler
 from ...events import EventHandler
 
-
 MASAKARI_RIVER = Section(0x0A, 0x01)
 
 
@@ -22,9 +21,7 @@ class WarpHandler:
 
     def __init__(self, ctx: TombaGame):
         self.ctx = ctx
-        self.handlers = {
-            MASAKARI_RIVER: Handler(self.on_masakari_river, 0, 0)
-        }
+        self.handlers = {MASAKARI_RIVER: Handler(self.on_masakari_river, 0, 0)}
 
     async def handle(self, section: Section):
         handler = self.handlers.get(section, None)

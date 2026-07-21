@@ -16,9 +16,7 @@ if TYPE_CHECKING:
 
 purified_sections: dict[int, list[int]] = {
     # Phoenix Mountain
-    0x03: [
-        0x04, 0x05
-    ],
+    0x03: [0x04, 0x05],
     # Masakari Jungle
     0x0A: [
         0x04,
@@ -44,7 +42,7 @@ class Section:
         if self.is_purified():
             # Cursed alternatives are always 4 indices lower
             section_id -= 0x04
-        
+
         return (self.area_id, section_id)
 
     def __eq__(self, other: object) -> bool:

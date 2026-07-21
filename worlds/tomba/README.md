@@ -15,6 +15,7 @@
 * [REVERSE] Intercept animal dash, swim, dive
 * Remove starting player inventory (at least blackjack and unequip it ? is that possible ?)
 * Cache RAM to free some RetroArch exchange
+* Deathlink can be done by triggering a call to 0x8001B0A4 which kills Tomba (or maybe set life to 0 instead ?)
 
 ### Optional
 

@@ -2,7 +2,9 @@
 
 FUN_PLAY_SFX:0x8001FFE8
 FUN_PRINT_INFO_MESSAGE:0x80031124
+FUN_DEBUG_CALL:0x800222b8
 
+LAB_PLAY_SFX:
     # Save context
     addiu   sp,sp,-0x24
     sw      ra,0x20(sp)
@@ -15,7 +17,7 @@ FUN_PRINT_INFO_MESSAGE:0x80031124
     lui     s0,0x8001
     addiu   s0,s0,-0x4ec0
     lbu     a0,0x0(s0)      # Read DAT_SFX_COMMAND
-    beq     a0,zero,LAB_SKIP_PLAY_SFX
+    beq     a0,zero,LAB_CLEAR_STACK
     nop
 
     # Play SFX
@@ -23,14 +25,14 @@ FUN_PRINT_INFO_MESSAGE:0x80031124
     jal     FUN_PLAY_SFX
     nop
 
-LAB_SKIP_PLAY_SFX:
+LAB_CLEAR_STACK:
     # Check command
     lui     a0,0x8001
     addiu   a0,a0,-0x4ebf
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x1
-    beq     a1,zero,LAB_SKIP_COMMAND
+    beq     a1,zero,LAB_DEBUG_MESSAGE
     nop
 
     # Clear stack of found items
@@ -39,14 +41,14 @@ LAB_SKIP_PLAY_SFX:
     andi    a0,a0,0xfe
     sb      a0,-0x4ebf(s0)  # Reset DAT_COMMAND
 
-LAB_SKIP_COMMAND:
+LAB_DEBUG_MESSAGE:
     # Check command
     lui     a0,0x8001
     addiu   a0,a0,-0x4ebf
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x2
-    beq     a1,zero,LAB_RETURN
+    beq     a1,zero,LAB_DEBUG_METHOD
     nop
 
     # Load info message
@@ -64,6 +66,30 @@ LAB_SKIP_COMMAND:
     lbu     a0,0x0(s0)      # Read DAT_COMMAND
     nop
     andi    a0,a0,0xfd
+    nop
+    sb      a0,0x0(s0)  # Reset DAT_COMMAND
+
+LAB_DEBUG_METHOD:
+    # Check command
+    lui     a0,0x8001
+    addiu   a0,a0,-0x4ebf
+    lbu     a0,0x0(a0)      # Read DAT_COMMAND
+    addiu   a1,zero,0x0
+    andi    a1,a0,0x4
+    beq     a1,zero,LAB_RETURN
+    nop
+
+    # Debug call
+    addiu   a0,zero,0x00
+    addiu   a1,zero,0x01
+    addiu   a2,zero,0x00
+    jal     FUN_DEBUG_CALL
+    nop
+    lui     s0,0x8001
+    addiu   s0,s0,-0x4ebf
+    lbu     a0,0x0(s0)      # Read DAT_COMMAND
+    nop
+    andi    a0,a0,0xfb
     nop
     sb      a0,0x0(s0)  # Reset DAT_COMMAND
 
