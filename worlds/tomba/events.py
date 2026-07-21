@@ -114,7 +114,7 @@ class EventHandler:
             0x0F,
             Events.FLOWER_SEEDS,
             Regions.DWARF_VILLAGE,
-            started_rule=HasCleared(Events.A_LOST_CHILD),
+            started_rule=HasCleared(Events.A_LOST_CHILD) & HasCleared(Events.DEATH_FRUIT_JUICE),
             cleared_rule=Has(Items.FLOWER_SEEDS) & CanReachRegion(Regions.DWARF_VILLAGE),
         ),
         EventData(0x10, Events.THE_AP_BOX, Regions.FOREST_OF_ALL_BEGINNINGS),

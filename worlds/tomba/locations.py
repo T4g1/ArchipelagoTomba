@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Self
 
 from collections import defaultdict
 from dataclasses import dataclass
@@ -77,6 +77,10 @@ class LocationData:
         self.rule = rule
         self.at = at
 
+    def with_section(self, section: Section) -> Self:
+        self.section = section
+        return self
+
     def __repr__(self) -> str:
         return self.name
 
@@ -109,15 +113,38 @@ class ItemLocData(LocationData):
         self.x = x
         self.y = y
 
+    def with_coordinates(self, x: int, y: int) -> Self:
+        self.x = x
+        self.y = y
+        return self
+
     def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
         # In case position is not relevant
         if self.x is None or self.y is None:
-            return 0
+            return float("inf")
 
         return (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
 
 
 class LocationHandler:
+    # Special case: Those can happens in any of the locations Yan is in
+    take_out_event_locations: list[ItemLocData] = [
+        ItemLocData(
+            "Take Out 1",
+            Regions.HIDDEN_VILLAGE,
+            Items.CHEESE,
+            Section(0xFF, 0xFF),
+            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+        ),
+        ItemLocData(
+            "Take Out 2",
+            Regions.HIDDEN_VILLAGE,
+            Items.CHEESE,
+            Section(0xFF, 0xFF),
+            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+        ),
+    ]
+
     location_table: list[LocationData] = [
         # Village of all Beginnings
         ItemLocData(
@@ -908,20 +935,7 @@ class LocationHandler:
             y=65303,
         ),
         ItemLocData("Lunch Box", Regions.THE_MERMAIDS_SINGING_ROCK, Items.LUNCH_BOX, Section(0x06, 0x00)),
-        # Those can happens in any of the 5 locations Yan is in
-        # TODO: How to handle those two ?
-        # ItemLocData(
-        #     "Take Out 1",
-        #     Regions.HIDDEN_VILLAGE,
-        #     Items.CHEESE,
-        #     rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-        # ),
-        # ItemLocData(
-        #     "Take Out 2",
-        #     Regions.HIDDEN_VILLAGE,
-        #     Items.CHEESE,
-        #     rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-        # ),
+        *take_out_event_locations,
     ]
 
     for event in EventHandler.event_table:
@@ -947,22 +961,43 @@ class LocationHandler:
         if location.at is not None:
             with_bitmask.append(location)
 
+    yan_positions = [
+        # (Section(0x00, 0x02), 3060, 64861), # Forest of all Beginnings
+        (Section(0x01, 0x04), 3540, 64580),  # Charity Square
+        (Section(0x03, 0x05), 3184, 63708),  # Stormy Mountain
+        (Section(0x04, 0x0C), 428, 65416),  # Haunted Mansion
+        (Section(0x0A, 0x04), 1101, 65280),  # Masakari Jungle
+        # (Section(0x13, 0x02), 94, 153) # Hidden Village
+    ]
+
+    # Create a list of location checks based on Yan possible positions which all originates from the Take Out event location
+    yan_locations: list[ItemLocData] = [
+        location.with_section(position[0]).with_coordinates(position[1], position[2])
+        for position, location in zip(yan_positions, take_out_event_locations)
+    ]
+
     @staticmethod
-    def filter(item_id: int, section: Section, camera_horizontal: int, camera_vertical: int) -> list[int]:
-        filtered_locations = [
-            location
-            for location in LocationHandler.location_table
-            if isinstance(location, ItemLocData)
-            and location.item is not None
-            and location.item.id == item_id
-            and (location.section is None or location.section == section)
-        ]
+    def filter_and_sort(item: ItemData, section: Section, camera_horizontal: int, camera_vertical: int) -> list[int]:
+        filtered_locations = LocationHandler.filter(LocationHandler.location_table, item.id, section)
+        if len(filtered_locations) <= 0 and item.name == Items.CHEESE:
+            filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item.id, section)
 
         filtered_locations = sorted(
             filtered_locations, key=lambda item: item.get_distance(camera_horizontal, camera_vertical)
         )
 
         return [location.id for location in filtered_locations]
+
+    @staticmethod
+    def filter(locations: list[LocationData] | list[ItemLocData], item_id: int, section: Section) -> list[ItemLocData]:
+        return [
+            location
+            for location in locations
+            if isinstance(location, ItemLocData)
+            and location.item is not None
+            and location.item.id == item_id
+            and (location.section is None or location.section == section)
+        ]
 
 
 class TombaLocation(Location):

@@ -2,11 +2,7 @@
 
 ## TODO
 
-* Pre-patch ROM before playing
-* [REVERSE] Can't give flower seeds to the dwarf until they are picked up: Find how to set that manualy/remove limitation
-* Force clear the TAKE OUT event if yan's already found (Hide and Go Seek cleared) and/or prevent usage of Yan lunch box
 * Prevent player out of lunch box for the event in hidden village
-* "Take out" event reward cheese: rule the 5 locations for it to happen ?
 * [REVERSE] Possible softlock if has fuel bar and goes to the mermaid singing rock without knowing how to swim (spawn with baron ?) as only exit is masakari river. Give charity wing if player ends up there without knowing how to swim
 * [REVERSE] Can't open chests with 10.000 year old key if given
 * [REVERSE] Can't use baron if given
@@ -24,6 +20,7 @@
 
 * [REVERSE] Find Tomba! position to be more accurate than camera position on location filters (very much not required)
 * When grabbing the key of 100 Year Old Wise Man: The sprite stays there
+* [REVERSE] Trigger event cleared/started display (usefull for Take Out softlock prevention)
 
 ## Notes
 

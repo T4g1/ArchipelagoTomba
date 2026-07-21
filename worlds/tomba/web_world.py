@@ -17,7 +17,7 @@ class APQuestWebWorld(WebWorld):
         "English",
         "setup_en.md",
         "setup/en",
-        ["T4g1", "Laufral"],
+        ["T4g1"],
     )
 
     setup_fr = Tutorial(
@@ -26,7 +26,7 @@ class APQuestWebWorld(WebWorld):
         "French",
         "setup_fr.md",
         "setup/fr",
-        ["T4g1", "Laufral"],
+        ["T4g1"],
     )
 
     tutorials = [setup_en, setup_fr]

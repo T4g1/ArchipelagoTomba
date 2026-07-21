@@ -1,8 +1,9 @@
 import asyncio
 import time
-from dataclasses import dataclass, field
-from typing import Callable, Tuple, Any
+from dataclasses import dataclass
+from typing import Callable
 
+from BaseClasses import ItemClassification as IC
 from CommonClient import logger
 
 from .. import constants
@@ -17,11 +18,13 @@ from ..constants import (
     Events,
     Screens,
 )
+from .handler import Handler
+from .acquisition_handler import AcquisitionHandler
 from ..client import retroarch
 from ..regions import Section
 from ..locations import LocationHandler
 from ..items import ItemHandler, ItemData
-from ..events import EventHandler
+from ..events import EventHandler, EventData
 from .patcher import Patcher
 
 CORE_TYPE = "playstation"
@@ -59,20 +62,6 @@ class FoundItem:
         )
 
 
-@dataclass
-class Handler:
-    callback: Callable
-    interval_ms: float
-    last_run: float = 0.0
-    args: Tuple = ()
-    kwargs: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self):
-        if self.kwargs is None:
-            self.kwargs = {}
-        self.last_run = time.perf_counter() * 1000
-
-
 class TombaGame:
     """Interface with the game itself"""
 
@@ -81,12 +70,12 @@ class TombaGame:
     section_id: int
     event_states: bytearray = bytearray(0xFF)
     checked_locations: set[int]
+    acquisition_handler: AcquisitionHandler
 
     def __init__(self, on_victory_achieved, on_event_updated, retroarch_address="127.0.0.1", retroarch_port=55355):
         self.retroarch_address = retroarch_address
         self.retroarch_port = retroarch_port
         self.should_reset_auth = False
-        self.auth = None
         self.status = GameState.UNKNOWN
         self.area_id: int = 0
         self.section_id: int = 0
@@ -95,6 +84,7 @@ class TombaGame:
         self.on_victory_achieved = on_victory_achieved
         self.on_event_updated = on_event_updated
         self.handlers: list[Handler] = []
+        self.acquisition_handler = AcquisitionHandler(self)
 
     def init_handlers(self):
         self.handlers: list[Handler] = [
@@ -132,11 +122,6 @@ class TombaGame:
         logger.info(f"Connected to Retroarch {version} running {rom_name}")
 
         self.init_handlers()
-
-    async def perform_auth(self):
-        """Reads the username patched into the ROM for authentication"""
-        auth = "T4g1"  # TODO
-        self.auth = auth
 
     # --------
     # Custom feature patched into the RAM
@@ -258,11 +243,14 @@ class TombaGame:
     # --------
 
     async def is_victory(self):
-        return (await self.get_event_state(Events.INSIDE_THE_KOKKA_EGGS)) == EventStatus.CLEARED
+        return (await self.get_event_state(Events.GRANDPAS_BRACELET)) == EventStatus.CLEARED
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
         return EventStatus(self.event_states[event.id])
+
+    def set_event_state(self, event: EventData, status: EventStatus):
+        self.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
 
     async def update_events(self, on_event_updated):
         old_states = self.event_states
@@ -272,7 +260,11 @@ class TombaGame:
 
         for id in range(len(new_states)):
             if old_states[id] != new_states[id]:
-                await on_event_updated(id, EventStatus(new_states[id]))
+                event = EventHandler.by_id.get(id, None)
+                if event is None:
+                    continue
+
+                await on_event_updated(event, EventStatus(new_states[id]))
 
     async def receive_item(self, item_id: int, player) -> bool:
         """Give iem to the player
@@ -324,7 +316,12 @@ class TombaGame:
         if should_display_acquired:
             logger.debug(f"Received {item.name} from {player}")
 
-            self.play_sfx(SFX.ACQUIRED)
+            if item.classification is IC.filler:
+                self.play_sfx(SFX.FART)
+            else:
+                self.play_sfx(SFX.ACQUIRED)
+
+        await self.acquisition_handler.handle(item)
 
         return True
 
@@ -383,6 +380,15 @@ class TombaGame:
         # Put back the barrel if the event is not discovered
         if await self.get_event_state(Events.WHERE_THE_BARREL_ROLLS) == EventStatus.UNDISCOVERED:
             await self.playstation.set_flag(0x09BD1C, 0x40, False)
+
+        # Fix the Take Out event being softlocked if Hide and Go Seek is already cleared
+        if await self.get_event_state(Events.TAKE_OUT) is not EventStatus.CLEARED:
+            if await self.get_event_state(Events.HIDE_AND_GO_SEEK) is EventStatus.CLEARED:
+                event = EventHandler.by_name.get(Events.TAKE_OUT)
+                assert event is not None
+
+                self.set_event_state(event, EventStatus.CLEARED)
+                await self.on_event_updated(event, EventStatus.CLEARED)
 
     def check_safe_gameplay(self):
         return self.status == GameState.PLAYING

@@ -8,6 +8,7 @@ from enum import Enum
 from Utils import init_logging, tuplize_version, loglevel_mapping
 from CommonClient import (
     CommonContext,
+    ClientCommandProcessor,
     gui_enabled,
     logger,
     server_loop,
@@ -15,11 +16,11 @@ from CommonClient import (
 from NetUtils import ClientStatus
 
 from worlds.tomba import constants
-from worlds.tomba.constants import EventStatus
+from worlds.tomba.constants import EventStatus, Events
 from worlds.tomba.world import TombaWorld
-from worlds.tomba.items import ItemBehavior
+from worlds.tomba.items import ItemBehavior, ItemHandler
 from worlds.tomba.locations import LocationHandler
-from worlds.tomba.events import EventHandler, Cleared
+from worlds.tomba.events import Cleared, EventData, EventHandler
 from worlds.tomba.client.retroarch import RetroArchException
 from worlds.tomba.client.game import TombaGame, TombaException, FoundItem
 
@@ -35,6 +36,32 @@ class ConnectionStatus(Enum):
     CONNECTED = 1
 
 
+class TombaCommandProcessor(ClientCommandProcessor):
+    def __init__(self, ctx: CommonContext):
+        super().__init__(ctx)
+
+    async def _cmd_add(self, item_id: str):
+        if isinstance(self.ctx, TombaContext):
+            item = ItemHandler.by_game_id.get(int(item_id, 16), None)
+            if item is not None:
+                await self.ctx.tomba.receive_item(item.id, 0)
+
+    def _cmd_start(self, event_id: str):
+        if isinstance(self.ctx, TombaContext):
+            event = EventHandler.by_id[int(event_id, 16)]
+            self.ctx.tomba.set_event_state(event, EventStatus.STARTED)
+
+    def _cmd_clear(self, event_id: str):
+        if isinstance(self.ctx, TombaContext):
+            event = EventHandler.by_id[int(event_id, 16)]
+            self.ctx.tomba.set_event_state(event, EventStatus.CLEARED)
+
+    def _cmd_forget(self, event_id: str):
+        if isinstance(self.ctx, TombaContext):
+            event = EventHandler.by_id[int(event_id, 16)]
+            self.ctx.tomba.set_event_state(event, EventStatus.UNDISCOVERED)
+
+
 class TombaContext(CommonContext):
     tags = {"AP"}
     game = constants.GAME
@@ -43,6 +70,7 @@ class TombaContext(CommonContext):
     client_loop: asyncio.Task[None]
     tomba: TombaGame
     connection_status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
+    command_processor = TombaCommandProcessor
 
     # List of items found by the player to process
     found_items: list[FoundItem] = []
@@ -92,13 +120,7 @@ class TombaContext(CommonContext):
             self.tomba.should_reset_auth = True
             self.had_invalid_slot_data = False
 
-        while self.tomba.auth is None:
-            await asyncio.sleep(0.1)
-
-            # Just return if we're closing
-            if self.exit_event.is_set():
-                return
-        self.auth = self.tomba.auth
+        await super(TombaContext, self).get_username()
         await self.send_connect()
 
     def on_package(self, cmd: str, args: dict):
@@ -171,19 +193,18 @@ class TombaContext(CommonContext):
         if item.behavior is ItemBehavior.ORIGINAL:
             return await self.tomba.receive_item(item.id, 0)
 
-        location_ids = LocationHandler.filter(
-            item.id, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
+        location_ids = LocationHandler.filter_and_sort(
+            item, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
         )
         if location_ids is None:
             logger.error(f"Player got an item with no location: {item.name}")
+            # TODO: Should be removed for release so player can't get unintended items
             return await self.tomba.receive_item(item.id, 0)
 
         first_unchecked = next((id for id in location_ids if id not in self.checked_locations), None)
 
         location_id = first_unchecked
         if location_id is None:
-            # TODO: In case this happens, we might want to check the implemented logic
-            # or give the item directly to the player
             logger.error(f"Player has found {item.name} but there are no location left to send it.")
             return True
 
@@ -194,18 +215,17 @@ class TombaContext(CommonContext):
     async def on_victory(self):
         await self.send_victory()
 
-    async def on_event_update(self, id: int, status: EventStatus):
+    async def on_event_update(self, event: EventData, status: EventStatus):
         if status is not EventStatus.CLEARED:
-            return
-
-        event = EventHandler.by_id.get(id, None)
-        if event is None:
-            logger.warning(f"Received an update for event ID {id} to status {status} but that event does not exists...")
             return
 
         location = LocationHandler.by_name[Cleared(event.name)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
+
+        # Special case as this one might be force checked by the softlock prevention routine
+        if event.name == Events.TAKE_OUT:
+            await self.check_locations([location.id for location in LocationHandler.take_out_event_locations])
 
     async def send_victory(self):
         if not self.won:
@@ -223,12 +243,6 @@ class TombaContext(CommonContext):
                 logger.info("(Re)Starting game loop")
 
                 await self.tomba.wait_for_retroarch_connection()
-                await self.tomba.perform_auth()
-                # If we find ourselves with new auth, reconnect
-                if self.auth and self.tomba.auth != self.auth:
-                    logger.info("Detected new ROM, disconnecting...")
-                    await self.disconnect()
-                    continue
 
                 if not self.items_received:
                     await self.sync()
