@@ -16,9 +16,10 @@ from ..constants import (
     Addresses,
     Events,
     Screens,
-    SectionEventMask,
 )
 from ..client import retroarch
+from ..regions import Section
+from ..locations import LocationHandler
 from ..items import ItemHandler, ItemData
 from ..events import EventHandler
 from .patcher import Patcher
@@ -35,8 +36,7 @@ class FoundItem:
     item: ItemData
     camera_horizontal: int
     camera_vertical: int
-    area_id: int
-    section_id: int
+    section: Section
 
     @staticmethod
     def from_bytes(data: bytearray):
@@ -55,8 +55,7 @@ class FoundItem:
             item=item,
             camera_horizontal=int.from_bytes(data[1:3], byteorder="little", signed=False),
             camera_vertical=int.from_bytes(data[3:5], byteorder="little", signed=False),
-            area_id=data[5],
-            section_id=data[6],
+            section=Section(data[5], data[6]),
         )
 
 
@@ -81,6 +80,7 @@ class TombaGame:
     area_id: int
     section_id: int
     event_states: bytearray = bytearray(0xFF)
+    checked_locations: set[int]
 
     def __init__(self, on_victory_achieved, on_event_updated, retroarch_address="127.0.0.1", retroarch_port=55355):
         self.retroarch_address = retroarch_address
@@ -370,17 +370,19 @@ class TombaGame:
         if self.screen != Screens.GAME_SCREEN:
             return
 
-        # Put back the apple for biting flower plant in Village of the Beginning
-        if self.area_id == 0x00:
-            await self.playstation.set_flag(
-                Addresses.SECTION_STATE + 4, SectionEventMask.AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE, False
-            )
+        # TODO: Read memory region, localy set flags and write results: 2 calls instead of len(list) * 2
+        for location in LocationHandler.with_bitmask:
+            assert location.at is not None
+            if location.at.on_cheked:
+                if location.id in self.checked_locations:
+                    await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
+            else:
+                if location.id not in self.checked_locations:
+                    await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
 
         # Put back the barrel if the event is not discovered
         if await self.get_event_state(Events.WHERE_THE_BARREL_ROLLS) == EventStatus.UNDISCOVERED:
-            await self.playstation.set_flag(
-                Addresses.SECTION_STATE + 0x20, SectionEventMask.AREA_1_SECTION_2_BARREL_STATE, False
-            )
+            await self.playstation.set_flag(0x09BD1C, 0x40, False)
 
     def check_safe_gameplay(self):
         return self.status == GameState.PLAYING
@@ -392,7 +394,9 @@ class TombaGame:
         if await self.is_victory():
             await on_victory_achieved()
 
-    async def main_tick(self):
+    async def main_tick(self, checked_locations: set[int]):
+        self.checked_locations = checked_locations
+
         if self.should_reset_auth:
             self.should_reset_auth = False
             raise TombaException("Resetting due to wrong archipelago server")

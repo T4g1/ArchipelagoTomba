@@ -191,7 +191,7 @@ class ItemHandler:
         ItemData(0x84, IC.filler, Items.SACRED_FISH),
         # ItemData(0x85, IC.filler, Items.CHICK),
         # ItemData(0x86, IC.filler, Items.CHICK),
-        ItemData(0x87, IC.deprioritized, Items.GOLDEN_BOWL),
+        # ItemData(0x87, IC.deprioritized, Items.GOLDEN_BOWL),
         # ItemData(0x88, IC.filler, Items.FLOWER_TEARS),
         # ItemData(0x89, IC.filler, Items.ITEM),
         ItemData(0x8A, IC.progression, Items.RISE_AND_SHINE_POWDER),

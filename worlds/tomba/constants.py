@@ -56,58 +56,6 @@ class Regions(str):
     Y_CROSSING = "Y-crossing"
 
 
-class Areas(str):
-    BACCUS_LAKE = "Baccus Lake"
-    BACCUS_VILLAGE = "Baccus Village"
-    DIRT_MOTOCROSS = "Dirt Motocross"
-    DEEP_JUNGLE = "Deep Jungle"
-    DWARF_FOREST = "Dwarf Forest"
-    DWARF_FOREST_PURIFIED = "Dward Forest (Purified)"
-    DWARF_VILLAGE = "Dwarf Village"
-    EVIL_PIGS = "Evil Pigs"
-    HAUNTED_MANSION = "Haunted Mansion"
-    HAUNTED_MANSION_PURIFIED = "Haunted Mansion (Purified)"
-    MUSHROOM_VILLAGE = "Mushroom Village"
-    PHOENIX_MOUNTAIN = "Phoenix Mountain"
-    PIG_ISLAND = "Pig Island"
-    UNKNOWN = "Unknown"
-    VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
-    VILLAGE_OF_CIVILIZATION = "Village Of Civilization"
-    VILLAGE_OF_CIVILIZATION_PURIFIED = "Village Of Civilization (Purified)"
-    CLOCK_TOWER = "Clock Tower"
-    IRON_TOWER = "Iron Tower"
-    Y_CROSSING = "Y-crossing"
-
-
-class Sections(str):
-    CENTRAL_PARK = "Central Park"
-    CHARITY_SQUARE = "Charity Square"
-    CLOCK_TOWER = "Clock Tower"
-    DWARF_JAIL = "Dwarf Jail"
-    FOREST_OF_100_FLOWERS = "Forest Of 100 Flowers"
-    FOREST_OF_ALL_BEGINNINGS = "Forest Of All Beginnings"
-    HIDDEN_VILLAGE = "Hidden Village"
-    HUNDRED_YEAR_OLD_MANS_HUT = "100 Year Old Man's Hut"
-    IRON_CASTLE = "Iron Castle"
-    LAVA_CAVES = "Lava Caves"
-    LUMBERJACK_FACTORY = "Lumberjack Factory"
-    MANSION = "Mansion"
-    MASAKARI_JUNGLE = "Masakari Jungle"
-    MUSHROOM_FOREST = "Mushroom Forest"
-    OL_POND = "Ol' Pond"
-    OLD_TREE_HILL = "Old Tree Hill"
-    PHOENIXS_NEST = "Phoenix's Nest"
-    STORMY_MOUNTAIN = "Stormy Mountain"
-    THE_MERMAIDS_SINGING_ROCK = "The Mermaid's Singing Rock"
-    THE_STRANGE_SMALL_ROOM = "The Strange Small Room"
-    TRICK_VILLAGE = "Trick Village"
-    UNDERGROUND_MAZE = "Underground Maze"
-    UNDERGROUND_PRISON = "Underground Prison"
-    VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
-    WATCH_TOWER = "Watch Tower"
-    WOBBLY_WHARF = "Whobbly Warf"
-
-
 class Items(str):
     BABY_PIG = "Baby Pig"
     BAKED_YAM = "Baked Yam"
@@ -515,12 +463,6 @@ class SFX(IntEnum):
     CRY = 0x25
     EVENT_STARTED = 0x2A
     FART = 0x32
-
-
-class SectionEventMask(IntEnum):
-    # Count bit with MSB on the left from left to right
-    AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE = 0x20  # Byte 2
-    AREA_1_SECTION_2_BARREL_STATE = 0x40  # Byte 0
 
 
 class EventControlState(IntEnum):

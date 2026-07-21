@@ -42,15 +42,13 @@ def integrity_checks():
 
         # Make sure that every location that has a countable items has AREA and SECTION set
         if location.item.countable:
-            if (
-                location.area_id is None or location.section_id is None
-            ) and location.item.name not in bypass_integrity_checks:
+            if location.section is None and location.item.name not in bypass_integrity_checks:
                 raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
                     "but no area/section discriminator"
                 )
-        elif location.area_id is not None or location.section_id is not None:
+        elif location.section is not None:
             raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
 
     for item in ItemHandler.item_table:
@@ -65,17 +63,17 @@ def integrity_checks():
             if not isinstance(location, ItemLocData):
                 continue
 
-            if location.area_id is None or location.section_id is None:
+            if location.section is None:
                 continue
 
             if location.x is not None and location.y is not None:
                 continue
 
-            area_section = f"{location.area_id}/{location.section_id}"
-            if area_section in used_areas_sections:
-                pass  # raise Exception(f"Duplicate area/section discriminator for item {item.name}: {area_section}")
+            section = str(location.section)
+            if section in used_areas_sections:
+                print(f"Duplicate section discriminator for item {item.name}: {section}")
 
-            used_areas_sections.append(area_section)
+            used_areas_sections.append(section)
 
 
 def set_all_entrance_rules(_: TombaWorld) -> None:

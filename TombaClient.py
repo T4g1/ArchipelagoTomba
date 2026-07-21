@@ -172,7 +172,7 @@ class TombaContext(CommonContext):
             return await self.tomba.receive_item(item.id, 0)
 
         location_ids = LocationHandler.filter(
-            item.id, found_item.area_id, found_item.section_id, found_item.camera_horizontal, found_item.camera_vertical
+            item.id, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
         )
         if location_ids is None:
             logger.error(f"Player got an item with no location: {item.name}")
@@ -236,7 +236,7 @@ class TombaContext(CommonContext):
                 last_tick = time.time()
                 while True:
                     if self.connection_status == ConnectionStatus.CONNECTED:
-                        await self.tomba.main_tick()
+                        await self.tomba.main_tick(self.checked_locations)
 
                         await self.process_items_received()
 
