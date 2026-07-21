@@ -14,29 +14,18 @@ if TYPE_CHECKING:
     from rule_builder.rules import Rule
 
 
-purification_mapping: dict[int, dict[int, int]] = {
+purified_sections: dict[int, list[int]] = {
     # Phoenix Mountain
-    0x03: {
-        # Cursed to purified
-        0x00: 0x04,
-        0x01: 0x05,
-        # Purified to cursed
-        0x04: 0x00,
-        0x05: 0x01,
-    },
+    0x03: [
+        0x04, 0x05
+    ],
     # Masakari Jungle
-    0x0A: {
-        # Cursed to purified
-        0x00: 0x04,
-        0x01: 0x05,
-        0x02: 0x06,
-        0x03: 0x07,
-        # Purified to cursed
-        0x04: 0x00,
-        0x05: 0x01,
-        0x06: 0x02,
-        0x07: 0x03,
-    },
+    0x0A: [
+        0x04,
+        0x05,
+        0x06,
+        0x07,
+    ],
 }
 
 
@@ -45,15 +34,27 @@ class Section:
     area_id: int
     section_id: int
 
-    def alternate(self) -> int:
-        """Give the purified/cursed section ID"""
-        area_mapping = purification_mapping.get(self.area_id, {})
-        return area_mapping.get(self.section_id, self.section_id)
+    def is_purified(self) -> int:
+        """Give the cursed section ID"""
+        cursed_sections = purified_sections.get(self.area_id, [])
+        return self.section_id in cursed_sections
 
-    def __equ__(self, section: Section) -> bool:
-        return self.area_id == section.area_id and (
-            self.section_id == section.section_id or self.section_id == section.alternate()
-        )
+    def __members(self):
+        section_id = self.section_id
+        if self.is_purified():
+            # Cursed alternatives are always 4 indices lower
+            section_id -= 0x04
+        
+        return (self.area_id, section_id)
+
+    def __eq__(self, other: object) -> bool:
+        if type(other) is type(self):
+            return self.__members() == other.__members()
+        else:
+            return False
+
+    def __hash__(self) -> int:
+        return hash(self.__members())
 
     def __repr__(self) -> str:
         return f"0x{self.area_id:02x}-0x{self.section_id:02x}"

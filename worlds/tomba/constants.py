@@ -419,6 +419,8 @@ class Addresses(IntEnum):
     SECTION_STATE = 0x09BCFC  # Bit flag for each item/object taken/broken
     # SECTION OFFSET = TOTAL SECTION PRECEDING (per AREA FLATTENED) * 4, AREA 1 SECTION 2 = 8 * 4 = 32 = 0x20
 
+    WARP_ENTRY_STATE = 0x09C62C
+
 
 class MenuState(IntEnum):
     """In game menu status"""

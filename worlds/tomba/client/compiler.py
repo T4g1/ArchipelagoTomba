@@ -321,7 +321,7 @@ class Compiler:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="PSX Compiler")
-    parser.add_argument("--filename", default=None, help="Filename in src directory.")
+    parser.add_argument("--filename", default=None, help="Filename in asm directory.")
     args = parser.parse_args(sys.argv[1:])
 
     filename = "interface.asm"
@@ -329,4 +329,4 @@ if __name__ == "__main__":
         filename = args.filename
 
     compiler = Compiler()
-    print(compiler.compile(f"worlds/tomba/client/src/{filename}"))
+    print(compiler.compile(f"worlds/tomba/client/asm/{filename}"))

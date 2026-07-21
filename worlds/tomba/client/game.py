@@ -18,8 +18,9 @@ from ..constants import (
     Events,
     Screens,
 )
-from .handler import Handler
-from .acquisition_handler import AcquisitionHandler
+from .handlers import Handler
+from .handlers.pickup import PickupHandler
+from .handlers.warp import WarpHandler
 from ..client import retroarch
 from ..regions import Section
 from ..locations import LocationHandler
@@ -66,31 +67,33 @@ class TombaGame:
     """Interface with the game itself"""
 
     playstation: retroarch.RetroArch
-    area_id: int
-    section_id: int
+    section: Section
     event_states: bytearray = bytearray(0xFF)
     checked_locations: set[int]
-    acquisition_handler: AcquisitionHandler
+
+    pickup_handler: PickupHandler
+    warp_hanlder: WarpHandler
 
     def __init__(self, on_victory_achieved, on_event_updated, retroarch_address="127.0.0.1", retroarch_port=55355):
         self.retroarch_address = retroarch_address
         self.retroarch_port = retroarch_port
         self.should_reset_auth = False
         self.status = GameState.UNKNOWN
-        self.area_id: int = 0
-        self.section_id: int = 0
+        self.section: Section = Section(0x00, 0x00)
         self.screen: Screens = Screens.TITLE_SCREEN
         self.events: bytearray
         self.on_victory_achieved = on_victory_achieved
         self.on_event_updated = on_event_updated
         self.handlers: list[Handler] = []
-        self.acquisition_handler = AcquisitionHandler(self)
+
+        self.pickup_handler = PickupHandler(self)
+        self.warp_hanlder = WarpHandler(self)
 
     def init_handlers(self):
         self.handlers: list[Handler] = [
             Handler(self.update_status, interval_ms=500),
             Handler(self.patcher.patch_game, interval_ms=1000),
-            Handler(self.update_area_and_section, interval_ms=2000),
+            Handler(self.update_section, interval_ms=2000),
             Handler(self.prevent_softlock, interval_ms=5000),
         ]
 
@@ -321,7 +324,7 @@ class TombaGame:
             else:
                 self.play_sfx(SFX.ACQUIRED)
 
-        await self.acquisition_handler.handle(item)
+        await self.pickup_handler.handle(item)
 
         return True
 
@@ -359,9 +362,14 @@ class TombaGame:
         elif screen == Screens.TRAILER_SCREEN or screen == Screens.TITLE_SCREEN:
             self.status = GameState.TITLE
 
-    async def update_area_and_section(self):
-        self.area_id = (await self.playstation.async_read_memory(Addresses.SELECTED_AREA))[0]
-        self.section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
+    async def update_section(self):
+        area_id = (await self.playstation.async_read_memory(Addresses.SELECTED_AREA))[0]
+        section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
+        new_section = Section(area_id, section_id)
+
+        if new_section != self.section:
+            self.section = new_section
+            await self.warp_hanlder.handle(self.section)
 
     async def prevent_softlock(self):
         if self.screen != Screens.GAME_SCREEN:

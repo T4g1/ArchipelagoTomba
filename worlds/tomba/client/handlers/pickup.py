@@ -2,15 +2,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .game import TombaGame
+    from ..game import TombaGame
 
-from .handler import Handler
-from ..constants import Items, Events, EventStatus
-from ..items import ItemData
-from ..events import EventHandler
+from . import Handler
+from ...constants import Items, Events, EventStatus
+from ...items import ItemData
+from ...events import EventHandler
 
 
-class AcquisitionHandler:
+class PickupHandler:
     """This class defines additional operations upon receiving a specific item from the multiworld"""
 
     ctx: TombaGame
