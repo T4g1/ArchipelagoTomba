@@ -186,7 +186,12 @@ class TombaGame:
                 if event is None:
                     continue
 
-                await self.ctx.on_event_update(event, EventStatus(new_states[id]))
+                new_state = new_states[id]
+                try:
+                    await self.ctx.on_event_update(event, EventStatus(new_state))
+                except ValueError:
+                    # At least Beginners Dward Language event is expected to have other values as its a multi step event
+                    logger.debug(f"Event {event.name} got updated to {new_state} which is not useful")
 
     async def receive_item(self, item_id: int, player) -> bool:
         """Give iem to the player
