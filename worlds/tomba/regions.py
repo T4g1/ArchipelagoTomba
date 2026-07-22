@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-from dataclasses import dataclass
 from rule_builder.rules import Has
 
 from BaseClasses import Region, CollectionRule
@@ -12,50 +11,6 @@ from .events import Started, Cleared
 if TYPE_CHECKING:
     from .world import TombaWorld
     from rule_builder.rules import Rule
-
-
-purified_sections: dict[int, list[int]] = {
-    # Phoenix Mountain
-    0x03: [0x04, 0x05],
-    # Masakari Jungle
-    0x0A: [
-        0x04,
-        0x05,
-        0x06,
-        0x07,
-    ],
-}
-
-
-@dataclass
-class Section:
-    area_id: int
-    section_id: int
-
-    def is_purified(self) -> int:
-        """Give the cursed section ID"""
-        cursed_sections = purified_sections.get(self.area_id, [])
-        return self.section_id in cursed_sections
-
-    def __members(self):
-        section_id = self.section_id
-        if self.is_purified():
-            # Cursed alternatives are always 4 indices lower
-            section_id -= 0x04
-
-        return (self.area_id, section_id)
-
-    def __eq__(self, other: object) -> bool:
-        if type(other) is type(self):
-            return self.__members() == other.__members()
-        else:
-            return False
-
-    def __hash__(self) -> int:
-        return hash(self.__members())
-
-    def __repr__(self) -> str:
-        return f"0x{self.area_id:02x}-0x{self.section_id:02x}"
 
 
 region_names = [value for key, value in Regions.__dict__.items() if not key.startswith("_") and isinstance(value, str)]

@@ -1,7 +1,9 @@
+from __future__ import annotations
 import asyncio
-import time
-from dataclasses import dataclass
-from typing import Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .client import TombaContext
 
 from BaseClasses import ItemClassification as IC
 from CommonClient import logger
@@ -18,13 +20,12 @@ from ..constants import (
     Events,
     Screens,
 )
-from .handlers import Handler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
 from ..client import retroarch
-from ..regions import Section
+from ..sections import Sections, Section
 from ..locations import LocationHandler
-from ..items import ItemHandler, ItemData
+from ..items import ItemHandler
 from ..events import EventHandler, EventData
 from .patcher import Patcher
 
@@ -35,37 +36,11 @@ class TombaException(Exception):
     pass
 
 
-@dataclass
-class FoundItem:
-    item: ItemData
-    camera_horizontal: int
-    camera_vertical: int
-    section: Section
-
-    @staticmethod
-    def from_bytes(data: bytearray):
-        # Item Structure:
-        # * ITEM_ID: 1
-        # * CAMERA_H: 2
-        # * CAMERA_V: 2
-        # * AREA: 1
-        # * SECTION: 1
-        game_id = data[0]
-        item = ItemHandler.by_game_id.get(game_id, None)
-        if item is None:
-            raise TombaException(f"Player got an unknown item game ID: {game_id}")
-
-        return FoundItem(
-            item=item,
-            camera_horizontal=int.from_bytes(data[1:3], byteorder="little", signed=False),
-            camera_vertical=int.from_bytes(data[3:5], byteorder="little", signed=False),
-            section=Section(data[5], data[6]),
-        )
-
-
 class TombaGame:
     """Interface with the game itself"""
 
+    ctx: TombaContext
+    patcher: Patcher
     playstation: retroarch.RetroArch
     section: Section
     event_states: bytearray = bytearray(0xFF)
@@ -74,35 +49,20 @@ class TombaGame:
     pickup_handler: PickupHandler
     warp_hanlder: WarpHandler
 
-    def __init__(self, on_victory_achieved, on_event_updated, retroarch_address="127.0.0.1", retroarch_port=55355):
+    def __init__(self, ctx: TombaContext, retroarch_address="127.0.0.1", retroarch_port=55355):
+        self.ctx = ctx
+
         self.retroarch_address = retroarch_address
         self.retroarch_port = retroarch_port
         self.should_reset_auth = False
+
         self.status = GameState.UNKNOWN
-        self.section: Section = Section(0x00, 0x00)
+        self.section: Section = Sections.VILLAGE_OF_ALL_BEGINNING
         self.screen: Screens = Screens.TITLE_SCREEN
         self.events: bytearray
-        self.on_victory_achieved = on_victory_achieved
-        self.on_event_updated = on_event_updated
-        self.handlers: list[Handler] = []
 
-        self.pickup_handler = PickupHandler(self)
-        self.warp_hanlder = WarpHandler(self)
-
-    def init_handlers(self):
-        self.handlers: list[Handler] = [
-            Handler(self.update_status, interval_ms=500),
-            Handler(self.patcher.patch_game, interval_ms=1000),
-            Handler(self.update_section, interval_ms=2000),
-            Handler(self.prevent_softlock, interval_ms=5000),
-        ]
-
-        self.add_handler(self.check_win_conditions, interval_ms=10000, on_victory_achieved=self.on_victory_achieved)
-        self.add_handler(self.update_events, interval_ms=2000, on_event_updated=self.on_event_updated)
-
-    def add_handler(self, callback: Callable, interval_ms: float, *args, **kwargs):
-        handler = Handler(callback=callback, interval_ms=interval_ms, args=args, kwargs=kwargs)
-        self.handlers.append(handler)
+        self.pickup_handler = PickupHandler(self.ctx, self)
+        self.warp_hanlder = WarpHandler(self.ctx, self)
 
     async def wait_for_retroarch_connection(self):
         logger.info("Waiting on connection to Retroarch...")
@@ -124,11 +84,12 @@ class TombaGame:
 
         logger.info(f"Connected to Retroarch {version} running {rom_name}")
 
-        self.init_handlers()
-
     # --------
     # Custom feature patched into the RAM
     # --------
+
+    async def patch_game(self):
+        await self.patcher.patch_game()
 
     def play_sfx(self, sfx_id: int):
         logger.debug(f"Playing SFX {sfx_id}")
@@ -148,12 +109,6 @@ class TombaGame:
         command |= command_mask
 
         self.playstation.write_memory(Addresses.CUSTOM_COMMAND, command.to_bytes())
-
-    async def request_clear_obtained_items(self):
-        await self.set_command(CustomCommand.CLEAR_STACK)
-
-    async def has_pending_clear_obtained_items(self) -> bool:
-        return bool(await self.get_command(CustomCommand.CLEAR_STACK))
 
     async def get_saved_archipelago_index(self) -> int | None:
         """Give saved last index of item received from Archipelago.
@@ -206,42 +161,6 @@ class TombaGame:
         return inventory
 
     # --------
-    # Handle in game received items
-    # --------
-
-    async def get_found_items_counter(self) -> int:
-        return (await self.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
-
-    async def get_found_items_stack(self) -> list[FoundItem]:
-        count = await self.get_found_items_counter()
-        data = await self.playstation.read_memory_block(
-            Addresses.FOUND_ITEMS_STACK, count * constants.FOUND_ITEM_STRUCTURE_SIZE
-        )
-
-        found_items = []
-        for i in range(count):
-            start_index = i * constants.FOUND_ITEM_STRUCTURE_SIZE
-            item_data = data[start_index : start_index + constants.FOUND_ITEM_STRUCTURE_SIZE]
-            found_items.append(FoundItem.from_bytes(item_data))
-        return found_items
-
-    async def get_pending_found_items(self) -> list[FoundItem] | None:
-        """Give list of found items from the game.
-
-        Returns:
-            list[int]: The list of item collected by the player.
-            None: If we can't read it yet (not patched or emulator issue)
-        """
-        if not await self.patcher.is_patched():
-            return None
-
-        if await self.has_pending_clear_obtained_items():
-            # Wait until the emulator has cleared the stack before processing it again
-            return []
-
-        return await self.get_found_items_stack()
-
-    # --------
     # Handle victory conditions
     # --------
 
@@ -255,7 +174,7 @@ class TombaGame:
     def set_event_state(self, event: EventData, status: EventStatus):
         self.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
 
-    async def update_events(self, on_event_updated):
+    async def update_events(self):
         old_states = self.event_states
         new_states = await self.playstation.read_memory_block(Addresses.EVENT_FLAGS, 0xFF)
 
@@ -267,7 +186,7 @@ class TombaGame:
                 if event is None:
                     continue
 
-                await on_event_updated(event, EventStatus(new_states[id]))
+                await self.ctx.on_event_update(event, EventStatus(new_states[id]))
 
     async def receive_item(self, item_id: int, player) -> bool:
         """Give iem to the player
@@ -296,14 +215,15 @@ class TombaGame:
         has_item_already = item.game_id.to_bytes() in inventory_stack[:inventory_counter]
         should_display_acquired = False
 
+        new_amount = 1
         if item.countable:
             current_amount = await self.get_item_amount(item.game_id)
             has_item_already = has_item_already or current_amount > 0
 
             new_amount = current_amount + 1
-            self.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
-
             should_display_acquired = True
+
+        self.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
 
         if not has_item_already:
             # Adding an item means shifting the whole stack to the right
@@ -324,9 +244,16 @@ class TombaGame:
             else:
                 self.play_sfx(SFX.ACQUIRED)
 
-        await self.pickup_handler.handle(item)
+        await self.pickup_handler.handle(item.name)
 
         return True
+
+    async def get_ap_score(self):
+        ap_score_raw = await self.playstation.read_memory_block(Addresses.AP_SCORE, 4)
+        return int.from_bytes(ap_score_raw, byteorder="little")
+
+    def set_ap_score(self, value: int):
+        self.playstation.write_memory(Addresses.AP_SCORE, value.to_bytes(4, byteorder="little"))
 
     async def get_menu_state(self):
         return (await self.playstation.async_read_memory(Addresses.MENU_STATE))[0]
@@ -379,10 +306,10 @@ class TombaGame:
         for location in LocationHandler.with_bitmask:
             assert location.at is not None
             if location.at.on_cheked:
-                if location.id in self.checked_locations:
+                if location.id in self.ctx.checked_locations:
                     await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
             else:
-                if location.id not in self.checked_locations:
+                if location.id not in self.ctx.checked_locations:
                     await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
 
         # Put back the barrel if the event is not discovered
@@ -396,27 +323,14 @@ class TombaGame:
                 assert event is not None
 
                 self.set_event_state(event, EventStatus.CLEARED)
-                await self.on_event_updated(event, EventStatus.CLEARED)
+                await self.ctx.on_event_update(event, EventStatus.CLEARED)
 
     def check_safe_gameplay(self):
         return self.status == GameState.PLAYING
 
-    async def check_win_conditions(self, on_victory_achieved):
+    async def check_win_conditions(self):
         if not self.check_safe_gameplay():
             return
 
         if await self.is_victory():
-            await on_victory_achieved()
-
-    async def main_tick(self, checked_locations: set[int]):
-        self.checked_locations = checked_locations
-
-        if self.should_reset_auth:
-            self.should_reset_auth = False
-            raise TombaException("Resetting due to wrong archipelago server")
-
-        current_time = time.perf_counter() * 1000
-        for handler in self.handlers:
-            if current_time - handler.last_run >= handler.interval_ms:
-                await handler.callback(*handler.args, **handler.kwargs)
-                handler.last_run = current_time
+            await self.ctx.on_victory()

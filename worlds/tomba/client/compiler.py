@@ -254,7 +254,6 @@ class Instruction:
 
 
 class Compiler:
-    filepath: str = ""
     symbols: list[Symbol] = []
     instructions: list[Instruction] = []
     base_address: int = 0
@@ -295,15 +294,13 @@ class Compiler:
 
         self.instructions.append(Instruction(operation, operands))
 
-    def compile(self, filepath: str) -> str:
+    def compile(self, file: str) -> str:
         self.symbols = []
         self.instructions = []
 
         # Parse source file
-        self.filepath = filepath
-        with open(filepath, "r", encoding="utf-8") as file:
-            for line in file.readlines():
-                self.parse_line(line)
+        for line in file.splitlines():
+            self.parse_line(line)
 
         # Rearange symbols for easy access
         symbols_by_name: dict[str, Symbol] = {}
@@ -329,4 +326,5 @@ if __name__ == "__main__":
         filename = args.filename
 
     compiler = Compiler()
-    print(compiler.compile(f"worlds/tomba/client/asm/{filename}"))
+    with open(f"worlds/tomba/client/asm/{filename}", "r", encoding="utf-8") as file:
+        print(compiler.compile(file.read()))

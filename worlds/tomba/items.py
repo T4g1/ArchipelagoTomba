@@ -13,6 +13,10 @@ if TYPE_CHECKING:
     from .world import TombaWorld
 
 
+class ItemException(Exception):
+    pass
+
+
 class ItemBehavior(IntEnum):
     RANDOMIZED = 0  # Archipelago choose when this item is retrieved
     LOCKED = 1  # Archipelago put that item in a pre-determined location
@@ -262,9 +266,6 @@ class ItemHandler:
 
         blackjack = world.create_item(Items.BLACKJACK)
         world.push_precollected(blackjack)
-
-        baron = world.create_item(Items.BARON)
-        world.push_precollected(baron)
 
 
 class TombaItem(Item):

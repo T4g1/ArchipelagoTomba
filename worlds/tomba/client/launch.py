@@ -7,7 +7,7 @@ from .. import constants
 
 
 def launch_tomba_client(*args) -> None:
-    from TombaClient import main
+    from .client import main
 
     parser = get_base_parser(description=f"{constants.GAME} Client.")
     parser.add_argument("--name", default=None, help="Slot Name to connect as.")

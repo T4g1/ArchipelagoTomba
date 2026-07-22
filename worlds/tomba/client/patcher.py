@@ -1,11 +1,9 @@
+import pkgutil
 from CommonClient import logger
 
 from .compiler import Compiler
 from .retroarch import RetroArch
 from ..constants import Addresses
-
-FEATURE_PATCH = "worlds/tomba/client/src/interface.asm"
-ADD_ITEM_PATCH = "worlds/tomba/client/src/add_item.asm"
 
 HANDLER_HOOK_ORIGINAL = "0800E003"
 HANDLER_HOOK = "542C0008"
@@ -19,16 +17,22 @@ class Patcher:
     def __init__(self, playstation: RetroArch):
         self.playstation = playstation
 
+        interface_file = pkgutil.get_data(__name__, "asm/interface.asm")
+        add_item_file = pkgutil.get_data(__name__, "asm/add_item.asm")
+
+        if interface_file is None or add_item_file is None:
+            raise PatchException("Unable to load required ASM files")
+
         try:
             compiler = Compiler()
             # Patch a custom handler triggerred on game sprite updates
-            self.interface_patch = compiler.compile(FEATURE_PATCH)
+            self.interface_patch = compiler.compile(interface_file.decode())
 
             # Hook to call the custom handler
             self.handler_hook = HANDLER_HOOK
 
             # Patch receive item method to create a list of found items in game instead
-            self.add_item_patch = compiler.compile(ADD_ITEM_PATCH)
+            self.add_item_patch = compiler.compile(add_item_file.decode())
         except Exception as e:
             logger.critical(e)
             raise PatchException("Unable to initialize the patching interface")

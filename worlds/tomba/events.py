@@ -59,8 +59,8 @@ class EventHandler:
         EventData(
             0x01,
             Events.THE_100_YEAR_OLD_WISE_MAN,
-            Regions.FOREST_OF_ALL_BEGINNINGS,
-            started_rule=CanReachRegion(Regions.VILLAGE_OF_ALL_BEGINNINGS),
+            Regions.VILLAGE_OF_ALL_BEGINNINGS,
+            cleared_rule=CanReachRegion(Regions.FOREST_OF_ALL_BEGINNINGS),
         ),
         EventData(
             0x02, Events.CLEAR_THE_FOG, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.FURIOUS_TORNADO)
@@ -88,7 +88,7 @@ class EventHandler:
             cleared_rule=CanReachRegion(Regions.MASAKARI_JUNGLE) & Has(Items.BANANA_JUICE),
         ),
         EventData(
-            0x09, Events.INSIDE_THE_KOKKA_EGGS, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.CHICK, 4)
+            0x09, Events.INSIDE_THE_KOKKA_EGGS, Regions.FOREST_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.CHICK, 4)
         ),
         EventData(
             0x0A,
@@ -670,7 +670,7 @@ class EventHandler:
             started_rule=Has(Items.FLOWER_TEARS) & CanReachRegion(Regions.CHARITY_SQUARE),
         ),
         # EventData(0xA5, Events., Regions.), # Unused
-        EventData(0xA6, Events.A_HUNGRY_MONKEY, Regions.VILLAGE_OF_ALL_BEGINNINGS),
+        EventData(0xA6, Events.A_HUNGRY_MONKEY, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.BANANAS)),
         EventData(
             0xA7,
             Events.PEACH_FLOWER_GAS,

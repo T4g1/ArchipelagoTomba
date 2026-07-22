@@ -10,8 +10,9 @@ from rule_builder.rules import Has, Rule
 from . import constants
 from .constants import Regions, Items, Locations, Events
 from .items import ItemHandler, ItemData, TombaItem
-from .regions import Section
+from .sections import Section
 from .events import EventHandler, HasStarted, HasCleared, Started, Cleared
+from .bitutils import Bitmask
 
 if TYPE_CHECKING:
     from .world import TombaWorld
@@ -19,28 +20,6 @@ if TYPE_CHECKING:
 
 def get_name(name: str, region: str):
     return f"{name} ({region})"
-
-
-class BitmaskAction(int):
-    UNSET_UNCHECKED = 0
-    SET_UNCHECKED = 1
-    UNSET_CHECKED = 2
-
-
-@dataclass
-class Bitmask:
-    """Maps a specific bit in RAM"""
-
-    address: int
-    mask: int
-
-    # What to do with it:
-    # True: set value if location is checked,
-    # False: set value if location is unchecked
-    on_cheked: bool = False
-
-    # False: Unset bit, True: Set bit
-    target_value: bool = False
 
 
 @dataclass
@@ -175,7 +154,7 @@ class LocationHandler:
             Locations.MAILBOX,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.FURIOUS_TORNADO,
-            at=Bitmask(0x09BCEC, 0x01, on_cheked=True, target_value=True),
+            at=Bitmask(0x09BCEC, 0x01, on_checked=True, target_value=True),
         ),
         ItemLocData("Peach Flower Gas", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.BABY_PIG),
         ItemLocData("Kokka Egg in the Village", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.CHICK, Section(0x00, 0x00)),
@@ -227,7 +206,7 @@ class LocationHandler:
             "10,000 Year Old Chest",
             Regions.OL_POND,
             Items.TEN_THOUSAND_YEAR_OLD_BELL,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY) & HasCleared(Events.I_CANT_SWIM),
         ),
         # Forest of 100 Flowers
         *[
