@@ -2,7 +2,6 @@ from enum import Enum, IntEnum
 
 GAME = "Tomba!"
 
-INVENTORY_STACK_SIZE = 0xFF
 
 # See 8002959c for the check
 MAX_LIVES = 99
@@ -187,7 +186,7 @@ class Items(str):
     THOUSAND_YEAR_OLD_BELL = "1,000 Year Old Bell"
     THOUSAND_YEAR_OLD_KEY = "1,000 Year Old Key"
     THREE_CRYSTAL_BALLS = "Three Crystal Balls"
-    TORCH = "TORCH"
+    TORCH = "Torch"
     TORN_MAP_1 = "Torn Map 1"
     TORN_MAP_2 = "Torn Map 2"
     UNUSUAL_KEY = "Unusual Key"
@@ -370,9 +369,6 @@ class Addresses(IntEnum):
     INVENTORY_COUNTER = 0x09C60C
     UI_REFRESH_FLAG = 0x09C60E
 
-    EQUIPED_WEAPON_ID = 0x09C61A
-    EQUIPED_PANTS_ID = 0x09C61B
-
     HUD_VISIBILITY = 0x0B0770
     HUD_VISIBILITY_TIMER = 0x0B0774
 
@@ -406,11 +402,6 @@ class Addresses(IntEnum):
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
     CAMERA_VERTICAL_OFFSET = 0x1F8000F2  # 2bytes, Bottom: 0xFF88
 
-    PIPE_STATE = 0x09C269
-    GOLD_FLOWER_STATE = 0x09C34C
-    GOLDEN_BOWL_STATE = 0x09C3E7
-    BITING_PLANT_FLOWER_STATE = 0x09C3E3
-
     VILLAGE_OF_ALL_BEGINNING_EVENT_CONTROL = 0x09BCEC
 
     SELECTED_AREA = 0x09BCC8
@@ -420,6 +411,16 @@ class Addresses(IntEnum):
     # SECTION OFFSET = TOTAL SECTION PRECEDING (per AREA FLATTENED) * 4, AREA 1 SECTION 2 = 8 * 4 = 32 = 0x20
 
     WARP_ENTRY_STATE = 0x09C62C
+
+    TOMBA_STATE = 0x09C619
+    TOMBA_WEAPON = 0x09C61A
+    TOMBA_PANTS = 0x09C61B
+
+
+class TombaState(IntEnum):
+    NORMAL = 0x00
+    LAUGHING = 0x01
+    CRYING = 0x02
 
 
 class MenuState(IntEnum):

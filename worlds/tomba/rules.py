@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .constants import Items, Events
-from .locations import Cleared, Started, LocationHandler, HasCleared, ItemLocData
+from .helpers import Cleared, Started, HasCleared
+from .locations import LocationHandler, ItemLocData
 from .items import ItemHandler
 
 if TYPE_CHECKING:

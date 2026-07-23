@@ -17,22 +17,20 @@ class Section:
 
     def is_purified(self) -> int:
         """Give the cursed section ID"""
-        cursed_sections = purified_sections.get(self.area_id, [])
-        return self.section_id in cursed_sections
+        cursed_sections = purified_sections.get(self.area_id, {})
+        return self.section_id in cursed_sections.keys()
 
     def __members(self):
         section_id = self.section_id
         if self.is_purified():
-            # Cursed alternatives are always 4 indices lower
-            section_id -= 0x04
+            section_id = purified_sections[self.area_id][self.section_id]
 
         return (self.area_id, section_id)
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is type(self):
+        if isinstance(other, Section):
             return self.__members() == other.__members()
-        else:
-            return False
+        return False
 
     def __hash__(self) -> int:
         return hash(self.__members())
@@ -42,6 +40,8 @@ class Section:
 
 
 class Sections(Section):
+    NONE = Section(0xFF, 0xFF)
+
     VILLAGE_OF_ALL_BEGINNING = Section(0x00, 0x00)
     FOREST_OF_ALL_BEGINNING = Section(0x00, 0x01)
     HUNDREDS_YEAR_OLD_MANS_HUT = Section(0x00, 0x03)

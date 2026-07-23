@@ -18,7 +18,9 @@ from .. import constants
 from ..constants import EventStatus, Events
 from ..world import TombaWorld
 from ..locations import LocationHandler
-from ..events import Cleared, EventData
+from ..helpers import Cleared
+from ..events import EventData
+from ..items import ItemHandler
 from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
 from ..client.handlers.item_check import ItemCheckHandler
@@ -50,6 +52,7 @@ class TombaContext(CommonContext):
     tomba: TombaGame
     connection_status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
     command_processor = TombaCommandProcessor
+
     item_check_handler: ItemCheckHandler
 
     should_reset_auth: bool
@@ -80,6 +83,7 @@ class TombaContext(CommonContext):
             Handler(self.tomba.prevent_softlock, interval_ms=5000),
             Handler(self.tomba.check_win_conditions, interval_ms=8000),
             Handler(self.tomba.update_events, interval_ms=2000),
+            Handler(self.tomba.update_inventory, interval_ms=750),
         ]
 
     def run_gui(self):
@@ -154,9 +158,13 @@ class TombaContext(CommonContext):
 
         if index < len(self.items_received):
             network_item = self.items_received[index]
+            item = ItemHandler.by_id.get(network_item.item, None)
+            if item is None:
+                logger.warning(f"Received an unknown item from {network_item.player}: ID is {network_item.item}")
+            elif not await self.tomba.inventory_handler.receive_item(item, network_item.player):
+                return
 
-            if await self.tomba.receive_item(network_item.item, network_item.player):
-                self.tomba.set_saved_archipelago_index(index + 1)
+            self.tomba.set_saved_archipelago_index(index + 1)
 
     async def on_victory(self):
         await self.send_victory()

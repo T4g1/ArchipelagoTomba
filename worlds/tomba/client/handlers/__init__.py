@@ -36,6 +36,8 @@ class AbstractHandler:
         self.tomba = tomba
         self.handlers = {}
 
+        self.init_handlers()
+
     def init_handlers(self):
         """Override this to define handlers"""
         pass

@@ -11,7 +11,8 @@ from . import constants
 from .constants import Regions, Items, Locations, Events
 from .items import ItemHandler, ItemData, TombaItem
 from .sections import Section
-from .events import EventHandler, HasStarted, HasCleared, Started, Cleared
+from .helpers import HasStarted, HasCleared, Started, Cleared, Rules
+from .events import EventHandler
 from .bitutils import Bitmask
 
 if TYPE_CHECKING:
@@ -206,7 +207,7 @@ class LocationHandler:
             "10,000 Year Old Chest",
             Regions.OL_POND,
             Items.TEN_THOUSAND_YEAR_OLD_BELL,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY) & HasCleared(Events.I_CANT_SWIM),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY) & Rules.CAN_SWIM,
         ),
         # Forest of 100 Flowers
         *[
@@ -238,8 +239,10 @@ class LocationHandler:
         ItemLocData("Fill the Bucket", Regions.WATCH_TOWER, Items.BUCKET_OF_WATER, rule=Has(Items.BUCKET)),
         ItemLocData(
             "Win the Race", Regions.WATCH_TOWER, Items.SILVER_POWDER, rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT)
-        ),  # Wobbly Wharf
-        ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET),  # Dwarf Village
+        ),
+        # Wobbly Wharf
+        ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
+        # Dwarf Village
         ItemLocData(
             "Baron",
             Regions.DWARF_VILLAGE,
@@ -312,7 +315,7 @@ class LocationHandler:
         ItemLocData("Monster Fight", Regions.MUSHROOM_FOREST, Items.RISE_AND_SHINE_POWDER),
         # Charity Square
         ItemLocData("Sacred Fish", Regions.CHARITY_SQUARE, Items.SACRED_FISH, rule=HasCleared(Events.THE_FLOWER_TOWER)),
-        ItemLocData("Crystal Balls", Regions.CHARITY_SQUARE, Items.THREE_CRYSTAL_BALLS),
+        ItemLocData("Crystal Balls", Regions.CHARITY_SQUARE, Items.THREE_CRYSTAL_BALLS, rule=Rules.CAN_BIG_JUMP),
         ItemLocData(
             "Charity Entrance Left", Regions.CHARITY_SQUARE, Items.CHARITY_WINGS, Section(0x01, 0x04), x=2900, y=65005
         ),

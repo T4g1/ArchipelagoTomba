@@ -264,9 +264,6 @@ class ItemHandler:
         normal_pants = world.create_item(Items.NORMAL_PANTS)
         world.push_precollected(normal_pants)
 
-        blackjack = world.create_item(Items.BLACKJACK)
-        world.push_precollected(blackjack)
-
 
 class TombaItem(Item):
     game = constants.GAME

@@ -55,4 +55,4 @@ class WarpHandler(AbstractHandler):
     async def on_masakari_river(self):
         if self.ctx.tomba.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
             charity_wing = ItemHandler.by_name[Items.CHARITY_WINGS]
-            await self.ctx.tomba.receive_item(charity_wing.id, 0)
+            await self.tomba.inventory_handler.receive_item(charity_wing, 0)

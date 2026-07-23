@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
-from rule_builder.rules import Has
+from rule_builder.rules import Has, Rule
 
 from BaseClasses import Region, CollectionRule
 
 from .constants import Regions, Items, Events
-from .events import Started, Cleared
+from .helpers import Started, Cleared
 
 if TYPE_CHECKING:
     from .world import TombaWorld
-    from rule_builder.rules import Rule
 
 
 region_names = [value for key, value in Regions.__dict__.items() if not key.startswith("_") and isinstance(value, str)]
@@ -30,10 +29,16 @@ def create_all_regions(world: TombaWorld) -> None:
     world.multiworld.regions += regions
 
 
-def connect(world: TombaWorld, source_name: str, target_name: str, rule: CollectionRule | Rule[Any] | None = None):
+def connect(
+    world: TombaWorld,
+    source_name: str,
+    target_name: str,
+    rule: CollectionRule | Rule[Any] | None = None,
+    suffix: str = "",
+):
     source = world.get_region(source_name)
     target = world.get_region(target_name)
-    source.connect(target, f"{source} to {target}", rule)
+    source.connect(target, f"{source} to {target}{suffix}", rule)
 
 
 def connect_regions(world: TombaWorld) -> None:
@@ -127,14 +132,6 @@ def connect_regions(world: TombaWorld) -> None:
         lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
     )
 
-    connect(
-        world,
-        Regions.MASAKARI_JUNGLE,
-        Regions.OLD_TREE_HILL,
-        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
-    )
-    connect(world, Regions.MASAKARI_JUNGLE, Regions.Y_CROSSING, Has(Items.MINERS_HAT))
-
     connect(world, Regions.Y_CROSSING, Regions.CLOCK_TOWER)
     connect(
         world,
@@ -153,8 +150,11 @@ def connect_regions(world: TombaWorld) -> None:
         world,
         Regions.OL_POND,
         Regions.TRICK_VILLAGE,
-        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player)
-        and state.has(Items.KEY_TO_OL_POND, world.player),
+        lambda state: (
+            state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player)
+            and state.has(Items.KEY_TO_OL_POND, world.player)
+        )
+        or state.has(Items.SACRED_FISH, world.player),
     )
     connect(
         world,
@@ -164,6 +164,7 @@ def connect_regions(world: TombaWorld) -> None:
     )
     connect(world, Regions.UNDERGROUND_MAZE, Regions.THE_STRANGE_SMALL_ROOM)
 
+    # Warning: Sacred Fish cannot be used to cross Masakari River
     connect(
         world,
         Regions.THE_MERMAIDS_SINGING_ROCK,
@@ -175,4 +176,41 @@ def connect_regions(world: TombaWorld) -> None:
         Regions.THE_MERMAIDS_SINGING_ROCK,
         Regions.MASAKARI_JUNGLE,
         lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+    )
+    connect(
+        world,
+        Regions.MASAKARI_JUNGLE,
+        Regions.OLD_TREE_HILL,
+        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+    )
+    connect(world, Regions.MASAKARI_JUNGLE, Regions.Y_CROSSING, Has(Items.MINERS_HAT))
+
+    # Bell Warp
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.FOREST_OF_ALL_BEGINNINGS,
+        Has(Items.HUNDRED_YEAR_OLD_BELL),
+        suffix=" with Bell",
+    )
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.HAUNTED_MANSION,
+        Has(Items.THOUSAND_YEAR_OLD_BELL),
+        suffix=" with Bell",
+    )
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.TRICK_VILLAGE,
+        Has(Items.TEN_THOUSAND_YEAR_OLD_BELL),
+        suffix=" with Bell",
+    )
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.UNDERGROUND_MAZE,
+        Has(Items.MILLION_YEAR_OLD_BELL),
+        suffix=" with Bell",
     )
