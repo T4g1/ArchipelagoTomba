@@ -2,13 +2,15 @@ from enum import Enum, IntEnum
 
 GAME = "Tomba!"
 
-INVENTORY_STACK_SIZE = 0xFF
 
 # See 8002959c for the check
 MAX_LIVES = 99
 
 VICTORY = "Victory"
 VILLAGE_OF_ALL_BEGINNINGS_FOG_DISSIPATED = "Village Of All Beginnings Fog Dissipated"
+
+# Handling of found items in game
+FOUND_ITEM_STRUCTURE_SIZE = 8
 
 
 class Locations(str):
@@ -34,6 +36,7 @@ class Regions(str):
     LUMBERJACK_FACTORY = "Lumberjack Factory"
     MANSION = "Mansion"
     MASAKARI_JUNGLE = "Masakari Jungle"
+    MILLION_YEAR_OLD_MANS_ROOM = "Million Year Old Man's Room"
     MUSHROOM_FOREST = "Mushroom Forest"
     OL_POND = "Ol' Pond"
     OLD_TREE_HILL = "Old Tree Hill"
@@ -51,58 +54,6 @@ class Regions(str):
     WATCH_TOWER = "Watch Tower"
     WOBBLY_WHARF = "Whobbly Warf"
     Y_CROSSING = "Y-crossing"
-
-
-class Areas(str):
-    BACCUS_LAKE = "Baccus Lake"
-    BACCUS_VILLAGE = "Baccus Village"
-    DIRT_MOTOCROSS = "Dirt Motocross"
-    DEEP_JUNGLE = "Deep Jungle"
-    DWARF_FOREST = "Dwarf Forest"
-    DWARF_FOREST_PURIFIED = "Dward Forest (Purified)"
-    DWARF_VILLAGE = "Dwarf Village"
-    EVIL_PIGS = "Evil Pigs"
-    HAUNTED_MANSION = "Haunted Mansion"
-    HAUNTED_MANSION_PURIFIED = "Haunted Mansion (Purified)"
-    MUSHROOM_VILLAGE = "Mushroom Village"
-    PHOENIX_MOUNTAIN = "Phoenix Mountain"
-    PIG_ISLAND = "Pig Island"
-    UNKNOWN = "Unknown"
-    VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
-    VILLAGE_OF_CIVILIZATION = "Village Of Civilization"
-    VILLAGE_OF_CIVILIZATION_PURIFIED = "Village Of Civilization (Purified)"
-    CLOCK_TOWER = "Clock Tower"
-    IRON_TOWER = "Iron Tower"
-    Y_CROSSING = "Y-crossing"
-
-
-class Sections(str):
-    CENTRAL_PARK = "Central Park"
-    CHARITY_SQUARE = "Charity Square"
-    CLOCK_TOWER = "Clock Tower"
-    DWARF_JAIL = "Dwarf Jail"
-    FOREST_OF_100_FLOWERS = "Forest Of 100 Flowers"
-    FOREST_OF_ALL_BEGINNINGS = "Forest Of All Beginnings"
-    HIDDEN_VILLAGE = "Hidden Village"
-    HUNDRED_YEAR_OLD_MANS_HUT = "100 Year Old Man's Hut"
-    IRON_CASTLE = "Iron Castle"
-    LAVA_CAVES = "Lava Caves"
-    LUMBERJACK_FACTORY = "Lumberjack Factory"
-    MANSION = "Mansion"
-    MASAKARI_JUNGLE = "Masakari Jungle"
-    MUSHROOM_FOREST = "Mushroom Forest"
-    OL_POND = "Ol' Pond"
-    OLD_TREE_HILL = "Old Tree Hill"
-    PHOENIXS_NEST = "Phoenix's Nest"
-    STORMY_MOUNTAIN = "Stormy Mountain"
-    THE_MERMAIDS_SINGING_ROCK = "The Mermaid's Singing Rock"
-    THE_STRANGE_SMALL_ROOM = "The Strange Small Room"
-    TRICK_VILLAGE = "Trick Village"
-    UNDERGROUND_MAZE = "Underground Maze"
-    UNDERGROUND_PRISON = "Underground Prison"
-    VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
-    WATCH_TOWER = "Watch Tower"
-    WOBBLY_WHARF = "Whobbly Warf"
 
 
 class Items(str):
@@ -236,7 +187,7 @@ class Items(str):
     THOUSAND_YEAR_OLD_BELL = "1,000 Year Old Bell"
     THOUSAND_YEAR_OLD_KEY = "1,000 Year Old Key"
     THREE_CRYSTAL_BALLS = "Three Crystal Balls"
-    TORCH = "TORCH"
+    TORCH = "Torch"
     TORN_MAP_1 = "Torn Map 1"
     TORN_MAP_2 = "Torn Map 2"
     UNUSUAL_KEY = "Unusual Key"
@@ -419,9 +370,6 @@ class Addresses(IntEnum):
     INVENTORY_COUNTER = 0x09C60C
     UI_REFRESH_FLAG = 0x09C60E
 
-    EQUIPED_WEAPON_ID = 0x09C61A
-    EQUIPED_PANTS_ID = 0x09C61B
-
     HUD_VISIBILITY = 0x0B0770
     HUD_VISIBILITY_TIMER = 0x0B0774
 
@@ -429,19 +377,13 @@ class Addresses(IntEnum):
     PV_MAX = 0x09BCD9
 
     MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
-    # SCREEN_STATE_PTR = 0x1F8001D4
     MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
-    # SUB_SCREEN_STATE = 0x001FD84C # Accessing load/save in game for example
-
-    I_STAT = 0x1F801070
-    I_MASK = 0x1F801074
 
     # Addresses for items found in game stack
     FOUND_ITEMS_STACK_SIZE = 0xB400
     FOUND_ITEMS_STACK = 0xB401
 
     # Where we put the sound to be played
-    IS_PATCHED = 0xB13F
     PLAY_SFX = 0xB140
     MESSAGE = 0xB142
 
@@ -452,21 +394,28 @@ class Addresses(IntEnum):
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
 
-    CAMERA_HORIZONTAL_OFFSET = 0x1F8000EC  # 2bytes, Left: 0xA0
-    CAMERA_VERTICAL_OFFSET = 0x1F8000F0  # 2bytes, Bottom: 0xFF88
-
-    PIPE_STATE = 0x09C269
-    GOLD_FLOWER_STATE = 0x09C34C
-    GOLDEN_BOWL_STATE = 0x09C3E7
-    BITING_PLANT_FLOWER_STATE = 0x09C3E3
-
-    VILLAGE_OF_ALL_BEGINNING_EVENT_CONTROL = 0x09BCEC
+    # Those two are stored in little endian (@EE: B0  @EF: B1)
+    CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
+    CAMERA_VERTICAL_OFFSET = 0x1F8000F2  # 2bytes, Bottom: 0xFF88
 
     SELECTED_AREA = 0x09BCC8
     SELECTED_SECTION = 0x9BCCA
 
     SECTION_STATE = 0x09BCFC  # Bit flag for each item/object taken/broken
     # SECTION OFFSET = TOTAL SECTION PRECEDING (per AREA FLATTENED) * 4, AREA 1 SECTION 2 = 8 * 4 = 32 = 0x20
+
+    WARP_ENTRY_STATE = 0x09C62C
+
+    INVENTORY_ACCESSIBLE = 0x09C618
+    TOMBA_STATE = 0x09C619
+    TOMBA_WEAPON = 0x09C61A
+    TOMBA_PANTS = 0x09C61B
+
+
+class TombaState(IntEnum):
+    NORMAL = 0x00
+    LAUGHING = 0x01
+    CRYING = 0x02
 
 
 class MenuState(IntEnum):
@@ -512,12 +461,6 @@ class SFX(IntEnum):
     CRY = 0x25
     EVENT_STARTED = 0x2A
     FART = 0x32
-
-
-class SectionEventMask(IntEnum):
-    # Count bit with MSB on the left from left to right
-    AREA_0_SECTION_1_BITING_FLOWER_BLUE_APPLE = 0x20  # Byte 2
-    AREA_1_SECTION_2_BARREL_STATE = 0x40  # Byte 0
 
 
 class EventControlState(IntEnum):

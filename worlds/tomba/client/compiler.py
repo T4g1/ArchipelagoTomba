@@ -23,6 +23,12 @@ class OpCodeHandler:
     opcodes: list[OpCode] = [
         OpCode("nop", 0x00),
         OpCode("jr", 0x00, 0x08),
+        OpCode("sll", 0x00, 0x00),
+        OpCode("srl", 0x00, 0x02),
+        OpCode("sra", 0x00, 0x03),
+        OpCode("sllv", 0x00, 0x04),
+        OpCode("srlv", 0x00, 0x06),
+        OpCode("srav", 0x00, 0x07),
         OpCode("addu", 0x00, 0x21),
         OpCode("j", 0x02),
         OpCode("jal", 0x03),
@@ -222,6 +228,22 @@ class Instruction:
             rt = get_reg(self.operands[2])
             binary = (rs << 21) | (rt << 16) | (rd << 11) | secondary
 
+            # --- SHIFT IMMEDIATE INSTRUCTIONS (sll, srl, sra) ---
+        elif op in ["sll", "srl", "sra"]:
+            rd = get_reg(self.operands[0])
+            rt = get_reg(self.operands[1])
+            sa = get_imm(self.operands[2])  # 5-bit shift amount (imm5)
+
+            binary = (primary << 26) | (rt << 16) | (rd << 11) | ((sa & 0x1F) << 6) | secondary
+
+        # --- SHIFT VARIABLE INSTRUCTIONS (sllv, srlv, srav) ---
+        elif op in ["sllv", "srlv", "srav"]:
+            rd = get_reg(self.operands[0])
+            rt = get_reg(self.operands[1])
+            rs = get_reg(self.operands[2])  # Register containing shift amount
+
+            binary = (primary << 26) | (rs << 21) | (rt << 16) | (rd << 11) | secondary
+
         else:
             raise CompilerException(f"Unhandled operation: {op}")
 
@@ -232,7 +254,6 @@ class Instruction:
 
 
 class Compiler:
-    filepath: str = ""
     symbols: list[Symbol] = []
     instructions: list[Instruction] = []
     base_address: int = 0
@@ -273,15 +294,13 @@ class Compiler:
 
         self.instructions.append(Instruction(operation, operands))
 
-    def compile(self, filepath: str) -> str:
+    def compile(self, file: str) -> str:
         self.symbols = []
         self.instructions = []
 
         # Parse source file
-        self.filepath = filepath
-        with open(filepath, "r", encoding="utf-8") as file:
-            for line in file.readlines():
-                self.parse_line(line)
+        for line in file.splitlines():
+            self.parse_line(line)
 
         # Rearange symbols for easy access
         symbols_by_name: dict[str, Symbol] = {}
@@ -299,7 +318,7 @@ class Compiler:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="PSX Compiler")
-    parser.add_argument("--filename", default=None, help="Filename in src directory.")
+    parser.add_argument("--filename", default=None, help="Filename in asm directory.")
     args = parser.parse_args(sys.argv[1:])
 
     filename = "interface.asm"
@@ -307,4 +326,5 @@ if __name__ == "__main__":
         filename = args.filename
 
     compiler = Compiler()
-    print(compiler.compile(f"worlds/tomba/client/src/{filename}"))
+    with open(f"worlds/tomba/client/asm/{filename}", "r", encoding="utf-8") as file:
+        print(compiler.compile(file.read()))

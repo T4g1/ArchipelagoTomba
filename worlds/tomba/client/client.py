@@ -14,19 +14,26 @@ from CommonClient import (
 )
 from NetUtils import ClientStatus
 
-from worlds.tomba import constants
-from worlds.tomba.constants import EventStatus
-from worlds.tomba.world import TombaWorld
-from worlds.tomba.items import ItemHandler, ItemData, ItemBehavior
-from worlds.tomba.locations import LocationHandler
-from worlds.tomba.events import EventHandler, Cleared
-from worlds.tomba.client.retroarch import RetroArchException
-from worlds.tomba.client.game import TombaGame, TombaException
+from .. import constants
+from ..world import TombaWorld
+from ..locations import LocationHandler
+from ..helpers import Cleared
+from ..events import EventData
+from ..items import ItemHandler
+from ..client.command_processor import TombaCommandProcessor
+from ..client.handlers import Handler
+from ..client.handlers.item_check import ItemCheckHandler
+from ..client.retroarch import RetroArchException
+from ..client.game import TombaGame, TombaException
 
 MIN_TICK_DURATION = 0.1
 
 
 class VersionError(Exception):
+    pass
+
+
+class ServerAuthException(Exception):
     pass
 
 
@@ -43,9 +50,11 @@ class TombaContext(CommonContext):
     client_loop: asyncio.Task[None]
     tomba: TombaGame
     connection_status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
+    command_processor = TombaCommandProcessor
 
-    # List of items found by the player to process
-    found_items: list[ItemData] = []
+    item_check_handler: ItemCheckHandler
+
+    should_reset_auth: bool
 
     def __init__(
         self,
@@ -58,10 +67,22 @@ class TombaContext(CommonContext):
             "Connected": self.on_connected,
         }
 
-        self.tomba = TombaGame(self.on_victory, self.on_event_update)
+        self.tomba = TombaGame(self)
+        self.should_reset_auth = False
         self.had_invalid_slot_data = None
 
+        self.item_check_handler = ItemCheckHandler(self, self.tomba)
+
         self.won = False
+
+        self.periodic_handlers: list[Handler] = [
+            Handler(self.tomba.patch_game, interval_ms=1000),
+            Handler(self.tomba.update_status, interval_ms=500),
+            Handler(self.tomba.update_section, interval_ms=2000),
+            Handler(self.tomba.update_events, interval_ms=2000),
+            Handler(self.tomba.update_inventory, interval_ms=750),
+            Handler(self.tomba.update_locations, interval_ms=5000),
+        ]
 
     def run_gui(self):
         from kvui import GameManager
@@ -89,16 +110,10 @@ class TombaContext(CommonContext):
             # We are connecting when previously we had the wrong ROM or server - just in case
             # re-read the ROM so that if the user had the correct address but wrong ROM, we
             # allow a successful reconnect
-            self.tomba.should_reset_auth = True
+            self.should_reset_auth = True
             self.had_invalid_slot_data = False
 
-        while self.tomba.auth is None:
-            await asyncio.sleep(0.1)
-
-            # Just return if we're closing
-            if self.exit_event.is_set():
-                return
-        self.auth = self.tomba.auth
+        await super(TombaContext, self).get_username()
         await self.send_connect()
 
     def on_package(self, cmd: str, args: dict):
@@ -123,9 +138,10 @@ class TombaContext(CommonContext):
                 f"the world this game was generated on ({generated_version.as_simple_string()})"
             )
 
-        logger.debug("missing locations:", self.missing_locations)
-        logger.debug("checked locations:", self.checked_locations)
-        logger.debug("items received:", self.items_received)
+        logger.info("Server Status: Connected")
+        logger.debug(f"missing locations: {self.missing_locations}")
+        logger.debug(f"checked locations: {self.checked_locations}")
+        logger.debug(f"items received: {self.items_received}")
 
         self.connection_status = ConnectionStatus.CONNECTED
 
@@ -141,66 +157,18 @@ class TombaContext(CommonContext):
 
         if index < len(self.items_received):
             network_item = self.items_received[index]
-
-            if await self.tomba.receive_item(network_item.item, network_item.player):
-                self.tomba.set_saved_archipelago_index(index + 1)
-
-    async def update_found_items(self):
-        """Update the list of found items to be processed in the main loop"""
-        newly_found_items = await self.tomba.get_pending_found_items()
-        if newly_found_items is None:
-            return
-
-        for game_id in newly_found_items:
-            item = ItemHandler.by_game_id.get(game_id, None)
+            item = ItemHandler.by_id.get(network_item.item, None)
             if item is None:
-                logger.error(f"Player got an unknown item game ID: {game_id}")
+                logger.warning(f"Received an unknown item from {network_item.player}: ID is {network_item.item}")
+            elif not await self.tomba.inventory_handler.receive_item(item, network_item.player):
                 return
 
-            self.found_items.append(item)
-
-        if len(newly_found_items):
-            await self.tomba.request_clear_obtained_items()
-
-    async def process_found_items(self):
-        if len(self.found_items) <= 0:
-            return
-
-        item = self.found_items.pop(0)
-        if not await self.on_item_get(item):
-            # Put back the item in the queue if it fails to process
-            self.found_items.append(item)
-
-    async def on_item_get(self, item: ItemData) -> bool:
-        if item.behavior is ItemBehavior.ORIGINAL:
-            return await self.tomba.receive_item(item.id, 0)
-
-        location_ids = LocationHandler.filter(item.id, self.tomba.area_id, self.tomba.section_id)
-        if location_ids is None:
-            logger.error(f"Player got an item with no location: {item.name}")
-            return await self.tomba.receive_item(item.id, 0)
-
-        first_unchecked = next((id for id in location_ids if id not in self.checked_locations), None)
-
-        location_id = first_unchecked
-        if location_id is None:
-            # TODO: In case this happens, we might want to check the implemented logic
-            # or give the item directly to the player
-            logger.error(f"Player has found {item.name} but there are no location left to send it.")
-            return True
-
-        logger.debug(f"Sending location check to server for {location_id}")
-        await self.check_locations([location_id])
-        return True
+            self.tomba.set_saved_archipelago_index(index + 1)
 
     async def on_victory(self):
         await self.send_victory()
 
-    async def on_event_update(self, id: int, status: EventStatus):
-        if status is not EventStatus.CLEARED:
-            return
-
-        event = EventHandler.by_id[id]
+    async def on_event_cleared(self, event: EventData):
         location = LocationHandler.by_name[Cleared(event.name)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
@@ -221,12 +189,6 @@ class TombaContext(CommonContext):
                 logger.info("(Re)Starting game loop")
 
                 await self.tomba.wait_for_retroarch_connection()
-                await self.tomba.perform_auth()
-                # If we find ourselves with new auth, reconnect
-                if self.auth and self.tomba.auth != self.auth:
-                    logger.info("Detected new ROM, disconnecting...")
-                    await self.disconnect()
-                    continue
 
                 if not self.items_received:
                     await self.sync()
@@ -234,12 +196,20 @@ class TombaContext(CommonContext):
                 last_tick = time.time()
                 while True:
                     if self.connection_status == ConnectionStatus.CONNECTED:
-                        await self.tomba.main_tick()
+                        if self.should_reset_auth:
+                            self.should_reset_auth = False
+                            raise ServerAuthException("Resetting due to wrong archipelago server")
+
+                        current_time = time.perf_counter() * 1000
+                        for handler in self.periodic_handlers:
+                            if current_time - handler.last_run >= handler.interval_ms:
+                                await handler.callback(*handler.args, **handler.kwargs)
+                                handler.last_run = current_time
 
                         await self.process_items_received()
 
-                        await self.update_found_items()
-                        await self.process_found_items()
+                        await self.item_check_handler.update_found_items()
+                        await self.item_check_handler.process_found_items()
 
                     now = time.time()
                     tick_duration = now - last_tick

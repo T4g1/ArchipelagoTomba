@@ -13,6 +13,10 @@ if TYPE_CHECKING:
     from .world import TombaWorld
 
 
+class ItemException(Exception):
+    pass
+
+
 class ItemBehavior(IntEnum):
     RANDOMIZED = 0  # Archipelago choose when this item is retrieved
     LOCKED = 1  # Archipelago put that item in a pre-determined location
@@ -70,7 +74,7 @@ class ItemHandler:
         ItemData(0x0B, IC.progression, Items.TELESCOPE),
         ItemData(0x0C, IC.progression, Items.TEAR_JAR),
         ItemData(0x0D, IC.progression, Items.FLOWER_TEARS),
-        ItemData(0x0E, IC.filler, Items.BARON),
+        ItemData(0x0E, IC.deprioritized, Items.BARON),
         ItemData(0x0F, IC.progression, Items.BAKED_YAM),
         ItemData(0x10, IC.progression, Items.LEAF_BUTTERFLY, True, 29),
         ItemData(0x11, IC.progression, Items.TORCH),
@@ -90,7 +94,7 @@ class ItemHandler:
         ItemData(0x1F, IC.filler, Items.LARGE_LUNCH_BOX, True),
         ItemData(0x20, IC.deprioritized, Items.NORMAL_PANTS),
         ItemData(0x21, IC.progression, Items.GRAPPLE),
-        ItemData(0x22, IC.filler, Items.GRAPPLEJACK),
+        ItemData(0x22, IC.progression, Items.GRAPPLEJACK),
         ItemData(0x23, IC.progression, Items.BABY_PIG),
         ItemData(0x24, IC.progression, Items.THOUSAND_YEAR_OLD_KEY),
         ItemData(0x25, IC.progression, Items.RED_EVIL_PIG_BAG),
@@ -191,7 +195,7 @@ class ItemHandler:
         ItemData(0x84, IC.filler, Items.SACRED_FISH),
         # ItemData(0x85, IC.filler, Items.CHICK),
         # ItemData(0x86, IC.filler, Items.CHICK),
-        ItemData(0x87, IC.deprioritized, Items.GOLDEN_BOWL),
+        # ItemData(0x87, IC.deprioritized, Items.GOLDEN_BOWL),
         # ItemData(0x88, IC.filler, Items.FLOWER_TEARS),
         # ItemData(0x89, IC.filler, Items.ITEM),
         ItemData(0x8A, IC.progression, Items.RISE_AND_SHINE_POWDER),
@@ -206,7 +210,7 @@ class ItemHandler:
         # ItemData(0x93, IC.filler, Items.ITEM),
         ItemData(0x94, IC.progression, Items.SEASHELL_NECKLACE),
         ItemData(0x95, IC.progression, Items.THIEFS_WIRE),
-        ItemData(0x96, IC.progression, Items.STRONG_WIRE),
+        ItemData(0x96, IC.filler, Items.STRONG_WIRE),
         ItemData(0x97, IC.filler, Items.TEN_THOUSAND_YEAR_OLD_BELL),
         ItemData(0x98, IC.filler, Items.MILLION_YEAR_OLD_BELL),
         ItemData(0x99, IC.progression, Items.COLD_MEDECINE),
@@ -243,9 +247,19 @@ class ItemHandler:
     @staticmethod
     def create_all_items(world: TombaWorld) -> None:
         itempool: list[Item] = []
+        disabled_items: list[str] = []
+
+        # Apply options
+        if not world.options.bell_warp:
+            disabled_items += [
+                Items.HUNDRED_YEAR_OLD_BELL,
+                Items.THOUSAND_YEAR_OLD_BELL,
+                Items.TEN_THOUSAND_YEAR_OLD_BELL,
+                Items.MILLION_YEAR_OLD_BELL,
+            ]
 
         for item in ItemHandler.item_table:
-            if item.behavior is ItemBehavior.RANDOMIZED:
+            if item.behavior is ItemBehavior.RANDOMIZED and item.name not in disabled_items:
                 for _ in range(item.amount):
                     itempool.append(world.create_item(item.name))
 
@@ -256,6 +270,13 @@ class ItemHandler:
         itempool += [world.create_filler() for _ in range(needed_number_of_filler_items)]
 
         world.multiworld.itempool += itempool
+
+        normal_pants = world.create_item(Items.NORMAL_PANTS)
+        world.push_precollected(normal_pants)
+
+        if world.options.keep_blackjack:
+            blackjack = world.create_item(Items.BLACKJACK)
+            world.push_precollected(blackjack)
 
 
 class TombaItem(Item):

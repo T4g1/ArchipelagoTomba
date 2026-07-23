@@ -60,7 +60,7 @@ class RetroArch:
         self.socket.setblocking(False)
 
     def send(self, b):
-        logger.debug(f"> {b}")
+        # logger.debug(f"> {b}")
         if type(b) is str:
             b = b.encode("ascii")
         self.socket.sendto(b, (self.address, self.port))
@@ -68,7 +68,7 @@ class RetroArch:
     def recv(self):
         select.select([self.socket], [], [])
         response, _ = self.socket.recvfrom(4096)
-        logger.debug(f"< {response}")
+        # logger.debug(f"< {response}")
         return response
 
     async def async_recv(self, timeout=1.0):
