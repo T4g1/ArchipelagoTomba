@@ -982,7 +982,7 @@ class LocationHandler:
             if isinstance(location, ItemLocData)
             and location.item is not None
             and location.item.id == item_id
-            and (location.section is None or location.section == section)
+            and (location.section is None or location.section.equals(section))
         ]
 
 

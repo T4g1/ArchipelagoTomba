@@ -37,6 +37,10 @@ class InventoryHandler(AbstractHandler):
         if len(self.ctx.checked_locations) > 0:
             return
 
+        # Check if this is enabled
+        if self.ctx.slot_data["keep_blackjack"]:
+            return
+
         logger.info("Removing starting Blackjack")
 
         blackjack = ItemHandler.by_name[Items.BLACKJACK]

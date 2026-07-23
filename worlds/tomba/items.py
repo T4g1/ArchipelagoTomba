@@ -247,9 +247,19 @@ class ItemHandler:
     @staticmethod
     def create_all_items(world: TombaWorld) -> None:
         itempool: list[Item] = []
+        disabled_items: list[str] = []
+
+        # Apply options
+        if not world.options.bell_warp:
+            disabled_items += [
+                Items.HUNDRED_YEAR_OLD_BELL,
+                Items.THOUSAND_YEAR_OLD_BELL,
+                Items.TEN_THOUSAND_YEAR_OLD_BELL,
+                Items.MILLION_YEAR_OLD_BELL,
+            ]
 
         for item in ItemHandler.item_table:
-            if item.behavior is ItemBehavior.RANDOMIZED:
+            if item.behavior is ItemBehavior.RANDOMIZED and item.name not in disabled_items:
                 for _ in range(item.amount):
                     itempool.append(world.create_item(item.name))
 
@@ -263,6 +273,10 @@ class ItemHandler:
 
         normal_pants = world.create_item(Items.NORMAL_PANTS)
         world.push_precollected(normal_pants)
+
+        if world.options.keep_blackjack:
+            blackjack = world.create_item(Items.BLACKJACK)
+            world.push_precollected(blackjack)
 
 
 class TombaItem(Item):

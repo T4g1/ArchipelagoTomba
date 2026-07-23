@@ -185,7 +185,6 @@ def connect_regions(world: TombaWorld) -> None:
     )
     connect(world, Regions.MASAKARI_JUNGLE, Regions.Y_CROSSING, Has(Items.MINERS_HAT))
 
-    # Bell Warp
     connect(
         world,
         Regions.VILLAGE_OF_ALL_BEGINNINGS,

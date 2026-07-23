@@ -380,9 +380,6 @@ class Addresses(IntEnum):
     MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
     # SUB_SCREEN_STATE = 0x001FD84C # Accessing load/save in game for example
 
-    I_STAT = 0x1F801070
-    I_MASK = 0x1F801074
-
     # Addresses for items found in game stack
     FOUND_ITEMS_STACK_SIZE = 0xB400
     FOUND_ITEMS_STACK = 0xB401
@@ -401,8 +398,6 @@ class Addresses(IntEnum):
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
     CAMERA_VERTICAL_OFFSET = 0x1F8000F2  # 2bytes, Bottom: 0xFF88
-
-    VILLAGE_OF_ALL_BEGINNING_EVENT_CONTROL = 0x09BCEC
 
     SELECTED_AREA = 0x09BCC8
     SELECTED_SECTION = 0x9BCCA
