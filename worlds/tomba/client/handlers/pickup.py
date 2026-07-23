@@ -13,4 +13,4 @@ class PickupHandler(AbstractHandler):
         """The Flower Seeds event must be started to be able to use the seeds"""
         event = EventHandler.by_name.get(Events.FLOWER_SEEDS)
         assert event is not None
-        self.ctx.tomba.set_event_state(event, EventStatus.STARTED)
+        self.ctx.tomba.events_handler.set_event_state(event, EventStatus.STARTED)

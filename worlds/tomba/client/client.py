@@ -15,11 +15,10 @@ from CommonClient import (
 from NetUtils import ClientStatus
 
 from .. import constants
-from ..constants import EventStatus, Events
 from ..world import TombaWorld
 from ..locations import LocationHandler
 from ..helpers import Cleared
-from ..events import EventData, EventHandler
+from ..events import EventData
 from ..items import ItemHandler
 from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
@@ -77,13 +76,12 @@ class TombaContext(CommonContext):
         self.won = False
 
         self.periodic_handlers: list[Handler] = [
-            Handler(self.tomba.update_status, interval_ms=500),
             Handler(self.tomba.patch_game, interval_ms=1000),
+            Handler(self.tomba.update_status, interval_ms=500),
             Handler(self.tomba.update_section, interval_ms=2000),
-            Handler(self.tomba.refresh_section_states, interval_ms=5000),
-            Handler(self.tomba.check_win_conditions, interval_ms=8000),
             Handler(self.tomba.update_events, interval_ms=2000),
             Handler(self.tomba.update_inventory, interval_ms=750),
+            Handler(self.tomba.update_locations, interval_ms=5000),
         ]
 
     def run_gui(self):
@@ -140,6 +138,7 @@ class TombaContext(CommonContext):
                 f"the world this game was generated on ({generated_version.as_simple_string()})"
             )
 
+        logger.info("Server Status: Connected")
         logger.debug(f"missing locations: {self.missing_locations}")
         logger.debug(f"checked locations: {self.checked_locations}")
         logger.debug(f"items received: {self.items_received}")
@@ -169,25 +168,10 @@ class TombaContext(CommonContext):
     async def on_victory(self):
         await self.send_victory()
 
-    async def on_event_update(self, event: EventData, status: EventStatus):
-        if status is not EventStatus.CLEARED:
-            return
-
+    async def on_event_cleared(self, event: EventData):
         location = LocationHandler.by_name[Cleared(event.name)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
-
-        # Clear Take Out as it becomes softlocked when this one is cleared
-        if event.name == Events.HIDE_AND_GO_SEEK:
-            take_out = EventHandler.by_name.get(Events.TAKE_OUT)
-            assert take_out is not None
-
-            self.tomba.set_event_state(take_out, EventStatus.CLEARED)
-
-        # Special case as this one might be force checked by the softlock prevention routine
-        # When Hide and Go seek is cleared before clearing this one
-        if event.name == Events.TAKE_OUT:
-            await self.check_locations([location.id for location in LocationHandler.take_out_event_locations])
 
     async def send_victory(self):
         if not self.won:

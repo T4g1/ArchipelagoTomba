@@ -69,6 +69,7 @@ class LocationData:
 class ItemLocData(LocationData):
     x: int | None
     y: int | None
+    related_event: str
 
     def __init__(
         self,
@@ -81,6 +82,7 @@ class ItemLocData(LocationData):
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
+        event: str | None = None,
     ):
         name = get_name(name, region)
 
@@ -92,6 +94,8 @@ class ItemLocData(LocationData):
 
         self.x = x
         self.y = y
+
+        self.event = event
 
     def with_coordinates(self, x: int, y: int) -> Self:
         self.x = x
@@ -115,6 +119,7 @@ class LocationHandler:
             Items.CHEESE,
             Section(0xFF, 0xFF),
             rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+            event=Events.TAKE_OUT,
         ),
         ItemLocData(
             "Take Out 2",
@@ -122,6 +127,7 @@ class LocationHandler:
             Items.CHEESE,
             Section(0xFF, 0xFF),
             rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+            event=Events.TAKE_OUT,
         ),
     ]
 
@@ -928,6 +934,7 @@ class LocationHandler:
     by_name: dict[str, LocationData] = {}
     by_region = defaultdict(list)
     by_item_id: dict[int, list[int]] = defaultdict(list)
+    by_event: dict[str, list[int]] = defaultdict(list)
     name_to_id: dict[str, int] = {}
     with_bitmask: list[LocationData] = []
 
@@ -935,6 +942,9 @@ class LocationHandler:
         by_id[location.id] = location
         by_name[location.name] = location
         by_region[location.region].append(location)
+
+        if isinstance(location, ItemLocData) and location.event is not None:
+            by_event[location.event].append(location.id)
 
         if location.item is not None:
             by_item_id[location.item.id].append(location.id)

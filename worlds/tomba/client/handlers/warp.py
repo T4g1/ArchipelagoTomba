@@ -72,19 +72,19 @@ class WarpHandler(AbstractHandler):
 
     async def on_wobbly_warf_left(self):
         # Put back the barrel if the event is not discovered
-        if await self.tomba.get_event_state(Events.WHERE_THE_BARREL_ROLLS) is EventStatus.UNDISCOVERED:
+        if await self.tomba.events_handler.get_event_state(Events.WHERE_THE_BARREL_ROLLS) is EventStatus.UNDISCOVERED:
             await self.tomba.playstation.set_flag(0x09BD1C, 0x40, False)
 
     async def on_haunted_mansion_irregular_entry(self):
         # Haunted Mansion will not load correctly if this is not cleared
         event = EventHandler.by_name[Events.A_DRINK_FOR_GROWNUPS]
-        self.tomba.set_event_state(event, EventStatus.CLEARED)
+        self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
         # Prevent softlock when accessing Baccus Lake
         event = EventHandler.by_name[Events.ROAD_TO_BACCUS_LAKE]
-        self.tomba.set_event_state(event, EventStatus.CLEARED)
+        self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
     async def on_masakari_river(self):
-        if self.ctx.tomba.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
+        if self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
             charity_wing = ItemHandler.by_name[Items.CHARITY_WINGS]
             await self.tomba.inventory_handler.receive_item(charity_wing, 0)

@@ -2,7 +2,7 @@
 
 FUN_PLAY_SFX:0x8001FFE8
 FUN_PRINT_INFO_MESSAGE:0x80031124
-FUN_DEBUG_CALL:0x800222b8
+FUN_DEBUG_CALL:0x8001b0a4
 
 LAB_PLAY_SFX:
     # Save context
@@ -80,9 +80,9 @@ LAB_DEBUG_METHOD:
     nop
 
     # Debug call
-    addiu   a0,zero,0x00
+    addiu   a0,zero,0x01
     addiu   a1,zero,0x01
-    addiu   a2,zero,0x00
+    addiu   a2,zero,0x01
     jal     FUN_DEBUG_CALL
     nop
     lui     s0,0x8001

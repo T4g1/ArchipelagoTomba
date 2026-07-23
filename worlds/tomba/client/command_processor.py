@@ -28,19 +28,19 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """Start an event"""
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
-            self.ctx.tomba.set_event_state(event, EventStatus.STARTED)
+            self.ctx.tomba.events_handler.set_event_state(event, EventStatus.STARTED)
 
     def _cmd_clear(self, event_id: str):
         """Clear an event"""
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
-            self.ctx.tomba.set_event_state(event, EventStatus.CLEARED)
+            self.ctx.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
     def _cmd_forget(self, event_id: str):
         """Forget an event"""
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
-            self.ctx.tomba.set_event_state(event, EventStatus.UNDISCOVERED)
+            self.ctx.tomba.events_handler.set_event_state(event, EventStatus.UNDISCOVERED)
 
     async def _cmd_ap(self):
         """Adds 50,000 AP"""

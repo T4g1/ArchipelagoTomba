@@ -105,7 +105,7 @@ class ItemCheckHandler(AbstractHandler):
     async def on_item_get(self, found_item: FoundItem) -> bool:
         item = found_item.item
         if item.behavior is ItemBehavior.ORIGINAL:
-            return await self.tomba.receive_item(item.id, 0)
+            return await self.tomba.inventory_handler.receive_item(item, 0)
 
         location_ids = LocationHandler.filter_and_sort(
             item, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
@@ -113,7 +113,7 @@ class ItemCheckHandler(AbstractHandler):
         if location_ids is None:
             logger.error(f"Player got an item with no location: {item.name}")
             # TODO: Should be removed for release so player can't get unintended items
-            return await self.tomba.receive_item(item.id, 0)
+            return await self.tomba.inventory_handler.receive_item(item, 0)
 
         first_unchecked = next((id for id in location_ids if id not in self.ctx.checked_locations), None)
 

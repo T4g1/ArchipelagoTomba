@@ -377,9 +377,7 @@ class Addresses(IntEnum):
     PV_MAX = 0x09BCD9
 
     MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
-    # SCREEN_STATE_PTR = 0x1F8001D4
     MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
-    # SUB_SCREEN_STATE = 0x001FD84C # Accessing load/save in game for example
 
     # Addresses for items found in game stack
     FOUND_ITEMS_STACK_SIZE = 0xB400

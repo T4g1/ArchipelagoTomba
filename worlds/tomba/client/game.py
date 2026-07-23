@@ -8,22 +8,20 @@ if TYPE_CHECKING:
 from CommonClient import logger
 
 from ..constants import (
-    EventStatus,
     GameState,
     HudState,
     MenuState,
     CustomCommand,
     Addresses,
-    Events,
     Screens,
 )
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
+from .handlers.events import EventsHandler
 from ..client import retroarch
 from ..sections import Sections, Section
 from ..locations import LocationHandler
-from ..events import EventHandler, EventData
 from .patcher import Patcher
 
 CORE_TYPE = "playstation"
@@ -40,12 +38,12 @@ class TombaGame:
     patcher: Patcher
     playstation: retroarch.RetroArch
     section: Section
-    event_states: bytearray = bytearray(0xFF)
     checked_locations: set[int]
 
     inventory_handler: InventoryHandler
     pickup_handler: PickupHandler
     warp_hanlder: WarpHandler
+    events_handler: EventsHandler
 
     def __init__(self, ctx: TombaContext, retroarch_address="127.0.0.1", retroarch_port=55355):
         self.ctx = ctx
@@ -55,13 +53,13 @@ class TombaGame:
         self.should_reset_auth = False
 
         self.status = GameState.UNKNOWN
-        self.section: Section = Sections.NONE
         self.screen: Screens = Screens.TITLE_SCREEN
-        self.events: bytearray
+        self.section: Section = Sections.NONE
 
         self.inventory_handler = InventoryHandler(self.ctx, self)
         self.pickup_handler = PickupHandler(self.ctx, self)
         self.warp_hanlder = WarpHandler(self.ctx, self)
+        self.events_handler = EventsHandler(self.ctx, self)
 
     async def wait_for_retroarch_connection(self):
         logger.info("Waiting on connection to Retroarch...")
@@ -82,13 +80,6 @@ class TombaGame:
             await asyncio.sleep(1.0)
 
         logger.info(f"Connected to Retroarch {version} running {rom_name}")
-
-    # --------
-    # Custom feature patched into the RAM
-    # --------
-
-    async def patch_game(self):
-        await self.patcher.patch_game()
 
     def play_sfx(self, sfx_id: int):
         logger.debug(f"Playing SFX {sfx_id}")
@@ -127,39 +118,6 @@ class TombaGame:
         index = index.to_bytes(2, byteorder="big")
         self.playstation.write_memory(Addresses.ARCHIPELAGO_RECEIVED_INDEX, index)
 
-    # --------
-    # Handle victory conditions
-    # --------
-
-    async def is_victory(self):
-        return (await self.get_event_state(Events.GRANDPAS_BRACELET)) == EventStatus.CLEARED
-
-    async def get_event_state(self, event_name: str) -> EventStatus:
-        event = EventHandler.by_name[event_name]
-        return EventStatus(self.event_states[event.id])
-
-    def set_event_state(self, event: EventData, status: EventStatus):
-        self.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
-
-    async def update_events(self):
-        old_states = self.event_states
-        new_states = await self.playstation.read_memory_block(Addresses.EVENT_FLAGS, 0xFF)
-
-        self.event_states = new_states
-
-        for id in range(len(new_states)):
-            if old_states[id] != new_states[id]:
-                event = EventHandler.by_id.get(id, None)
-                if event is None:
-                    continue
-
-                new_state = new_states[id]
-                try:
-                    await self.ctx.on_event_update(event, EventStatus(new_state))
-                except ValueError:
-                    # At least Beginners Dward Language event is expected to have other values as its a multi step event
-                    logger.debug(f"Event {event.name} got updated to {new_state} which is not useful")
-
     async def get_ap_score(self):
         ap_score_raw = await self.playstation.read_memory_block(Addresses.AP_SCORE, 4)
         return int.from_bytes(ap_score_raw, byteorder="little")
@@ -184,6 +142,12 @@ class TombaGame:
         hud_visibility_timer = (await self.playstation.async_read_memory(Addresses.HUD_VISIBILITY_TIMER))[0]
 
         return hud_visibility == HudState.VISIBLE and hud_visibility_timer == HudState.VISIBLE
+
+    def check_safe_gameplay(self):
+        return self.status == GameState.PLAYING or self.status == GameState.NO_HUD
+
+    async def patch_game(self):
+        await self.patcher.patch_game()
 
     async def update_status(self):
         old_status = self.status
@@ -218,7 +182,7 @@ class TombaGame:
             self.section = new_section
             await self.warp_hanlder.handle(self.section)
 
-    async def refresh_section_states(self):
+    async def update_locations(self):
         """Process all locations and reset game objects if needed"""
         if self.screen != Screens.GAME_SCREEN:
             return
@@ -234,15 +198,8 @@ class TombaGame:
                     if location.id not in self.ctx.checked_locations:
                         await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
 
-    def check_safe_gameplay(self):
-        return self.status == GameState.PLAYING or self.status == GameState.NO_HUD
-
-    async def check_win_conditions(self):
-        if not self.check_safe_gameplay():
-            return
-
-        if await self.is_victory():
-            await self.ctx.on_victory()
+    async def update_events(self):
+        await self.events_handler.update_events()
 
     async def update_inventory(self):
         await self.inventory_handler.update_inventory()
