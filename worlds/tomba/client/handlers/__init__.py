@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 @dataclass
 class Handler:
     callback: Callable
-    interval_ms: float
+    interval_ms: float = 0
     last_run: float = 0.0
     args: Tuple = ()
     kwargs: dict[str, Any] = field(default_factory=dict)

@@ -22,6 +22,9 @@ class InventoryHandler(AbstractHandler):
 
     inventory_stack_size: int = 0
 
+    async def is_accessible(self):
+        return (await self.tomba.playstation.async_read_memory(Addresses.INVENTORY_ACCESSIBLE))[0] != 0x00
+
     async def update_inventory(self):
         """Monitor inventory changes"""
         new_stack_size = await self.get_inventory_counter()

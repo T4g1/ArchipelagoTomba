@@ -36,6 +36,7 @@ class Regions(str):
     LUMBERJACK_FACTORY = "Lumberjack Factory"
     MANSION = "Mansion"
     MASAKARI_JUNGLE = "Masakari Jungle"
+    MILLION_YEAR_OLD_MANS_ROOM = "Million Year Old Man's Room"
     MUSHROOM_FOREST = "Mushroom Forest"
     OL_POND = "Ol' Pond"
     OLD_TREE_HILL = "Old Tree Hill"
@@ -407,6 +408,7 @@ class Addresses(IntEnum):
 
     WARP_ENTRY_STATE = 0x09C62C
 
+    INVENTORY_ACCESSIBLE = 0x09C618
     TOMBA_STATE = 0x09C619
     TOMBA_WEAPON = 0x09C61A
     TOMBA_PANTS = 0x09C61B

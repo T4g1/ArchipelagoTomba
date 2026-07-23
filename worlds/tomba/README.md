@@ -7,9 +7,11 @@
 * When grabbing the key of 100 Year Old Wise Man: The sprite stays there
 * [REVERSE] SFX values are tied to the section loaded (Fart is another sound in Masakari Jungle for example)
 * [REVERSE] A method is making sure that Tomba has a weapon at the start (after the player init method), this makes it messy to remove starting weapon
+* Fight with Blue Evil Pig is glitched when accessing with Million Year Old Bell
 
 ## Ideas
 
+* Link locations related to event completion to their corresponding event, do a proper event update/handler and force check location when event is cleared MANUALY
 * [REVERSE] Display custom text
 * Heal Tomba
 * Change Tomba status (normal, cry, laugh)

@@ -196,6 +196,8 @@ class TombaGame:
                 self.status = GameState.IN_MENU
             elif await self.is_hud_visible():
                 self.status = GameState.PLAYING
+            elif await self.inventory_handler.is_accessible():
+                self.status = GameState.NO_HUD
             else:
                 self.status = GameState.CUTSCENE
         elif screen == Screens.OPTION_SCREEN:
@@ -212,38 +214,28 @@ class TombaGame:
         new_section = Section(area_id, section_id)
 
         if new_section != self.section:
+            await self.warp_hanlder.handle_leaving(self.section)
             self.section = new_section
             await self.warp_hanlder.handle(self.section)
 
-    async def prevent_softlock(self):
+    async def refresh_section_states(self):
+        """Process all locations and reset game objects if needed"""
         if self.screen != Screens.GAME_SCREEN:
             return
 
         # TODO: Read memory region, localy set flags and write results: 2 calls instead of len(list) * 2
         for location in LocationHandler.with_bitmask:
             assert location.at is not None
-            if location.at.on_cheked:
-                if location.id in self.ctx.checked_locations:
-                    await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
-            else:
-                if location.id not in self.ctx.checked_locations:
-                    await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
-
-        # Put back the barrel if the event is not discovered
-        if await self.get_event_state(Events.WHERE_THE_BARREL_ROLLS) == EventStatus.UNDISCOVERED:
-            await self.playstation.set_flag(0x09BD1C, 0x40, False)
-
-        # Fix the Take Out event being softlocked if Hide and Go Seek is already cleared
-        if await self.get_event_state(Events.TAKE_OUT) is not EventStatus.CLEARED:
-            if await self.get_event_state(Events.HIDE_AND_GO_SEEK) is EventStatus.CLEARED:
-                event = EventHandler.by_name.get(Events.TAKE_OUT)
-                assert event is not None
-
-                self.set_event_state(event, EventStatus.CLEARED)
-                await self.ctx.on_event_update(event, EventStatus.CLEARED)
+            if not self.section.equals(location.section):
+                if location.at.on_cheked:
+                    if location.id in self.ctx.checked_locations:
+                        await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
+                else:
+                    if location.id not in self.ctx.checked_locations:
+                        await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
 
     def check_safe_gameplay(self):
-        return self.status == GameState.PLAYING
+        return self.status == GameState.PLAYING or self.status == GameState.NO_HUD
 
     async def check_win_conditions(self):
         if not self.check_safe_gameplay():

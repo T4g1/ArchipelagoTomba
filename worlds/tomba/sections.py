@@ -57,6 +57,7 @@ class Sections(Section):
     HAUNTED_MANSION_WEST = Section(0x04, 0x01)
     HAUNTED_MANSION_SOUTH = Section(0x04, 0x02)
     HAUNTED_MANSION_EAST = Section(0x04, 0x03)
+    CIVILIZATION_ROOM = Section(0x04, 0x0B)
     THOUSAND_YEAR_OLD_MANS_ROOM = Section(0x04, 0x0F)
 
     BACCUS_VILLAGE = Section(0x05, 0x00)

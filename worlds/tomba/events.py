@@ -225,7 +225,7 @@ class EventHandler:
             0x32,
             Events.ROAD_TO_BACCUS_LAKE,
             Regions.BACCUS_VILLAGE,
-            cleared_rule=HasStarted(Events.A_DRINK_FOR_GROWNUPS),
+            cleared_rule=HasStarted(Events.A_DRINK_FOR_GROWNUPS) & HasCleared(Events.WHERES_THE_BABY_MOUSE),
         ),
         EventData(0x33, Events.A_SMALL_KEY_HOLE, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.SMALL_KEY)),
         # EventData(0x34, Events., Regions.), # Unused
@@ -299,12 +299,9 @@ class EventHandler:
         EventData(
             0x50,
             Events.THE_100_FLOWER_FOREST,
-            Regions.WOBBLY_WHARF,
+            Regions.FOREST_OF_100_FLOWERS,
             started_rule=HasCleared(Events.SAVE_THE_DWARVES),
-            cleared_rule=Has(Items.STRONG_WIRE)
-            & Has(Items.THIEFS_WIRE)
-            & Has(Items.BLUE_EVIL_PIG_BAG)
-            & HasCleared(Events.WE_NEED_POWER),
+            cleared_rule=CanReachRegion(Regions.MILLION_YEAR_OLD_MANS_ROOM) & Has(Items.BLUE_EVIL_PIG_BAG),
         ),
         EventData(
             0x51,
@@ -524,7 +521,12 @@ class EventHandler:
             & Has(Items.GOLDEN_LEAF_BUTTERFLY)
             & Has(Items.GOLDEN_FRUIT),
         ),
-        EventData(0x80, Events.UNBREAKABLE_WIRE, Regions.UNDERGROUND_MAZE, cleared_rule=Has(Items.STRONG_WIRE)),
+        EventData(
+            0x80,
+            Events.UNBREAKABLE_WIRE,
+            Regions.UNDERGROUND_MAZE,
+            cleared_rule=CanReachRegion(Regions.HAUNTED_MANSION),
+        ),
         EventData(
             0x81,
             Events.GREEN_HIDDEN_POWERS,
@@ -555,7 +557,7 @@ class EventHandler:
             0x90,
             Events.MILLION_YEAR_OLD_WISH,
             Regions.UNDERGROUND_MAZE,
-            started_rule=Has(Items.STRONG_WIRE) & Has(Items.THIEFS_WIRE),
+            started_rule=CanReachRegion(Regions.MILLION_YEAR_OLD_MANS_ROOM),
             cleared_rule=Has(Items.RED_EVIL_PIG_BAG)  # TODO: This one probably needs more conditions
             & Has(Items.BLUE_EVIL_PIG_BAG)
             & Has(Items.NAVY_EVIL_PIG_BAG)
@@ -571,9 +573,7 @@ class EventHandler:
             started_rule=HasCleared(Events.WE_NEED_POWER),
             cleared_rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC),
         ),
-        EventData(
-            0x92, Events.THE_BLUE_FORTUNE_TELLER, Regions.UNDERGROUND_MAZE_ENTRANCE, cleared_rule=Has(Items.THIEFS_WIRE)
-        ),
+        EventData(0x92, Events.THE_BLUE_FORTUNE_TELLER, Regions.UNDERGROUND_MAZE),
         # EventData(0x93, Events., Regions.), # Unused
         # EventData(0x94, Events., Regions.), # Unused
         # EventData(0x95, Events., Regions.), # Unused
@@ -610,7 +610,7 @@ class EventHandler:
             & Has(Items.MATH_BEAD_8)
             & Has(Items.MATH_BEAD_9)
             & Has(Items.MATH_BEAD_10),
-            cleared_rule=Has(Items.THIEFS_WIRE) & HasCleared(Events.WE_NEED_POWER),
+            cleared_rule=CanReachRegion(Regions.MILLION_YEAR_OLD_MANS_ROOM),
         ),
         EventData(
             0x9D,
@@ -641,10 +641,9 @@ class EventHandler:
         EventData(
             0xA1,
             Events.UNDERGROUND_TREASURE,
-            Regions.UNDERGROUND_MAZE,
-            started_rule=Has(Items.STRONG_WIRE)
-            & Has(Items.MILLION_YEAR_OLD_KEY)
-            & CanReachRegion(Regions.UNDERGROUND_MAZE),
+            Regions.MILLION_YEAR_OLD_MANS_ROOM,
+            started_rule=CanReachRegion(Regions.MILLION_YEAR_OLD_MANS_ROOM),
+            cleared_rule=Has(Items.MILLION_YEAR_OLD_KEY),
         ),
         # EventData(0xA2, Events., Regions.), # Unused
         # EventData(0xA3, Events., Regions.), # Unused

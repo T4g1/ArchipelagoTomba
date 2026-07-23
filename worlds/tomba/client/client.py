@@ -19,7 +19,7 @@ from ..constants import EventStatus, Events
 from ..world import TombaWorld
 from ..locations import LocationHandler
 from ..helpers import Cleared
-from ..events import EventData
+from ..events import EventData, EventHandler
 from ..items import ItemHandler
 from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
@@ -80,7 +80,7 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_status, interval_ms=500),
             Handler(self.tomba.patch_game, interval_ms=1000),
             Handler(self.tomba.update_section, interval_ms=2000),
-            Handler(self.tomba.prevent_softlock, interval_ms=5000),
+            Handler(self.tomba.refresh_section_states, interval_ms=5000),
             Handler(self.tomba.check_win_conditions, interval_ms=8000),
             Handler(self.tomba.update_events, interval_ms=2000),
             Handler(self.tomba.update_inventory, interval_ms=750),
@@ -176,6 +176,13 @@ class TombaContext(CommonContext):
         location = LocationHandler.by_name[Cleared(event.name)]
         logger.info(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
+
+        # Clear Take Out as it becomes softlocked when this one is cleared
+        if event.name == Events.HIDE_AND_GO_SEEK:
+            take_out = EventHandler.by_name.get(Events.TAKE_OUT)
+            assert take_out is not None
+
+            self.tomba.set_event_state(take_out, EventStatus.CLEARED)
 
         # Special case as this one might be force checked by the softlock prevention routine
         # When Hide and Go seek is cleared before clearing this one

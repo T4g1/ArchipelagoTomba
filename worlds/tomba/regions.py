@@ -162,7 +162,16 @@ def connect_regions(world: TombaWorld) -> None:
         Regions.UNDERGROUND_MAZE,
         Has(Items.THIEFS_WIRE),
     )
+    connect(world, Regions.UNDERGROUND_MAZE_ENTRANCE, Regions.FOREST_OF_ALL_BEGINNINGS)
+    connect(
+        world,
+        Regions.UNDERGROUND_MAZE,
+        Regions.MILLION_YEAR_OLD_MANS_ROOM,
+        lambda state: state.has(Items.MILLION_YEAR_OLD_BELL, world.player)
+        or state.can_reach_location(Cleared(Events.UNBREAKABLE_WIRE), world.player),
+    )
     connect(world, Regions.UNDERGROUND_MAZE, Regions.THE_STRANGE_SMALL_ROOM)
+    connect(world, Regions.UNDERGROUND_MAZE, Regions.HAUNTED_MANSION)
 
     # Warning: Sacred Fish cannot be used to cross Masakari River
     connect(

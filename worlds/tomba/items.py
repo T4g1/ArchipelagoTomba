@@ -210,7 +210,7 @@ class ItemHandler:
         # ItemData(0x93, IC.filler, Items.ITEM),
         ItemData(0x94, IC.progression, Items.SEASHELL_NECKLACE),
         ItemData(0x95, IC.progression, Items.THIEFS_WIRE),
-        ItemData(0x96, IC.progression, Items.STRONG_WIRE),
+        ItemData(0x96, IC.filler, Items.STRONG_WIRE),
         ItemData(0x97, IC.filler, Items.TEN_THOUSAND_YEAR_OLD_BELL),
         ItemData(0x98, IC.filler, Items.MILLION_YEAR_OLD_BELL),
         ItemData(0x99, IC.progression, Items.COLD_MEDECINE),

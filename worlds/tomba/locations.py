@@ -496,7 +496,9 @@ class LocationHandler:
             "Central Park Chest",
             Regions.CENTRAL_PARK,
             Items.ORANGE_EVIL_PIG_BAG,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & HasCleared(Events.THE_1000_YEAR_OLD_MAN),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            & HasCleared(Events.WHERES_THE_BABY_MOUSE)
+            & HasCleared(Events.A_DRINK_FOR_GROWNUPS),
         ),
         ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
         # Haunted Mansion
@@ -883,12 +885,7 @@ class LocationHandler:
             y=65091,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData(
-            "Million Year Old Key",
-            Regions.UNDERGROUND_MAZE,
-            Items.MILLION_YEAR_OLD_KEY,
-            rule=Has(Items.STRONG_WIRE) & Has(Items.THIEFS_WIRE),
-        ),
+        ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
         ItemLocData("Bronze Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.BRONZE_MEDAL),
         ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),

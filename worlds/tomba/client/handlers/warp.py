@@ -4,6 +4,7 @@ from . import Handler, AbstractHandler
 from ...constants import Events, EventStatus, Items, Addresses
 from ...sections import Section, Sections
 from ...items import ItemHandler
+from ...events import EventHandler
 from ...bitutils import Bitmask
 
 warp_masks: dict[Section, Bitmask] = {
@@ -40,6 +41,8 @@ warp_masks: dict[Section, Bitmask] = {
 class WarpHandler(AbstractHandler):
     """Handles logic that should be processed when accessing specific area/section of the game"""
 
+    leaving_handlers: dict[Section, Handler] = {}
+
     async def unlock_warp(self, section: Section):
         bitmask = warp_masks.get(section, None)
         if bitmask is None:
@@ -49,8 +52,37 @@ class WarpHandler(AbstractHandler):
         playsation = self.ctx.tomba.playstation
         await playsation.set_flag(bitmask.address, bitmask.mask)
 
+    async def handle_leaving(self, section: Section):
+        handler = self.leaving_handlers.get(section, None)
+        if handler:
+            await handler.callback()
+
     def init_handlers(self):
-        self.handlers = {Sections.MASAKARI_RIVER: Handler(self.on_masakari_river, 0, 0)}
+        # Handlers for when we leave a section
+        self.leaving_handlers = {
+            Sections.WOBBLY_WARF: Handler(self.on_wobbly_warf_left),
+        }
+
+        # Handlers for when we enter a section
+        self.handlers = {
+            Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
+            Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
+            Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
+        }
+
+    async def on_wobbly_warf_left(self):
+        # Put back the barrel if the event is not discovered
+        if await self.tomba.get_event_state(Events.WHERE_THE_BARREL_ROLLS) is EventStatus.UNDISCOVERED:
+            await self.tomba.playstation.set_flag(0x09BD1C, 0x40, False)
+
+    async def on_haunted_mansion_irregular_entry(self):
+        # Haunted Mansion will not load correctly if this is not cleared
+        event = EventHandler.by_name[Events.A_DRINK_FOR_GROWNUPS]
+        self.tomba.set_event_state(event, EventStatus.CLEARED)
+
+        # Prevent softlock when accessing Baccus Lake
+        event = EventHandler.by_name[Events.ROAD_TO_BACCUS_LAKE]
+        self.tomba.set_event_state(event, EventStatus.CLEARED)
 
     async def on_masakari_river(self):
         if self.ctx.tomba.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
