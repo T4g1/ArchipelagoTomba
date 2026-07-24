@@ -6,8 +6,9 @@ FUN_DEBUG_CALL:0x8001b0a4
 
 LAB_PLAY_SFX:
     # Save context
-    addiu   sp,sp,-0x24
-    sw      ra,0x20(sp)
+    addiu   sp,sp,-0x28
+    sw      ra,0x24(sp)
+    sw      s1,0x20(sp)
     sw      s0,0x1c(sp)
     sw      a1,0x18(sp)
     sw      a0,0x14(sp)
@@ -17,7 +18,7 @@ LAB_PLAY_SFX:
     lui     s0,0x8001
     addiu   s0,s0,-0x4ec0
     lbu     a0,0x0(s0)      # Read DAT_SFX_COMMAND
-    beq     a0,zero,LAB_CLEAR_STACK
+    beq     a0,zero,LAB_POP_STACK
     nop
 
     # Play SFX
@@ -25,7 +26,7 @@ LAB_PLAY_SFX:
     jal     FUN_PLAY_SFX
     nop
 
-LAB_CLEAR_STACK:
+LAB_POP_STACK:
     # Check command
     lui     a0,0x8001
     addiu   a0,a0,-0x4ebf
@@ -35,11 +36,49 @@ LAB_CLEAR_STACK:
     beq     a1,zero,LAB_DEBUG_MESSAGE
     nop
 
-    # Clear stack of found items
-    lui     s0,0x8001
-    sb      s0,-0x4c00(s0)  # Reset DAT_STACK_SIZE
+    # Pop stack item
+    # Algorithm: The item on top of the stack (at the index 0 so 0x8000 B400) is considered processed by Archipelago once this command is set
+    # In that case, we pick the item on the bottom of the stack, save it on top and decrement the stack size
+    # That way, item at position 0 is always the next to process, this is LIFO but this should be good enough
+
+    # Register Usage:
+    # s0 = Base register (0x80010000)
+    # s1 = Stack size counter / Current index
+    # t0 = Calculated memory offset for the bottom structure
+    # t1 = Temporary storage for first 4 bytes of structure
+    # t2 = Temporary storage for last 4 bytes of structure
+    lui     s0, 0x8001          # s0 = 0x80010000
+
+    # 1. LOAD STACK SIZE
+    lbu     s1, 0xB3F0(s0)     # Load current stack size from 0x8000B3F0
+    nop
+    beq     s1, zero, LAB_EMPTY_STACK
+    nop
+
+    # 2. DECREMENT SIZE
+    addi    s1, s1, -1          # Decrement size (s1 now holds the index of the bottom item)
+    sb      s1, 0xB3F0(s0)      # Save the updated stack size back to 0x8000B3F0
+    
+    #beq     s1, zero, LAB_EMPTY_STACK
+    #nop
+
+    # 3. CALCULATE BOTTOM ITEM POINTER
+    sll     t0, s1, 3           # Multiply index by 8 (shift left by 3) to get byte offset
+
+    # 4. FETCH BOTTOM STRUCTURE (8 BYTES)
+    # Base target is 0x8000B400
+    # We add our calculated index offset (t0) to the memory load address
+    addu    t0, t0, s0          # t0 = 0x80010000 + structural byte offset
+    lw      t1, 0xB400(t0)      # Load first 4 bytes of bottom item
+    lw      t2, 0xB404(t0)      # Load last 4 bytes of bottom item
+
+    # 5. OVERWRITE TOP ITEM (INDEX 0)
+    sw      t1, 0xB400(s0)      # Overwrite first 4 bytes at 0x8000B400
+    sw      t2, 0xB404(s0)      # Overwrite last 4 bytes at 0x8000B400
+
+LAB_EMPTY_STACK:
     andi    a0,a0,0xfe
-    sb      a0,-0x4ebf(s0)  # Reset DAT_COMMAND
+    sb      a0,0xB141(s0)       # Reset DAT_COMMAND
 
 LAB_DEBUG_MESSAGE:
     # Check command
@@ -99,8 +138,9 @@ LAB_RETURN:
     lw      a0,0x14(sp)
     lw      a1,0x18(sp)
     lw      s0,0x1c(sp)
-    lw      ra,0x20(sp)
-    addiu   sp,sp,0x24
+    lw      s1,0x20(sp)
+    lw      ra,0x24(sp)
+    addiu   sp,sp,0x28
 
     # Return to caller
     jr      ra

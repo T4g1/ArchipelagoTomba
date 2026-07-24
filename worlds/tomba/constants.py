@@ -381,8 +381,8 @@ class Addresses(IntEnum):
     MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
 
     # Addresses for items found in game stack
-    FOUND_ITEMS_STACK_SIZE = 0xB400
-    FOUND_ITEMS_STACK = 0xB401
+    FOUND_ITEMS_STACK_SIZE = 0xB3F0
+    FOUND_ITEMS_STACK = 0xB400
 
     # Where we put the sound to be played
     PLAY_SFX = 0xB140
@@ -489,5 +489,5 @@ class MailboxState(IntEnum):
 class CustomCommand(IntEnum):
     """Masks for custom commands"""
 
-    CLEAR_STACK = 0x00000001  # Bit 0 R/W = 1: Clear stack, stack is being cleared
+    POP_STACK = 0x00000001  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x00000010  # Bit 1 R/W = 1: Display info message (B142 and B143)
