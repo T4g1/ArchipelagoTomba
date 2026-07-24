@@ -410,6 +410,7 @@ class Addresses(IntEnum):
     TOMBA_STATE = 0x09C619
     TOMBA_WEAPON = 0x09C61A
     TOMBA_PANTS = 0x09C61B
+    PURIFICATION_FLAGS = 0x9C62B
 
 
 class TombaState(IntEnum):

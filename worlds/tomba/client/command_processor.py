@@ -8,7 +8,7 @@ else:
 
 from CommonClient import ClientCommandProcessor, logger
 
-from ..constants import EventStatus, Items, SFX
+from ..constants import EventStatus, Items, SFX, Addresses
 from ..items import ItemHandler
 from ..events import EventHandler
 from ..locations import LocationHandler
@@ -53,6 +53,16 @@ class TombaCommandProcessor(ClientCommandProcessor):
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
             self.ctx.tomba.events_handler.set_event_state(event, EventStatus.UNDISCOVERED)
+
+    def _cmd_corrupt(self):
+        """DEBUG: Corrupt all areas"""
+        if isinstance(self.ctx, TombaContext):
+            self.ctx.tomba.playstation.write_memory(Addresses.PURIFICATION_FLAGS, bytes([0x00]))
+
+    def _cmd_purify(self):
+        """DEBUG: Purify all areas"""
+        if isinstance(self.ctx, TombaContext):
+            self.ctx.tomba.playstation.write_memory(Addresses.PURIFICATION_FLAGS, bytes([0xFF]))
 
     async def _cmd_warp(self):
         """DEBUG: Unlock all warp targets and gives a charity wing"""
