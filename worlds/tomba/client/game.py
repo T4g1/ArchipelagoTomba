@@ -82,7 +82,6 @@ class TombaGame:
         logger.info(f"Connected to Retroarch {version} running {rom_name}")
 
     def play_sfx(self, sfx_id: int):
-        logger.debug(f"Playing SFX {sfx_id}")
         self.playstation.write_memory(Addresses.PLAY_SFX, sfx_id.to_bytes())
 
     async def show_message(self, code: int):
@@ -150,8 +149,6 @@ class TombaGame:
         await self.patcher.patch_game()
 
     async def update_status(self):
-        old_status = self.status
-
         screen = await self.get_screen_state()
         self.screen = screen
 
@@ -169,18 +166,18 @@ class TombaGame:
         elif screen == Screens.TRAILER_SCREEN or screen == Screens.TITLE_SCREEN:
             self.status = GameState.TITLE
 
-        if old_status != self.status:
-            logger.debug(f"Status changed to: {self.status}")
-
     async def update_section(self):
         area_id = (await self.playstation.async_read_memory(Addresses.SELECTED_AREA))[0]
         section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
         new_section = Section(area_id, section_id)
 
         if new_section != self.section:
-            await self.warp_hanlder.handle_leaving(self.section)
+            old_section = self.section
             self.section = new_section
-            await self.warp_hanlder.handle(self.section)
+            logger.debug(f"Player is now entering: {self.section}")
+
+            await self.warp_hanlder.handle_leaving(self.section, to=new_section)
+            await self.warp_hanlder.handle(self.section, coming_from=old_section)
 
     async def update_locations(self):
         """Process all locations and reset game objects if needed"""

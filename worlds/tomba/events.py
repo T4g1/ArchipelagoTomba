@@ -125,7 +125,7 @@ class EventHandler:
             cleared_rule=Has(Items.BROKEN_VASE),
         ),
         EventData(0x15, Events.THE_GREAT_ESCAPE, Regions.DWARF_VILLAGE, started_rule=HasCleared(Events.STOP_THE_FIGHT)),
-        EventData(0x16, Events.LOOK_AND_SEE, Regions.WATCH_TOWER),
+        EventData(0x16, Events.LOOK_AND_SEE, Regions.WATCH_TOWER, cleared_rule=Has(Items.TELESCOPE)),
         EventData(
             0x17,
             Events.A_MANS_BEST_FRIEND,
@@ -155,8 +155,8 @@ class EventHandler:
         EventData(
             0x1E,
             Events.PHOENIX_MOUNTAIN,
-            Regions.LAVA_CAVES,
-            started_rule=Has(Items.BIG_KEY) & CanReachRegion(Regions.STORMY_MOUNTAIN),
+            Regions.STORMY_MOUNTAIN,
+            started_rule=HasCleared(Events.A_STORMY_PIG_BAG),
             cleared_rule=Has(Items.RED_EVIL_PIG_BAG) & CanReachRegion(Regions.CHARITY_SQUARE),
         ),
         EventData(0x1F, Events.WHERE_DID_I_COME_FROM, Regions.STORMY_MOUNTAIN),
@@ -219,7 +219,7 @@ class EventHandler:
             Events.A_DRINK_FOR_GROWNUPS,
             Regions.CENTRAL_PARK,
             started_rule=HasCleared(Events.WHERES_THE_BABY_MOUSE),
-            cleared_rule=HasCleared(Events.ROAD_TO_BACCUS_LAKE) & Has(Items.PIPE),
+            cleared_rule=HasCleared(Events.ROAD_TO_BACCUS_LAKE),  # Event can be completed without the Pipe
         ),
         EventData(
             0x32,
@@ -685,7 +685,7 @@ class EventHandler:
             Events.THE_PHOENIXS_FAVORITE,
             Regions.LAVA_CAVES,
             started_rule=HasCleared(Events.DEATH_FRUIT_JUICE),
-            cleared_rule=HasCleared(Events.LAVA_CAVES),
+            cleared_rule=HasCleared(Events.LAVA_CAVES) & Has(Items.BUNK_FLOWER, 5),
         ),
         EventData(0xAC, Events.THE_FIRE_PIG_BAG, Regions.LAVA_CAVES, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)),
         EventData(0xAD, Events.CHARLES_PANTS, Regions.STORMY_MOUNTAIN, cleared_rule=Has(Items.CHARLES_PANTS)),
@@ -736,7 +736,12 @@ class EventHandler:
             0xBB, Events.THE_MYSTERIOUS_MUSHROOM, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
         ),
         EventData(0xBC, Events.LEAF_SLIDER, Regions.CHARITY_SQUARE),
-        EventData(0xBD, Events.RED_BLUE, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.BLUE_POWDER)),
+        EventData(
+            0xBD,
+            Events.RED_BLUE,
+            Regions.CHARITY_SQUARE,
+            cleared_rule=CanReachRegion(Regions.CHARITY_SQUARE) & CanReachRegion(Regions.MUSHROOM_FOREST),
+        ),
         EventData(
             0xBE,
             Events.THE_TROUBLED_THIEF,

@@ -6,7 +6,7 @@ from rule_builder.rules import Has, Rule
 from BaseClasses import Region, CollectionRule
 
 from .constants import Regions, Items, Events
-from .helpers import Started, Cleared
+from .helpers import Started, Cleared, Rules
 
 if TYPE_CHECKING:
     from .world import TombaWorld
@@ -42,10 +42,25 @@ def connect(
 
 
 def connect_regions(world: TombaWorld) -> None:
-    connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.FOREST_OF_ALL_BEGINNINGS, Has(Items.FURIOUS_TORNADO))
-    connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.THE_MERMAIDS_SINGING_ROCK, Has(Items.FUEL_BAR))
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.FOREST_OF_ALL_BEGINNINGS,
+        lambda state: state.can_reach_location(Cleared(Events.CLEAR_THE_FOG), world.player),
+    )
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.THE_MERMAIDS_SINGING_ROCK,
+        Rules.CAN_BREAK_STUFF & Has(Items.FUEL_BAR),
+    )
 
-    connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.FOREST_OF_100_FLOWERS, Has(Items.CHICK, 4))
+    connect(
+        world,
+        Regions.FOREST_OF_ALL_BEGINNINGS,
+        Regions.FOREST_OF_100_FLOWERS,
+        lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), world.player),
+    )
     connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.OL_POND)
 
     connect(world, Regions.FOREST_OF_100_FLOWERS, Regions.DWARF_VILLAGE)
@@ -63,6 +78,7 @@ def connect_regions(world: TombaWorld) -> None:
     )
 
     connect(world, Regions.CHARITY_SQUARE, Regions.HIDDEN_VILLAGE, Has(Items.LEAF_BUTTERFLY, 29))
+    connect(world, Regions.HIDDEN_VILLAGE, Regions.LAVA_CAVES_PURIFIED, Has(Cleared(Events.LAVA_CAVES)))
 
     connect(
         world,
@@ -111,11 +127,21 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         world,
         Regions.LAVA_CAVES,
-        Regions.PHOENIXS_NEST,
+        Regions.LAVA_CAVES_PURIFIED,
         lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), world.player),
     )
+    connect(
+        world,
+        Regions.LAVA_CAVES_PURIFIED,
+        Regions.PHOENIXS_NEST,
+    )
 
-    connect(world, Regions.PHOENIXS_NEST, Regions.MASAKARI_JUNGLE, Has(Items.BUNK_FLOWER, 5))
+    connect(
+        world,
+        Regions.PHOENIXS_NEST,
+        Regions.MASAKARI_JUNGLE,
+        lambda state: state.can_reach_location(Cleared(Events.THE_MASTER_OF_THE_SKIES), world.player),
+    )
 
     connect(world, Regions.BACCUS_VILLAGE, Regions.MUSHROOM_FOREST)
     connect(world, Regions.BACCUS_VILLAGE, Regions.CENTRAL_PARK)

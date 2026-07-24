@@ -10,13 +10,15 @@ from rule_builder.rules import Has, Rule
 from . import constants
 from .constants import Regions, Items, Locations, Events
 from .items import ItemHandler, ItemData, TombaItem
-from .sections import Section
+from .sections import Section, Sections
 from .helpers import HasStarted, HasCleared, Started, Cleared, Rules
 from .events import EventHandler
 from .bitutils import Bitmask
 
 if TYPE_CHECKING:
     from .world import TombaWorld
+
+MAX_DISTANCE_THRESHOLD = 500
 
 
 def get_name(name: str, region: str):
@@ -105,7 +107,7 @@ class ItemLocData(LocationData):
     def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
         # In case position is not relevant
         if self.x is None or self.y is None:
-            return float("inf")
+            return MAX_DISTANCE_THRESHOLD
 
         return (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
 
@@ -217,7 +219,12 @@ class LocationHandler:
         ),
         # Forest of 100 Flowers
         *[
-            ItemLocData(f"Leaf Butterfly {index}", Regions.FOREST_OF_100_FLOWERS, Items.LEAF_BUTTERFLY)
+            ItemLocData(
+                f"Leaf Butterfly {index}",
+                Regions.FOREST_OF_100_FLOWERS,
+                Items.LEAF_BUTTERFLY,
+                Sections.FOREST_OF_100_FLOWERS,
+            )
             for index in range(1, 26)
         ],
         ItemLocData("Campfire", Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)),
@@ -250,7 +257,7 @@ class LocationHandler:
         ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
         # Dwarf Village
         ItemLocData(
-            "Baron",
+            Locations.BARON,
             Regions.DWARF_VILLAGE,
             Items.BARON,
             rule=Has(Items.SEAWEED) & HasCleared(Events.DELICIOUS_KNOWLEDGE_FRUIT),
@@ -328,7 +335,6 @@ class LocationHandler:
         ItemLocData(
             "Charity Entrance Right", Regions.CHARITY_SQUARE, Items.CHARITY_WINGS, Section(0x01, 0x04), x=2930, y=65005
         ),
-        ItemLocData("Leaf Slider", Regions.CHARITY_SQUARE, Items.BLUE_POWDER),
         # Mansion
         ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
         # Stormy Mountain
@@ -378,7 +384,7 @@ class LocationHandler:
             x=5086,
             y=62932,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD5E, 0x20),
+            at=Bitmask(0x09BD5D, 0x20),
         ),
         ItemLocData(
             "100 Year Old Chest Wing 2",
@@ -388,7 +394,7 @@ class LocationHandler:
             x=5086,
             y=62932,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD5E, 0x20),
+            at=Bitmask(0x09BD5D, 0x20),
         ),
         ItemLocData(
             "1,000 Year Old Grapple", Regions.STORMY_MOUNTAIN, Items.GRAPPLE, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
@@ -401,18 +407,39 @@ class LocationHandler:
             Items.GREEN_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Leave Hidden Village", Regions.LAVA_CAVES, Items.WHAT_THE_THIEF_LOST),
+        ItemLocData(
+            "Bunk Flower 1", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=487, y=64860
+        ),
+        ItemLocData(
+            "Bunk Flower 2", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1049, y=64768
+        ),
+        ItemLocData(
+            "Bunk Flower 3", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1168, y=64785
+        ),
+        ItemLocData(
+            "Bunk Flower 4", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1793, y=64505
+        ),
+        ItemLocData(
+            "Bunk Flower 5", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2074, y=64517
+        ),
+        ItemLocData(
+            "Bunk Flower 6", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2047, y=64776
+        ),
+        ItemLocData(
+            "Bunk Flower 7", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2409, y=64400
+        ),
+        ItemLocData("Leave Hidden Village", Regions.LAVA_CAVES_PURIFIED, Items.WHAT_THE_THIEF_LOST),
         ItemLocData(
             "In Lava Caves Alcove",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.WHAT_THE_THIEF_FORGOT,
             rule=HasCleared(Events.THE_HAUNTED_MANSION),
         ),
         ItemLocData(
             "10,000 Year Charity Wing 1",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1539,
             y=64701,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
@@ -420,9 +447,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "10,000 Year Charity Wing 2",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1539,
             y=64701,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
@@ -430,9 +457,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "1,000 Year Charity Wing 1",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1570,
             y=64443,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
@@ -440,9 +467,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "1,000 Year Charity Wing 2",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1570,
             y=64443,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
@@ -450,16 +477,16 @@ class LocationHandler:
         ),
         ItemLocData(
             "Million Year Large Lunch",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.LARGE_LUNCH_BOX,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "100 Year Lunch",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.LUNCH_BOX,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         # Baccus Village
@@ -618,6 +645,12 @@ class LocationHandler:
             & Has(Items.LARGE_KEY_PANEL_4)
             & Has(Items.LARGE_KEY_PANEL_5),
         ),
+        # Baccus Lake
+        ItemLocData(
+            "Pipe",
+            Regions.BACCUS_LAKE,
+            Items.PIPE,
+        ),
         # Phoenix's Nest
         ItemLocData(
             "Green Jewel", Regions.PHOENIXS_NEST, Items.JEWEL_OF_WIND, rule=HasCleared(Events.THE_PHOENIXS_FAVORITE)
@@ -625,8 +658,10 @@ class LocationHandler:
         # Masakari Jungle
         ItemLocData("Get the Drum", Regions.MASAKARI_JUNGLE, Items.FUNGA_DRUM, rule=Has(Items.HUNDRED_YEAR_OLD_KEY)),
         *[
-            ItemLocData(f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY)
-            for index in range(26, 30)
+            ItemLocData(
+                f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY, Sections.MASAKARI_JUNGLE
+            )
+            for index in range(1, 5)
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
         ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
@@ -897,7 +932,7 @@ class LocationHandler:
         ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),
         ItemLocData("Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL),
         ItemLocData(
-            "FLying Wing Leftmost",
+            "Flying Wing Leftmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
             Section(0x06, 0x00),
@@ -905,7 +940,7 @@ class LocationHandler:
             y=64956,
         ),
         ItemLocData(
-            "FLying Winf Rightmost",
+            "Flying Wing Rightmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
             Section(0x06, 0x00),
@@ -975,8 +1010,15 @@ class LocationHandler:
         if len(filtered_locations) <= 0 and item.name == Items.CHEESE:
             filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item.id, section)
 
+        # Remove locations that are too far away
+        filtered_locations = [
+            location
+            for location in filtered_locations
+            if location.get_distance(camera_horizontal, camera_vertical) <= MAX_DISTANCE_THRESHOLD
+        ]
+
         filtered_locations = sorted(
-            filtered_locations, key=lambda item: item.get_distance(camera_horizontal, camera_vertical)
+            filtered_locations, key=lambda location: location.get_distance(camera_horizontal, camera_vertical)
         )
 
         return [location.id for location in filtered_locations]
@@ -1008,9 +1050,12 @@ def create_regular_locations(world: TombaWorld) -> None:
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 
     # Force furious tornado to be on Mailbox
-    # TODO: Fix crash when using Tornado and mailbox still has the animation
     MAILBOX = world.get_location(get_name(Locations.MAILBOX, Regions.VILLAGE_OF_ALL_BEGINNINGS))
     MAILBOX.place_locked_item(ItemHandler.create_item(world, Items.FURIOUS_TORNADO))
+
+    # Force baron to be on the original location
+    BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
+    BARON.place_locked_item(ItemHandler.create_item(world, Items.BARON))
 
 
 def create_events(world: TombaWorld) -> None:

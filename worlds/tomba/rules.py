@@ -43,7 +43,7 @@ def integrity_checks():
 
         # Make sure that every location that has a countable items has AREA and SECTION set
         if location.item.countable:
-            if location.section is None and location.item.name not in bypass_integrity_checks:
+            if location.section is None:
                 raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
@@ -53,6 +53,9 @@ def integrity_checks():
             raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
 
     for item in ItemHandler.item_table:
+        if item.name in bypass_integrity_checks:
+            continue
+
         location_ids = LocationHandler.by_item_id[item.id]
 
         if not item.countable and len(location_ids) > 1:
