@@ -20,20 +20,20 @@ class FoundItem:
     @staticmethod
     def from_bytes(data: bytearray):
         # Item Structure:
-        # * ITEM_ID: 1
         # * CAMERA_H: 2
         # * CAMERA_V: 2
+        # * ITEM_ID: 1
         # * AREA: 1
         # * SECTION: 1
-        game_id = data[0]
+        game_id = data[4]
         item = ItemHandler.by_game_id.get(game_id, None)
         if item is None:
             raise ItemException(f"Player got an unknown item game ID: {game_id}")
 
         return FoundItem(
             item=item,
-            camera_horizontal=int.from_bytes(data[1:3], byteorder="little", signed=False),
-            camera_vertical=int.from_bytes(data[3:5], byteorder="little", signed=False),
+            camera_horizontal=int.from_bytes(data[0:2], byteorder="little", signed=False),
+            camera_vertical=int.from_bytes(data[2:4], byteorder="little", signed=False),
             section=Section(data[5], data[6]),
         )
 
@@ -46,62 +46,45 @@ class ItemCheckHandler(AbstractHandler):
     async def get_found_items_counter(self) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
 
-    async def get_found_items_stack(self) -> list[FoundItem]:
-        count = await self.get_found_items_counter()
-        data = await self.tomba.playstation.read_memory_block(
-            Addresses.FOUND_ITEMS_STACK, count * constants.FOUND_ITEM_STRUCTURE_SIZE
-        )
-
-        found_items = []
-        for i in range(count):
-            start_index = i * constants.FOUND_ITEM_STRUCTURE_SIZE
-            item_data = data[start_index : start_index + constants.FOUND_ITEM_STRUCTURE_SIZE]
-            found_items.append(FoundItem.from_bytes(item_data))
-        return found_items
-
-    async def get_pending_found_items(self) -> list[FoundItem] | None:
-        """Give list of found items from the game.
+    async def get_found_item(self) -> FoundItem | None:
+        """Ask the game for any found item.
 
         Returns:
-            list[int]: The list of item collected by the player.
+            FoundItem: Informations about the next item found to be processed.
             None: If we can't read it yet (not patched or emulator issue)
         """
         if not await self.tomba.patcher.is_patched():
             return None
 
-        if await self.has_pending_clear_obtained_items():
-            # Wait until the emulator has cleared the stack before processing it again
-            return []
+        # Do not process until it's popped
+        if await self.has_pending_pop_stack():
+            return None
 
-        return await self.get_found_items_stack()
+        count = await self.get_found_items_counter()
+        if count <= 0:
+            return None
 
-    async def request_clear_obtained_items(self):
-        await self.tomba.set_command(CustomCommand.CLEAR_STACK)
+        data = await self.tomba.playstation.read_memory_block(
+            Addresses.FOUND_ITEMS_STACK, constants.FOUND_ITEM_STRUCTURE_SIZE
+        )
 
-    async def has_pending_clear_obtained_items(self) -> bool:
-        return bool(await self.tomba.get_command(CustomCommand.CLEAR_STACK))
+        return FoundItem.from_bytes(data)
+
+    async def request_pop_stack(self):
+        await self.tomba.set_command(CustomCommand.POP_STACK)
+
+    async def has_pending_pop_stack(self) -> bool:
+        return bool(await self.tomba.get_command(CustomCommand.POP_STACK))
 
     async def update_found_items(self):
-        """Update the list of found items to be processed"""
-        newly_found_items = await self.get_pending_found_items()
-        if newly_found_items is None:
+        """Process the items found in game"""
+        found_item = await self.get_found_item()
+        if found_item is None:
             return
 
-        for found_item in newly_found_items:
-            self.found_items.append(found_item)
-
-        if len(newly_found_items):
-            await self.request_clear_obtained_items()
-
-    async def process_found_items(self):
-        # TODO: If the client crashes while found_items is not empty, those are lost forever
-        if len(self.found_items) <= 0:
-            return
-
-        item = self.found_items.pop(0)
-        if not await self.on_item_get(item):
-            # Put back the item in the queue if it fails to process
-            self.found_items.append(item)
+        if await self.on_item_get(found_item):
+            # Pop the stack upon success
+            await self.request_pop_stack()
 
     async def on_item_get(self, found_item: FoundItem) -> bool:
         item = found_item.item
