@@ -6,7 +6,7 @@ from rule_builder.rules import Has, Rule
 from BaseClasses import Region, CollectionRule
 
 from .constants import Regions, Items, Events
-from .helpers import Started, Cleared
+from .helpers import Started, Cleared, Rules
 
 if TYPE_CHECKING:
     from .world import TombaWorld
@@ -48,7 +48,12 @@ def connect_regions(world: TombaWorld) -> None:
         Regions.FOREST_OF_ALL_BEGINNINGS,
         lambda state: state.can_reach_location(Cleared(Events.CLEAR_THE_FOG), world.player),
     )
-    connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.THE_MERMAIDS_SINGING_ROCK, Has(Items.FUEL_BAR))
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.THE_MERMAIDS_SINGING_ROCK,
+        Rules.CAN_BREAK_STUFF & Has(Items.FUEL_BAR),
+    )
 
     connect(
         world,
