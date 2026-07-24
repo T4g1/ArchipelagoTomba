@@ -217,7 +217,12 @@ class LocationHandler:
         ),
         # Forest of 100 Flowers
         *[
-            ItemLocData(f"Leaf Butterfly {index}", Regions.FOREST_OF_100_FLOWERS, Items.LEAF_BUTTERFLY)
+            ItemLocData(
+                f"Leaf Butterfly {index}",
+                Regions.FOREST_OF_100_FLOWERS,
+                Items.LEAF_BUTTERFLY,
+                Sections.FOREST_OF_100_FLOWERS,
+            )
             for index in range(1, 26)
         ],
         ItemLocData("Campfire", Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)),
@@ -646,8 +651,10 @@ class LocationHandler:
         # Masakari Jungle
         ItemLocData("Get the Drum", Regions.MASAKARI_JUNGLE, Items.FUNGA_DRUM, rule=Has(Items.HUNDRED_YEAR_OLD_KEY)),
         *[
-            ItemLocData(f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY)
-            for index in range(26, 30)
+            ItemLocData(
+                f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY, Sections.MASAKARI_JUNGLE
+            )
+            for index in range(1, 5)
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
         ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
