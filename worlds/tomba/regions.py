@@ -42,10 +42,20 @@ def connect(
 
 
 def connect_regions(world: TombaWorld) -> None:
-    connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.FOREST_OF_ALL_BEGINNINGS, Has(Items.FURIOUS_TORNADO))
+    connect(
+        world,
+        Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        Regions.FOREST_OF_ALL_BEGINNINGS,
+        lambda state: state.can_reach_location(Cleared(Events.CLEAR_THE_FOG), world.player),
+    )
     connect(world, Regions.VILLAGE_OF_ALL_BEGINNINGS, Regions.THE_MERMAIDS_SINGING_ROCK, Has(Items.FUEL_BAR))
 
-    connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.FOREST_OF_100_FLOWERS, Has(Items.CHICK, 4))
+    connect(
+        world,
+        Regions.FOREST_OF_ALL_BEGINNINGS,
+        Regions.FOREST_OF_100_FLOWERS,
+        lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), world.player),
+    )
     connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.OL_POND)
 
     connect(world, Regions.FOREST_OF_100_FLOWERS, Regions.DWARF_VILLAGE)
