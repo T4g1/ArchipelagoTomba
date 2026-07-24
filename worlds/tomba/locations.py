@@ -10,7 +10,7 @@ from rule_builder.rules import Has, Rule
 from . import constants
 from .constants import Regions, Items, Locations, Events
 from .items import ItemHandler, ItemData, TombaItem
-from .sections import Section
+from .sections import Section, Sections
 from .helpers import HasStarted, HasCleared, Started, Cleared, Rules
 from .events import EventHandler
 from .bitutils import Bitmask
@@ -401,18 +401,39 @@ class LocationHandler:
             Items.GREEN_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Leave Hidden Village", Regions.LAVA_CAVES, Items.WHAT_THE_THIEF_LOST),
+        ItemLocData(
+            "Bunk Flower 1", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=487, y=64860
+        ),
+        ItemLocData(
+            "Bunk Flower 2", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1049, y=64768
+        ),
+        ItemLocData(
+            "Bunk Flower 3", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1168, y=64785
+        ),
+        ItemLocData(
+            "Bunk Flower 4", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1793, y=64505
+        ),
+        ItemLocData(
+            "Bunk Flower 5", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2074, y=64517
+        ),
+        ItemLocData(
+            "Bunk Flower 6", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2047, y=64776
+        ),
+        ItemLocData(
+            "Bunk Flower 7", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2409, y=64400
+        ),
+        ItemLocData("Leave Hidden Village", Regions.LAVA_CAVES_PURIFIED, Items.WHAT_THE_THIEF_LOST),
         ItemLocData(
             "In Lava Caves Alcove",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.WHAT_THE_THIEF_FORGOT,
             rule=HasCleared(Events.THE_HAUNTED_MANSION),
         ),
         ItemLocData(
             "10,000 Year Charity Wing 1",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1539,
             y=64701,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
@@ -420,9 +441,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "10,000 Year Charity Wing 2",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1539,
             y=64701,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
@@ -430,9 +451,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "1,000 Year Charity Wing 1",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1570,
             y=64443,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
@@ -440,9 +461,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "1,000 Year Charity Wing 2",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             x=1570,
             y=64443,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
@@ -450,16 +471,16 @@ class LocationHandler:
         ),
         ItemLocData(
             "Million Year Large Lunch",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.LARGE_LUNCH_BOX,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "100 Year Lunch",
-            Regions.LAVA_CAVES,
+            Regions.LAVA_CAVES_PURIFIED,
             Items.LUNCH_BOX,
-            Section(0x03, 0x02),
+            Sections.LAVA_CAVES,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         # Baccus Village

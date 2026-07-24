@@ -1,3 +1,5 @@
+from typing import Any
+
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
@@ -52,15 +54,16 @@ class WarpHandler(AbstractHandler):
         playsation = self.ctx.tomba.playstation
         await playsation.set_flag(bitmask.address, bitmask.mask)
 
-    async def handle_leaving(self, section: Section):
+    async def handle_leaving(self, section: Section, *args: Any, **kwargs: Any):
         handler = self.leaving_handlers.get(section, None)
         if handler:
-            await handler.callback()
+            await handler.callback(*args, **kwargs)
 
     def init_handlers(self):
         # Handlers for when we leave a section
         self.leaving_handlers = {
             Sections.WOBBLY_WARF: Handler(self.on_wobbly_warf_left),
+            Sections.HIDDEN_VILLAGE: Handler(self.on_hidden_village_left),
         }
 
         # Handlers for when we enter a section
@@ -70,12 +73,19 @@ class WarpHandler(AbstractHandler):
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
         }
 
-    async def on_wobbly_warf_left(self):
+    async def on_wobbly_warf_left(self, to: Section):
         # Put back the barrel if the event is not discovered
         if await self.tomba.events_handler.get_event_state(Events.WHERE_THE_BARREL_ROLLS) is EventStatus.UNDISCOVERED:
             await self.tomba.playstation.set_flag(0x09BD1C, 0x40, False)
 
-    async def on_haunted_mansion_irregular_entry(self):
+    async def on_hidden_village_left(self, to: Section):
+        if to.equals(Sections.LAVA_CAVES):
+            # TODO: Check spawn location is on top of the cave
+            if self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
+                # TODO: This will be a glitched if player has not received Charle's Pants yet
+                pass
+
+    async def on_haunted_mansion_irregular_entry(self, coming_from: Section):
         # Haunted Mansion will not load correctly if this is not cleared
         event = EventHandler.by_name[Events.A_DRINK_FOR_GROWNUPS]
         self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
@@ -84,7 +94,7 @@ class WarpHandler(AbstractHandler):
         event = EventHandler.by_name[Events.ROAD_TO_BACCUS_LAKE]
         self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
-    async def on_masakari_river(self):
+    async def on_masakari_river(self, coming_from: Section):
         if self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
             charity_wing = ItemHandler.by_name[Items.CHARITY_WINGS]
             await self.tomba.inventory_handler.receive_item(charity_wing, 0)

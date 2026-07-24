@@ -178,9 +178,11 @@ class TombaGame:
         new_section = Section(area_id, section_id)
 
         if new_section != self.section:
-            await self.warp_hanlder.handle_leaving(self.section)
+            old_section = self.section
             self.section = new_section
-            await self.warp_hanlder.handle(self.section)
+
+            await self.warp_hanlder.handle_leaving(self.section, to=new_section)
+            await self.warp_hanlder.handle(self.section, coming_from=old_section)
 
     async def update_locations(self):
         """Process all locations and reset game objects if needed"""

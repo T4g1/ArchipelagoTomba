@@ -12,10 +12,10 @@ if TYPE_CHECKING:
 
 @dataclass
 class Handler:
-    callback: Callable
+    callback: Callable[..., Any]
     interval_ms: float = 0
     last_run: float = 0.0
-    args: Tuple = ()
+    args: Tuple[Any, ...] = ()
     kwargs: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
@@ -42,7 +42,7 @@ class AbstractHandler:
         """Override this to define handlers"""
         pass
 
-    async def handle(self, something: object):
+    async def handle(self, something: object, *args: Any, **kwargs: Any):
         handler = self.handlers.get(something, None)
         if handler:
-            await handler.callback()
+            await handler.callback(*args, **kwargs)

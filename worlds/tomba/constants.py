@@ -24,7 +24,6 @@ class Regions(str):
     CENTRAL_PARK = "Central Park"
     CHARITY_SQUARE = "Charity Square"
     CLOCK_TOWER = "Clock Tower"
-    # DWARF_FOREST = "Dwarf Forest" # Rather a group of regions
     DWARF_JAIL = "Dwarf Jail"
     DWARF_VILLAGE = "Dwarf Village"
     FOREST_OF_100_FLOWERS = "Forest Of 100 Flowers"
@@ -33,6 +32,7 @@ class Regions(str):
     HIDDEN_VILLAGE = "Hidden Village"
     IRON_CASTLE = "Iron Castle"
     LAVA_CAVES = "Lava Caves"
+    LAVA_CAVES_PURIFIED = "Lava Caves (Purified)"
     LUMBERJACK_FACTORY = "Lumberjack Factory"
     MANSION = "Mansion"
     MASAKARI_JUNGLE = "Masakari Jungle"

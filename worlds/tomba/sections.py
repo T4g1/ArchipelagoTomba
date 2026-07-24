@@ -86,6 +86,8 @@ class Sections(Section):
 
     Y_CROSSING = Section(0x12, 0x01)
 
+    HIDDEN_VILLAGE = Section(0x13, 0x02)
+
 
 purified_sections: dict[Section, Section] = {
     # Dwarf Forest

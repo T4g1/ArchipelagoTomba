@@ -63,6 +63,7 @@ def connect_regions(world: TombaWorld) -> None:
     )
 
     connect(world, Regions.CHARITY_SQUARE, Regions.HIDDEN_VILLAGE, Has(Items.LEAF_BUTTERFLY, 29))
+    connect(world, Regions.HIDDEN_VILLAGE, Regions.LAVA_CAVES_PURIFIED, Has(Cleared(Events.LAVA_CAVES)))
 
     connect(
         world,
@@ -111,11 +112,21 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         world,
         Regions.LAVA_CAVES,
-        Regions.PHOENIXS_NEST,
+        Regions.LAVA_CAVES_PURIFIED,
         lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), world.player),
     )
+    connect(
+        world,
+        Regions.LAVA_CAVES_PURIFIED,
+        Regions.PHOENIXS_NEST,
+    )
 
-    connect(world, Regions.PHOENIXS_NEST, Regions.MASAKARI_JUNGLE, Has(Items.BUNK_FLOWER, 5))
+    connect(
+        world,
+        Regions.PHOENIXS_NEST,
+        Regions.MASAKARI_JUNGLE,
+        lambda state: state.can_reach_location(Cleared(Events.THE_MASTER_OF_THE_SKIES), world.player),
+    )
 
     connect(world, Regions.BACCUS_VILLAGE, Regions.MUSHROOM_FOREST)
     connect(world, Regions.BACCUS_VILLAGE, Regions.CENTRAL_PARK)
