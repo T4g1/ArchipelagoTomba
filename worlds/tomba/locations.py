@@ -918,7 +918,7 @@ class LocationHandler:
         ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),
         ItemLocData("Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL),
         ItemLocData(
-            "FLying Wing Leftmost",
+            "Flying Wing Leftmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
             Section(0x06, 0x00),
@@ -926,7 +926,7 @@ class LocationHandler:
             y=64956,
         ),
         ItemLocData(
-            "FLying Winf Rightmost",
+            "Flying Wing Rightmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
             Section(0x06, 0x00),
