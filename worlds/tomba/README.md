@@ -1,4 +1,4 @@
-# Tomba! Archipelago developement
+# Tomba! APWorld
 
 ## Technical stuff
 
