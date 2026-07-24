@@ -384,7 +384,7 @@ class LocationHandler:
             x=5086,
             y=62932,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD5E, 0x20),
+            at=Bitmask(0x09BD5D, 0x20),
         ),
         ItemLocData(
             "100 Year Old Chest Wing 2",
@@ -394,7 +394,7 @@ class LocationHandler:
             x=5086,
             y=62932,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD5E, 0x20),
+            at=Bitmask(0x09BD5D, 0x20),
         ),
         ItemLocData(
             "1,000 Year Old Grapple", Regions.STORMY_MOUNTAIN, Items.GRAPPLE, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
@@ -1011,10 +1011,11 @@ class LocationHandler:
             filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item.id, section)
 
         # Remove locations that are too far away
-        filtered_locations = filter(
-            lambda location: location.get_distance(camera_horizontal, camera_vertical) <= MAX_DISTANCE_THRESHOLD,
-            filtered_locations,
-        )
+        filtered_locations = [
+            location
+            for location in filtered_locations
+            if location.get_distance(camera_horizontal, camera_vertical) <= MAX_DISTANCE_THRESHOLD
+        ]
 
         filtered_locations = sorted(
             filtered_locations, key=lambda location: location.get_distance(camera_horizontal, camera_vertical)

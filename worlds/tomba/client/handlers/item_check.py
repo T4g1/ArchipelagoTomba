@@ -121,6 +121,7 @@ class ItemCheckHandler(AbstractHandler):
         location_id = first_unchecked
         if location_id is None:
             logger.error(f"Player has found {item.name} but there are no location left to send it.")
+            logger.debug(f"Candidates were: {location_ids}")
             return True
 
         logger.debug(f"Sending location check to server for {location_id}")
