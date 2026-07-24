@@ -257,7 +257,7 @@ class LocationHandler:
         ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
         # Dwarf Village
         ItemLocData(
-            "Baron",
+            Locations.BARON,
             Regions.DWARF_VILLAGE,
             Items.BARON,
             rule=Has(Items.SEAWEED) & HasCleared(Events.DELICIOUS_KNOWLEDGE_FRUIT),
@@ -1050,9 +1050,12 @@ def create_regular_locations(world: TombaWorld) -> None:
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 
     # Force furious tornado to be on Mailbox
-    # TODO: Fix crash when using Tornado and mailbox still has the animation
     MAILBOX = world.get_location(get_name(Locations.MAILBOX, Regions.VILLAGE_OF_ALL_BEGINNINGS))
     MAILBOX.place_locked_item(ItemHandler.create_item(world, Items.FURIOUS_TORNADO))
+
+    # Force baron to be on the original location
+    BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
+    BARON.place_locked_item(ItemHandler.create_item(world, Items.BARON))
 
 
 def create_events(world: TombaWorld) -> None:

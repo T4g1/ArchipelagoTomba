@@ -74,7 +74,7 @@ class ItemHandler:
         ItemData(0x0B, IC.progression, Items.TELESCOPE),
         ItemData(0x0C, IC.progression, Items.TEAR_JAR),
         ItemData(0x0D, IC.progression, Items.FLOWER_TEARS),
-        ItemData(0x0E, IC.deprioritized, Items.BARON),
+        ItemData(0x0E, IC.filler, Items.BARON, behavior=ItemBehavior.LOCKED),
         ItemData(0x0F, IC.progression, Items.BAKED_YAM),
         ItemData(0x10, IC.progression, Items.LEAF_BUTTERFLY, True, 29),
         ItemData(0x11, IC.progression, Items.TORCH),
@@ -92,7 +92,7 @@ class ItemHandler:
         ItemData(0x1D, IC.filler, Items.JUMPING_PANTS),
         ItemData(0x1E, IC.progression | IC.filler, Items.LUNCH_BOX, True),
         ItemData(0x1F, IC.filler, Items.LARGE_LUNCH_BOX, True),
-        ItemData(0x20, IC.deprioritized, Items.NORMAL_PANTS),
+        ItemData(0x20, IC.filler, Items.NORMAL_PANTS),
         ItemData(0x21, IC.progression, Items.GRAPPLE),
         ItemData(0x22, IC.progression, Items.GRAPPLEJACK),
         ItemData(0x23, IC.progression, Items.BABY_PIG),
@@ -195,7 +195,7 @@ class ItemHandler:
         ItemData(0x84, IC.filler, Items.SACRED_FISH),
         # ItemData(0x85, IC.filler, Items.CHICK),
         # ItemData(0x86, IC.filler, Items.CHICK),
-        # ItemData(0x87, IC.deprioritized, Items.GOLDEN_BOWL),
+        # ItemData(0x87, IC.filler, Items.GOLDEN_BOWL),
         # ItemData(0x88, IC.filler, Items.FLOWER_TEARS),
         # ItemData(0x89, IC.filler, Items.ITEM),
         ItemData(0x8A, IC.progression, Items.RISE_AND_SHINE_POWDER),
@@ -205,7 +205,7 @@ class ItemHandler:
         ItemData(0x8E, IC.progression, Items.THREE_CRYSTAL_BALLS),
         ItemData(0x8F, IC.progression, Items.WHAT_THE_THIEF_LOST),
         ItemData(0x90, IC.progression, Items.WHAT_THE_THIEF_FORGOT),
-        ItemData(0x91, IC.deprioritized, Items.BOSS_JEWEL),
+        ItemData(0x91, IC.filler, Items.BOSS_JEWEL),
         ItemData(0x92, IC.filler, Items.ORDINARY_MUSHROOM),
         # ItemData(0x93, IC.filler, Items.ITEM),
         ItemData(0x94, IC.progression, Items.SEASHELL_NECKLACE),
@@ -261,7 +261,10 @@ class ItemHandler:
     @staticmethod
     def create_all_items(world: TombaWorld) -> None:
         itempool: list[Item] = []
-        disabled_items: list[str] = []
+        disabled_items: list[str] = [
+            Items.BARON,
+            Items.NORMAL_PANTS,
+        ]
 
         # Apply options
         if not world.options.bell_warp:

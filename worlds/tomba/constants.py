@@ -15,6 +15,7 @@ FOUND_ITEM_STRUCTURE_SIZE = 8
 
 class Locations(str):
     AP_150_000 = "150,000 AP"
+    BARON = "Baron"
     MAILBOX = "Mailbox"
 
 
