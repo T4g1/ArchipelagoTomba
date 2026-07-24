@@ -69,7 +69,7 @@ class ItemHandler:
         ItemData(0x06, IC.progression, Items.HUNDRED_YEAR_OLD_KEY),
         ItemData(0x07, IC.filler, Items.CHARITY_WINGS, True),
         ItemData(0x08, IC.progression, Items.BITING_PLANT_FLOWER, True),
-        ItemData(0x09, IC.filler, Items.HEALING_MUSHROOM, True),
+        ItemData(0x09, IC.filler, Items.HEALING_MUSHROOM, True, behavior=ItemBehavior.ORIGINAL),
         ItemData(0x0A, IC.progression, Items.BUCKET),
         ItemData(0x0B, IC.progression, Items.TELESCOPE),
         ItemData(0x0C, IC.progression, Items.TEAR_JAR),
@@ -124,7 +124,7 @@ class ItemHandler:
         # ItemData(0x3D, IC.filler, Items.IRON),
         # ItemData(0x3E, IC.filler, Items.IRON_WHEEL),
         ItemData(0x3F, IC.progression, Items.FLOWER_SEEDS),
-        ItemData(0x40, IC.progression, Items.PIPE),
+        ItemData(0x40, IC.filler, Items.PIPE),
         ItemData(0x41, IC.progression, Items.WINE),
         ItemData(0x42, IC.progression, Items.BUNK_FLOWER, True, 5),
         ItemData(0x43, IC.progression, Items.MATH_BEAD_1),
@@ -177,7 +177,7 @@ class ItemHandler:
         # ItemData(0x72, IC.filler, Items.SILVER_CANDY, True),
         ItemData(0x73, IC.progression, Items.GOLD_CANDY),
         # ItemData(0x74, IC.filler, Items.FORBIDDEN_MUSHROOM),
-        ItemData(0x75, IC.progression, Items.BLUE_POWDER),
+        ItemData(0x75, IC.filler, Items.BLUE_POWDER, behavior=ItemBehavior.ORIGINAL),
         # ItemData(0x76, IC.filler, Items.COCONUTS, True),
         # ItemData(0x77, IC.filler, Items.FUNGA_LEATHER),
         # ItemData(0x78, IC.filler, Items.GRANDPAS_BRACELET),
@@ -206,7 +206,7 @@ class ItemHandler:
         ItemData(0x8F, IC.progression, Items.WHAT_THE_THIEF_LOST),
         ItemData(0x90, IC.progression, Items.WHAT_THE_THIEF_FORGOT),
         ItemData(0x91, IC.deprioritized, Items.BOSS_JEWEL),
-        ItemData(0x92, IC.filler, Items.ORDINARY_MUSHROOM, behavior=ItemBehavior.ORIGINAL),
+        ItemData(0x92, IC.filler, Items.ORDINARY_MUSHROOM),
         # ItemData(0x93, IC.filler, Items.ITEM),
         ItemData(0x94, IC.progression, Items.SEASHELL_NECKLACE),
         ItemData(0x95, IC.progression, Items.THIEFS_WIRE),
@@ -236,17 +236,21 @@ class ItemHandler:
 
     @staticmethod
     def get_random_filler_item_name(world: TombaWorld) -> str:
-        return world.random.choices([
-            Items.CHARITY_WINGS,
-            Items.HEALING_MUSHROOM,
-            Items.LUNCH_BOX,
-            Items.LARGE_LUNCH_BOX,
-        ], weights=[
-            3,
-            2,
-            2,
-            1,
-        ], k = 1)[0]
+        return world.random.choices(
+            [
+                Items.CHARITY_WINGS,
+                Items.HEALING_MUSHROOM,
+                Items.LUNCH_BOX,
+                Items.LARGE_LUNCH_BOX,
+            ],
+            weights=[
+                3,
+                2,
+                2,
+                1,
+            ],
+            k=1,
+        )[0]
 
     @staticmethod
     def create_item(world: TombaWorld, name: str) -> TombaItem:

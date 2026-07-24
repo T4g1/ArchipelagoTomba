@@ -219,7 +219,7 @@ class EventHandler:
             Events.A_DRINK_FOR_GROWNUPS,
             Regions.CENTRAL_PARK,
             started_rule=HasCleared(Events.WHERES_THE_BABY_MOUSE),
-            cleared_rule=HasCleared(Events.ROAD_TO_BACCUS_LAKE) & Has(Items.PIPE),
+            cleared_rule=HasCleared(Events.ROAD_TO_BACCUS_LAKE),  # Event can be completed without the Pipe
         ),
         EventData(
             0x32,
@@ -736,7 +736,12 @@ class EventHandler:
             0xBB, Events.THE_MYSTERIOUS_MUSHROOM, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
         ),
         EventData(0xBC, Events.LEAF_SLIDER, Regions.CHARITY_SQUARE),
-        EventData(0xBD, Events.RED_BLUE, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.BLUE_POWDER)),
+        EventData(
+            0xBD,
+            Events.RED_BLUE,
+            Regions.CHARITY_SQUARE,
+            cleared_rule=CanReachRegion(Regions.CHARITY_SQUARE) & CanReachRegion(Regions.MUSHROOM_FOREST),
+        ),
         EventData(
             0xBE,
             Events.THE_TROUBLED_THIEF,

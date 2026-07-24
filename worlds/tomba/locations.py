@@ -18,6 +18,8 @@ from .bitutils import Bitmask
 if TYPE_CHECKING:
     from .world import TombaWorld
 
+MAX_DISTANCE_THRESHOLD = 500
+
 
 def get_name(name: str, region: str):
     return f"{name} ({region})"
@@ -105,7 +107,7 @@ class ItemLocData(LocationData):
     def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
         # In case position is not relevant
         if self.x is None or self.y is None:
-            return float("inf")
+            return MAX_DISTANCE_THRESHOLD
 
         return (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
 
@@ -333,7 +335,6 @@ class LocationHandler:
         ItemLocData(
             "Charity Entrance Right", Regions.CHARITY_SQUARE, Items.CHARITY_WINGS, Section(0x01, 0x04), x=2930, y=65005
         ),
-        ItemLocData("Leaf Slider", Regions.CHARITY_SQUARE, Items.BLUE_POWDER),
         # Mansion
         ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
         # Stormy Mountain
@@ -643,6 +644,12 @@ class LocationHandler:
             & Has(Items.LARGE_KEY_PANEL_3)
             & Has(Items.LARGE_KEY_PANEL_4)
             & Has(Items.LARGE_KEY_PANEL_5),
+        ),
+        # Baccus Lake
+        ItemLocData(
+            "Pipe",
+            Regions.BACCUS_LAKE,
+            Items.PIPE,
         ),
         # Phoenix's Nest
         ItemLocData(
@@ -1003,8 +1010,14 @@ class LocationHandler:
         if len(filtered_locations) <= 0 and item.name == Items.CHEESE:
             filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item.id, section)
 
+        # Remove locations that are too far away
+        filtered_locations = filter(
+            lambda location: location.get_distance(camera_horizontal, camera_vertical) <= MAX_DISTANCE_THRESHOLD,
+            filtered_locations,
+        )
+
         filtered_locations = sorted(
-            filtered_locations, key=lambda item: item.get_distance(camera_horizontal, camera_vertical)
+            filtered_locations, key=lambda location: location.get_distance(camera_horizontal, camera_vertical)
         )
 
         return [location.id for location in filtered_locations]

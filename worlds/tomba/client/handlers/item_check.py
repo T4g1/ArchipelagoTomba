@@ -94,6 +94,7 @@ class ItemCheckHandler(AbstractHandler):
             await self.request_clear_obtained_items()
 
     async def process_found_items(self):
+        # TODO: If the client crashes while found_items is not empty, those are lost forever
         if len(self.found_items) <= 0:
             return
 
