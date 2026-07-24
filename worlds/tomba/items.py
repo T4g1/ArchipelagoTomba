@@ -236,7 +236,17 @@ class ItemHandler:
 
     @staticmethod
     def get_random_filler_item_name(world: TombaWorld) -> str:
-        return Items.CHARITY_WINGS
+        return world.random.choices([
+            Items.CHARITY_WINGS,
+            Items.HEALING_MUSHROOM,
+            Items.LUNCH_BOX,
+            Items.LARGE_LUNCH_BOX,
+        ], weights=[
+            3,
+            2,
+            2,
+            1,
+        ], k = 1)[0]
 
     @staticmethod
     def create_item(world: TombaWorld, name: str) -> TombaItem:
