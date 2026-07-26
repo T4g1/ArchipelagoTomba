@@ -20,11 +20,12 @@ def HasCleared(event_name: str):
 
 
 class Rules:
+    CAN_GRAPPLE = Has(Items.GRAPPLE) | Has(Items.GRAPPLEJACK)
+    CAN_LIGHT_BREAK_STUFF = Has(Items.BLACKJACK) | Has(Items.WOOD_BOOMERANG)
     CAN_BREAK_STUFF = (
-        Has(Items.BLACKJACK)
-        | Has(Items.WOOD_BOOMERANG)
+        CAN_LIGHT_BREAK_STUFF
         | Has(Items.STONE_BOOMERANG)
-        | Has(Items.STONE_BOOMERANG)
+        | Has(Items.IRON_BOOMERANG)
         | Has(Items.GRAPPLEJACK)
         | Has(Items.JEWEL_OF_FIRE)
         | Has(Items.JEWEL_OF_WATER)

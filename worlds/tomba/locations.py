@@ -305,7 +305,9 @@ class LocationHandler:
             Section(0x02, 0x00),
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Fire Starter", Regions.DWARF_VILLAGE, Items.TORCH, rule=HasStarted(Events.WHERED_THE_LIGHTS_GO)),
+        ItemLocData(
+            Locations.FIRE_STARTER, Regions.DWARF_VILLAGE, Items.TORCH, rule=HasStarted(Events.WHERED_THE_LIGHTS_GO)
+        ),
         ItemLocData("Jail", Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
         # Mushroom Forest
         ItemLocData("AP Box", Regions.MUSHROOM_FOREST, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
@@ -383,7 +385,7 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.LARGE_LUNCH_BOX,
             Section(0x03, 0x00),
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE,
         ),
         ItemLocData(
             "Million Year Old Chest",
@@ -467,7 +469,9 @@ class LocationHandler:
         ItemLocData(
             "Bunk Flower 7", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2409, y=64400
         ),
-        ItemLocData("Leave Hidden Village", Regions.LAVA_CAVES_PURIFIED, Items.WHAT_THE_THIEF_LOST),
+        ItemLocData(
+            "Leave Hidden Village", Regions.LAVA_CAVES_PURIFIED, Items.WHAT_THE_THIEF_LOST, rule=Rules.CAN_GRAPPLE
+        ),
         ItemLocData(
             "In Lava Caves Alcove",
             Regions.LAVA_CAVES_PURIFIED,
@@ -971,7 +975,7 @@ class LocationHandler:
         ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
-        ItemLocData("Bronze Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.BRONZE_MEDAL),
+        ItemLocData(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK, Items.BRONZE_MEDAL),
         ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),
         ItemLocData("Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL),
         ItemLocData(

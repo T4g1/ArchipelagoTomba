@@ -86,7 +86,7 @@ class ItemHandler:
         ItemData(0x17, IC.filler, Items.IRON_BOOMERANG),
         ItemData(0x18, IC.filler, Items.DASHING_PANTS),
         # ItemData(0x19, IC.filler, Items.MAP),
-        ItemData(0x1A, IC.filler, Items.BROKEN_VASE), # Actually not required for the event
+        ItemData(0x1A, IC.filler, Items.BROKEN_VASE),  # Actually not required for the event
         ItemData(0x1B, IC.progression, Items.BLACKJACK),
         ItemData(0x1C, IC.filler, Items.FLASH_PANTS),
         ItemData(0x1D, IC.filler, Items.JUMPING_PANTS),
@@ -124,7 +124,7 @@ class ItemHandler:
         # ItemData(0x3D, IC.filler, Items.IRON),
         # ItemData(0x3E, IC.filler, Items.IRON_WHEEL),
         ItemData(0x3F, IC.progression, Items.FLOWER_SEEDS),
-        ItemData(0x40, IC.filler, Items.PIPE), # Not required to finish the event
+        ItemData(0x40, IC.filler, Items.PIPE),  # Not required to finish the event
         ItemData(0x41, IC.progression, Items.WINE),
         ItemData(0x42, IC.progression, Items.BUNK_FLOWER, True, 5),
         ItemData(0x43, IC.progression, Items.MATH_BEAD_1),

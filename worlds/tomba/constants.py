@@ -16,8 +16,10 @@ FOUND_ITEM_STRUCTURE_SIZE = 8
 class Locations(str):
     AP_150_000 = "150,000 AP"
     BARON = "Baron"
+    BRONZE_MEDAL = "Bronze Medal"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
+    FIRE_STARTER = "Fire Starter"
     HIDDEN_CHEST_FOREST_100_FLOWER_1 = "Hidden Chest Wing 1"
     HIDDEN_CHEST_FOREST_100_FLOWER_2 = "Hidden Chest Wing 2"
     MAILBOX = "Mailbox"

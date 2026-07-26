@@ -306,7 +306,7 @@ class EventHandler:
             0x51,
             Events.THE_BOSS_TREASURE,
             Regions.HAUNTED_MANSION,
-            started_rule=HasCleared(Events.THE_HAUNTED_MANSION),
+            started_rule=HasCleared(Events.THE_HAUNTED_MANSION) & HasCleared(Events.WHAT_THE_THIEF_FORGOT),
             cleared_rule=Has(Items.SMALL_KEY) & Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         EventData(
@@ -707,7 +707,10 @@ class EventHandler:
             cleared_rule=Has(Items.TORCH),
         ),
         EventData(
-            0xB4, Events.WHERE_THE_BARREL_ROLLS, Regions.WOBBLY_WHARF, cleared_rule=HasCleared(Events.WHATS_UNDERWATER)
+            0xB4,
+            Events.WHERE_THE_BARREL_ROLLS,
+            Regions.WOBBLY_WHARF,
+            cleared_rule=HasCleared(Events.WHATS_UNDERWATER) & Rules.CAN_LIGHT_BREAK_STUFF,
         ),
         EventData(0xB5, Events.READY_SET_GO, Regions.STORMY_MOUNTAIN, started_rule=HasCleared(Events.THE_GREAT_ESCAPE)),
         EventData(
@@ -746,13 +749,13 @@ class EventHandler:
             Events.THE_TROUBLED_THIEF,
             Regions.LAVA_CAVES,
             started_rule=HasCleared(Events.LAVA_CAVES),
-            cleared_rule=CanReachRegion(Regions.HIDDEN_VILLAGE),
+            cleared_rule=Has(Items.WHAT_THE_THIEF_LOST),
         ),
         EventData(
             0xBF,
             Events.WHAT_THE_THIEF_FORGOT,
             Regions.LAVA_CAVES,
-            started_rule=Has(Items.WHAT_THE_THIEF_LOST),
+            started_rule=HasCleared(Events.THE_TROUBLED_THIEF),
             cleared_rule=HasCleared(Events.THE_HAUNTED_MANSION) & Has(Items.WHAT_THE_THIEF_FORGOT),
         ),
     ]

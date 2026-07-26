@@ -1,9 +1,9 @@
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
-from ...constants import Addresses, Events, EventStatus, Items
+from ...constants import Addresses, Events, EventStatus, Items, Locations, Regions
 from ...events import EventHandler, EventData
-from ...locations import LocationHandler
+from ...locations import LocationHandler, get_name
 from ...items import ItemHandler
 
 
@@ -17,7 +17,38 @@ class EventsHandler(AbstractHandler):
         self.handlers = {
             Events.HIDE_AND_GO_SEEK: Handler(self.on_hide_and_go_seek),
             Events.LOOK_AND_SEE: Handler(self.on_look_and_see),
+            Events.WHERED_THE_LIGHTS_GO: Handler(self.on_where_the_lights_go),
+            Events.I_WANT_A_SILVER_MEDAL: Handler(self.on_i_want_a_silver_medal),
+            Events.THE_HAUNTED_MANSION: Handler(self.on_haunted_mansion),
         }
+
+    async def on_haunted_mansion(self):
+        """Lock the a painting of a big key event"""
+        event = EventHandler.by_name.get(Events.PAINTING_OF_A_BIG_KEY)
+        assert event is not None
+
+        self.set_event_state(event, EventStatus.CLEARED)
+
+    async def on_i_want_a_silver_medal(self):
+        """Lock the bronze medal out"""
+        # Check the location
+        location = LocationHandler.by_name.get(
+            get_name(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK), None
+        )
+        assert location is not None
+        await self.ctx.check_locations([location.id])
+
+        # Clear the event
+        event = EventHandler.by_name.get(Events.I_WANT_A_BRONZE_MEDAL)
+        assert event is not None
+
+        self.set_event_state(event, EventStatus.CLEARED)
+
+    async def on_where_the_lights_go(self):
+        """This can be cleared without requiring the dwarf to hand the torch, we need to check that manualy"""
+        location = LocationHandler.by_name.get(get_name(Locations.FIRE_STARTER, Regions.DWARF_VILLAGE), None)
+        assert location is not None
+        await self.ctx.check_locations([location.id])
 
     async def on_hide_and_go_seek(self):
         # Clear Take Out as it becomes softlocked when this one is cleared
