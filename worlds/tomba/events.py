@@ -688,7 +688,9 @@ class EventHandler:
         ),
         EventData(0xAC, Events.THE_FIRE_PIG_BAG, Regions.LAVA_CAVES, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)),
         EventData(0xAD, Events.CHARLES_PANTS, Regions.STORMY_MOUNTAIN, cleared_rule=Has(Items.CHARLES_PANTS)),
-        EventData(0xAE, Events.THE_HAUNTED_PIG_BAG, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.PINK_EVIL_PIG_BAG)),
+        EventData(
+            0xAE, Events.THE_HAUNTED_PIG_BAG, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+        ),
         EventData(0xAF, Events.THE_WORLDS_GREATEST_SMILE, Regions.MUSHROOM_FOREST),
         EventData(0xB0, Events.THE_WORLDS_GREATEST_POUT, Regions.MUSHROOM_FOREST),
         EventData(0xB1, Events.SOMETHINGS_COOKIN, Regions.FOREST_OF_100_FLOWERS, cleared_rule=Has(Items.BAKED_YAM)),
