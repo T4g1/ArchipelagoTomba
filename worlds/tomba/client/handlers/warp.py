@@ -101,7 +101,7 @@ class WarpHandler(AbstractHandler):
                 pass
 
     async def on_forest_of_100_flowers_entry(self, coming_from: Section):
-        if not self.is_purified(Regions.FOREST_OF_100_FLOWERS):
+        if not await self.is_purified(Regions.FOREST_OF_100_FLOWERS):
             return
 
         logger.debug(f"Tiggerring Hidden Chest in {Regions.FOREST_OF_100_FLOWERS}")
