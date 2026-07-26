@@ -122,7 +122,6 @@ class EventHandler:
             Events.STOP_THE_FIGHT,
             Regions.DWARF_VILLAGE,
             started_rule=HasCleared(Events.WHERED_THE_LIGHTS_GO),
-            cleared_rule=Has(Items.BROKEN_VASE),
         ),
         EventData(0x15, Events.THE_GREAT_ESCAPE, Regions.DWARF_VILLAGE, started_rule=HasCleared(Events.STOP_THE_FIGHT)),
         EventData(0x16, Events.LOOK_AND_SEE, Regions.WATCH_TOWER, cleared_rule=Has(Items.TELESCOPE)),
