@@ -84,6 +84,10 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_locations, interval_ms=5000),
         ]
 
+    async def check_locations(self, locations: list[int]) -> None:
+        logger.debug(f"Location checks: {locations}")
+        await super().check_locations(locations)
+
     def run_gui(self):
         from kvui import GameManager
 
