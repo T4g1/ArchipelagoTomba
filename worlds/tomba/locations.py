@@ -18,7 +18,7 @@ from .bitutils import Bitmask
 if TYPE_CHECKING:
     from .world import TombaWorld
 
-MAX_DISTANCE_THRESHOLD = 500
+MAX_DISTANCE_THRESHOLD = 500000
 
 
 def get_name(name: str, region: str):
@@ -105,11 +105,12 @@ class ItemLocData(LocationData):
         return self
 
     def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
-        # In case position is not relevant
+        # A location with no coordinate is prioritized
         if self.x is None or self.y is None:
-            return MAX_DISTANCE_THRESHOLD
+            return 0
 
-        return (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
+        distance = (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
+        return distance
 
 
 class LocationHandler:
@@ -166,7 +167,12 @@ class LocationHandler:
             at=Bitmask(0x09BCEC, 0x01, on_checked=True, target_value=True),
         ),
         ItemLocData("Peach Flower Gas", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.BABY_PIG),
-        ItemLocData("Kokka Egg in the Village", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.CHICK, Section(0x00, 0x00)),
+        ItemLocData(
+            "Kokka Egg in the Village",
+            Regions.VILLAGE_OF_ALL_BEGINNINGS,
+            Items.CHICK,
+            Sections.VILLAGE_OF_ALL_BEGINNING,
+        ),
         ItemLocData(
             "100 Year Chest in the Tree",
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
@@ -188,12 +194,23 @@ class LocationHandler:
             Section(0x00, 0x01),
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Kokka Egg near the Elevator", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, Section(0x00, 0x01)),
+        # The two following ones cannot be deterministicaly identified
         ItemLocData(
-            "Kokka Egg near the Pond", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, Section(0x00, 0x02), 2560, 65010
+            "Kokka Egg after the Fog 1",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.CHICK,
+            Sections.FOREST_OF_ALL_BEGINNING_PART_1,
         ),
         ItemLocData(
-            "Kokka Egg near the Top", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, Section(0x00, 0x02), 3000, 64415
+            "Kokka Egg after the Fog 2", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, x=2560, y=65010
+        ),  # This one can be grabbed in Forest of All Beginnings part 1 or part 2 depending on the player movements
+        ItemLocData(
+            "Kokka Egg near the Top",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.CHICK,
+            Sections.FOREST_OF_ALL_BEGINNING_PART_2,
+            3000,
+            64415,
         ),
         ItemLocData(
             "100 Year Chest near the Hut",

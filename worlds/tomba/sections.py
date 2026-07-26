@@ -31,7 +31,8 @@ class Sections(Section):
     NONE = Section(0xFF, 0xFF)
 
     VILLAGE_OF_ALL_BEGINNING = Section(0x00, 0x00)
-    FOREST_OF_ALL_BEGINNING = Section(0x00, 0x01)
+    FOREST_OF_ALL_BEGINNING_PART_1 = Section(0x00, 0x01)
+    FOREST_OF_ALL_BEGINNING_PART_2 = Section(0x00, 0x02)
     HUNDREDS_YEAR_OLD_MANS_HUT = Section(0x00, 0x03)
     OL_POND = Section(0x00, 0x05)
 

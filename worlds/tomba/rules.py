@@ -43,11 +43,12 @@ def integrity_checks():
 
         # Make sure that every location that has a countable items has AREA and SECTION set
         if location.item.countable:
-            if location.section is None:
+            has_coordinates = isinstance(location, ItemLocData) and location.x is not None and location.y is not None
+            if location.section is None and not has_coordinates:
                 raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
-                    "but no area/section discriminator"
+                    "but no area/section or coordinates discriminator"
                 )
         elif location.section is not None:
             raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
