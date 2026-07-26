@@ -468,7 +468,7 @@ class EventHandler:
             0x79,
             Events.THE_MERMAIDS_SINGING_ROCK,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            started_rule=Has(Items.FUEL_BAR) & CanReachRegion(Regions.VILLAGE_OF_ALL_BEGINNINGS),
+            started_rule=CanReachRegion(Regions.THE_MERMAIDS_SINGING_ROCK),
         ),
         # EventData(0x7A, Events., Regions.), # Unused
         EventData(
