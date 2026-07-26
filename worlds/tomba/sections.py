@@ -60,6 +60,7 @@ class Sections(Section):
     HAUNTED_MANSION_EAST = Section(0x04, 0x03)
     CIVILIZATION_ROOM = Section(0x04, 0x0B)
     THOUSAND_YEAR_OLD_MANS_ROOM = Section(0x04, 0x0F)
+    CRY_ROOM = Section(0x04, 0x13)
 
     BACCUS_VILLAGE = Section(0x05, 0x00)
     CENTRAL_PARK = Section(0x05, 0x01)

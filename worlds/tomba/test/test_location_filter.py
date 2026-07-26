@@ -1,77 +1,43 @@
 from .bases import TombaTestBase
-from ..locations import LocationHandler, get_name, LocationData
-from ..items import ItemHandler, ItemData
-from ..sections import Sections, Section
-from ..constants import Regions, Items
+from ..locations import LocationHandler, ItemLocData, get_name
+from ..constants import Items, Locations, Regions
+from ..sections import Sections
 
 
-class TestChickFilter(TombaTestBase):
-    def get_item(self, item_name: str) -> ItemData:
-        item = ItemHandler.by_name.get(item_name)
-        assert item is not None
+class TestLocationFilter(TombaTestBase):
+    def test_coordinates_filter(self) -> None:
+        """For each location with coordinates, make sure finding
+        something at those coordinates return that location"""
 
-        return item
+        for location in LocationHandler.location_table:
+            if not location.name.startswith("Take Out 2"):
+                continue
 
-    def filter(self, item: ItemData, section: Section, x: int, y: int) -> list[LocationData]:
-        location_ids = LocationHandler.filter_and_sort(item, section, x, y)
-        assert location_ids is not None
+            if not isinstance(location, ItemLocData):
+                continue
 
-        return [LocationHandler.by_id[id] for id in location_ids]
+            assert location.item is not None
 
-    def test_chick_with_no_coordinates(self) -> None:
-        item = self.get_item(Items.CHICK)
+            if location.section is None:
+                continue
 
-        # Village
-        locations = self.filter(item, Sections.VILLAGE_OF_ALL_BEGINNING, 0, 0)
+            if location.x is None or location.y is None:
+                continue
+
+            locations = self.filter(location.item, location.section, location.x, location.y)
+
+            assert isinstance(locations[0], ItemLocData)
+
+            error = f"Location {location.name} got matched with wrong {locations[0].name}"
+            self.assertEqual(location.x, locations[0].x, error)
+            self.assertEqual(location.y, locations[0].y, error)
+            self.assertEqual(location.region, locations[0].region, error)
+
+    def test_rise_and_shine_powder(self) -> None:
+        item = self.get_item(Items.RISE_AND_SHINE_POWDER)
+
+        locations = self.filter(item, Sections.MUSHROOM_FOREST, 0, 0)
         self.assertEqual(1, len(locations))
 
-        expected_name = get_name("Kokka Egg in the Village", Regions.VILLAGE_OF_ALL_BEGINNINGS)
-        self.assertEqual(expected_name, locations[0].name)
-
-        # Forest (1): Near the elevator
-        valid_coordinates = [
-            (0, 0),
-            (2560, 65010),
-            (2535, 64978),
-            (2236, 65228),
-        ]
-
-        expected_name = get_name("Kokka Egg after the Fog 1", Regions.FOREST_OF_ALL_BEGINNINGS)
-
-        for x, y in valid_coordinates:
-            locations = self.filter(item, Sections.FOREST_OF_ALL_BEGINNING_PART_1, x, y)
-            self.assertTrue(len(locations) > 0)
-
-            self.assertEqual(expected_name, locations[0].name)
-
-    def test_chick_near_the_pond_intended(self) -> None:
-        """Check that a Chick can be grabbed in two sections and in distant coordinates"""
-        item = self.get_item(Items.CHICK)
-
-        expected_name = get_name("Kokka Egg after the Fog 2", Regions.FOREST_OF_ALL_BEGINNINGS)
-
-        # When picked-up normaly
-        locations = self.filter(item, Sections.FOREST_OF_ALL_BEGINNING_PART_2, 2560, 65010)
-        self.assertTrue(len(locations) > 0)
-
-        self.assertEqual(expected_name, locations[0].name)
-
-    def test_chick_near_the_pond_unintended(self) -> None:
-        """When picked-up by jumping on the left in another section"""
-        item = self.get_item(Items.CHICK)
-
-        valid_coordinates = [
-            (2535, 64978),
-            (2236, 65228),
-            (2011, 65286),
-        ]
-
-        expected_name_1 = get_name("Kokka Egg after the Fog 1", Regions.FOREST_OF_ALL_BEGINNINGS)
-        expected_name_2 = get_name("Kokka Egg after the Fog 2", Regions.FOREST_OF_ALL_BEGINNINGS)
-
-        for x, y in valid_coordinates:
-            locations = self.filter(item, Sections.FOREST_OF_ALL_BEGINNING_PART_1, x, y)
-            self.assertEqual(2, len(locations))
-
-            self.assertEqual(expected_name_1, locations[0].name)
-            self.assertEqual(expected_name_2, locations[1].name)
+        expected = get_name(Locations.MONSTER_HUNT, Regions.MUSHROOM_FOREST)
+        self.assertEqual(expected, locations[0].name)

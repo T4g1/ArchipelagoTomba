@@ -88,7 +88,10 @@ class ItemCheckHandler(AbstractHandler):
 
     async def on_item_get(self, found_item: FoundItem) -> bool:
         item = found_item.item
+        logger.debug(f"Player has found {item.name}")
+
         if item.behavior is ItemBehavior.ORIGINAL:
+            logger.debug(f"Normal pickup for {item.name} (not a randomized location)")
             return await self.tomba.inventory_handler.receive_item(item, 0)
 
         location_ids = LocationHandler.filter_and_sort(

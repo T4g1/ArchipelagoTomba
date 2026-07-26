@@ -246,6 +246,22 @@ class LocationHandler:
         ],
         ItemLocData("Campfire", Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)),
         ItemLocData(
+            Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1,
+            Regions.FOREST_OF_100_FLOWERS,
+            Items.CHARITY_WINGS,
+            Sections.FOREST_OF_100_FLOWERS,
+            x=1427,
+            y=65345,
+        ),
+        ItemLocData(
+            Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2,
+            Regions.FOREST_OF_100_FLOWERS,
+            Items.CHARITY_WINGS,
+            Sections.FOREST_OF_100_FLOWERS,
+            x=1427,
+            y=65345,
+        ),
+        ItemLocData(
             "On Top of the Spikes",
             Regions.FOREST_OF_100_FLOWERS,
             Items.WOOD_BOOMERANG,
@@ -342,7 +358,7 @@ class LocationHandler:
             y=64847,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData("Monster Fight", Regions.MUSHROOM_FOREST, Items.RISE_AND_SHINE_POWDER),
+        ItemLocData(Locations.MONSTER_HUNT, Regions.MUSHROOM_FOREST, Items.RISE_AND_SHINE_POWDER),
         # Charity Square
         ItemLocData("Sacred Fish", Regions.CHARITY_SQUARE, Items.SACRED_FISH, rule=HasCleared(Events.THE_FLOWER_TOWER)),
         ItemLocData("Crystal Balls", Regions.CHARITY_SQUARE, Items.THREE_CRYSTAL_BALLS, rule=Rules.CAN_BIG_JUMP),
@@ -378,7 +394,13 @@ class LocationHandler:
         ItemLocData("Smile Wing", Regions.STORMY_MOUNTAIN, Items.CHARITY_WINGS, Section(0x03, 0x01), x=3150, y=63708),
         ItemLocData("Funga", Regions.STORMY_MOUNTAIN, Items.MOLASSES, rule=Has(Items.FUNGA_DRUM)),
         ItemLocData(
-            "Dig", Regions.STORMY_MOUNTAIN, Items.CHEESE, Section(0x03, 0x01), rule=HasCleared(Events.PHOENIX_MOUNTAIN)
+            "Dig",
+            Regions.STORMY_MOUNTAIN,
+            Items.CHEESE,
+            Section(0x03, 0x01),
+            rule=HasCleared(Events.PHOENIX_MOUNTAIN),
+            x=3194,
+            y=63937,
         ),
         ItemLocData(
             "When the Wind Dies Down",
@@ -609,8 +631,12 @@ class LocationHandler:
             Section(0x04, 0x04),
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Cry Cheese Left", Regions.HAUNTED_MANSION, Items.CHEESE, Section(0x04, 0x13), x=160, y=65396),
-        ItemLocData("Cry Cheese Right", Regions.HAUNTED_MANSION, Items.CHEESE, Section(0x04, 0x13), x=160, y=65396),
+        ItemLocData(
+            Locations.CRY_CHEESE_LEFT, Regions.HAUNTED_MANSION, Items.CHEESE, Sections.CRY_ROOM, x=160, y=65396
+        ),
+        ItemLocData(
+            Locations.CRY_CHEESE_RIGHT, Regions.HAUNTED_MANSION, Items.CHEESE, Sections.CRY_ROOM, x=160, y=65396
+        ),
         ItemLocData(
             "Pink Evil Bag",
             Regions.HAUNTED_MANSION,

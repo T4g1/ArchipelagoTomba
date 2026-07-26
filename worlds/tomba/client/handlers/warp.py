@@ -3,15 +3,16 @@ from typing import Any
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
-from ...constants import Events, EventStatus, Items, Addresses
+from ...constants import Events, EventStatus, Items, Addresses, Regions, Locations
 from ...sections import Section, Sections
 from ...items import ItemHandler
 from ...events import EventHandler
 from ...bitutils import Bitmask
+from ...locations import LocationHandler, get_name
 
 warp_masks: dict[Section, Bitmask] = {
     Sections.VILLAGE_OF_ALL_BEGINNING: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x01),
-    Sections.FOREST_OF_ALL_BEGINNING: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x02),
+    Sections.FOREST_OF_ALL_BEGINNING_PART_1: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x02),
     Sections.OL_POND: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x04),
     Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x08),
     Sections.FOREST_OF_100_FLOWERS: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x01),
@@ -39,11 +40,24 @@ warp_masks: dict[Section, Bitmask] = {
     Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM: Bitmask(Addresses.WARP_ENTRY_STATE + 0x10, 0x02),
 }
 
+purified_mask: dict[str, int] = {
+    Regions.FOREST_OF_100_FLOWERS: 0x01,
+    Regions.STORMY_MOUNTAIN: 0x02,
+    Regions.LAVA_CAVES: 0x04,
+    Regions.HAUNTED_MANSION: 0x08,
+    Regions.BACCUS_VILLAGE: 0x10,
+    Regions.MASAKARI_JUNGLE: 0x20,
+    Regions.TRICK_VILLAGE: 0x40,
+}
+
 
 class WarpHandler(AbstractHandler):
     """Handles logic that should be processed when accessing specific area/section of the game"""
 
     leaving_handlers: dict[Section, Handler] = {}
+
+    async def is_purified(self, region: str) -> bool:
+        return await self.tomba.playstation.get_flag(Addresses.PURIFICATION_FLAGS, purified_mask[region])
 
     async def unlock_warp(self, section: Section):
         bitmask = warp_masks.get(section, None)
@@ -71,6 +85,7 @@ class WarpHandler(AbstractHandler):
             Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
+            Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
         }
 
     async def on_wobbly_warf_left(self, to: Section):
@@ -84,6 +99,19 @@ class WarpHandler(AbstractHandler):
             if self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
+
+    async def on_forest_of_100_flowers_entry(self, coming_from: Section):
+        if not self.is_purified(Regions.FOREST_OF_100_FLOWERS):
+            return
+
+        # Check two missable location from the chest hidden in the trees
+        wing_1_name = get_name(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1, Regions.FOREST_OF_100_FLOWERS)
+        wing_2_name = get_name(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2, Regions.FOREST_OF_100_FLOWERS)
+        wing_1 = LocationHandler.by_name.get(wing_1_name, None)
+        wing_2 = LocationHandler.by_name.get(wing_2_name, None)
+        assert wing_1 is not None
+        assert wing_2 is not None
+        await self.ctx.check_locations([wing_1.id, wing_2.id])
 
     async def on_haunted_mansion_irregular_entry(self, coming_from: Section):
         # Haunted Mansion will not load correctly if this is not cleared

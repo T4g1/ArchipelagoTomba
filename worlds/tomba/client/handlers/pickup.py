@@ -8,8 +8,9 @@ class PickupHandler(AbstractHandler):
 
     def init_handlers(self):
         self.handlers = {
-            Items.FLOWER_SEEDS: Handler(self.on_flower_seeds, 0, 0),
+            Items.FLOWER_SEEDS: Handler(self.on_flower_seeds),
             Items.SEASHELL_NECKLACE: Handler(self.on_seashell_necklace),
+            Items.WEED_KILLER: Handler(self.on_weed_killer),
         }
 
     async def on_flower_seeds(self):
@@ -21,5 +22,11 @@ class PickupHandler(AbstractHandler):
     async def on_seashell_necklace(self):
         """Needs the corresponding event to be able to use the necklace"""
         event = EventHandler.by_name.get(Events.THE_MERMAIDS_NECKLACE)
+        assert event is not None
+        self.ctx.tomba.events_handler.set_event_state(event, EventStatus.STARTED)
+
+    async def on_weed_killer(self):
+        """Needs to start the Death Fruit Juice event"""
+        event = EventHandler.by_name.get(Events.DEATH_FRUIT_JUICE)
         assert event is not None
         self.ctx.tomba.events_handler.set_event_state(event, EventStatus.STARTED)
