@@ -4,10 +4,10 @@ from CommonClient import logger
 
 from . import Handler, AbstractHandler
 from ... import constants
-from ...constants import Addresses, CustomCommand, Locations, Regions
+from ...constants import Addresses, CustomCommand, Items
 from ...items import ItemData, ItemHandler, ItemException, ItemBehavior
 from ...sections import Section
-from ...locations import LocationHandler, get_name
+from ...locations import LocationHandler
 
 
 @dataclass
@@ -38,23 +38,19 @@ class FoundItem:
         )
 
 
-class ItemCheckHandler(AbstractHandler):
-    """This class defines additional operations upon receiving a specific item from the multiworld"""
+class FoundHandler(AbstractHandler):
+    """This class defines additional operations upon finding items in game"""
 
     found_items: list[FoundItem] = []
 
     def init_handlers(self):
-        self.handlers = {get_name(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE): Handler(self.on_golden_fruit)}
+        self.handlers = {Items.HEALING_MUSHROOM: Handler(self.on_healing_mushroom)}
 
-    async def on_golden_fruit(self):
-        """Trigger locations from Some Cheese Please"""
-        await self.check(Locations.SOME_CHEESE_PLEASE_1, Regions.BACCUS_VILLAGE)
-        await self.check(Locations.SOME_CHEESE_PLEASE_2, Regions.BACCUS_VILLAGE)
-
-    async def check(self, location_name: str, region_name: str):
-        location = LocationHandler.by_name.get(get_name(location_name, region_name), None)
-        assert location is not None
-        await self.ctx.check_locations([location.id])
+    async def on_healing_mushroom(self) -> bool:
+        """Random reward on those"""
+        reward = ItemHandler.get_random_filler_item()
+        logger.info(f"Random pickup: {reward.name}")
+        return await self.tomba.inventory_handler.receive_item(reward, 0)
 
     async def get_found_items_counter(self) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
@@ -107,6 +103,9 @@ class ItemCheckHandler(AbstractHandler):
             logger.debug(f"Normal pickup for {item.name} (not a randomized location)")
             return await self.tomba.inventory_handler.receive_item(item, 0)
 
+        elif item.behavior is ItemBehavior.HANLDER:
+            return await self.handle(item.name)
+
         locations = LocationHandler.filter_and_sort(
             item, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
         )
@@ -134,5 +133,4 @@ class ItemCheckHandler(AbstractHandler):
         logger.debug(f"Sending location check to server for {location.id}: {location.name}")
         await self.ctx.check_locations([location.id])
 
-        await self.handle(location.name)
         return True

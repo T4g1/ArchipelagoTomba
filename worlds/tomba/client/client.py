@@ -22,7 +22,8 @@ from ..events import EventData
 from ..items import ItemHandler
 from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
-from ..client.handlers.item_check import ItemCheckHandler
+from ..client.handlers.found import FoundHandler
+from ..client.handlers.check import CheckHandler
 from ..client.retroarch import RetroArchException
 from ..client.game import TombaGame, TombaException
 
@@ -52,7 +53,8 @@ class TombaContext(CommonContext):
     connection_status: ConnectionStatus = ConnectionStatus.NOT_CONNECTED
     command_processor = TombaCommandProcessor
 
-    item_check_handler: ItemCheckHandler
+    found_handler: FoundHandler
+    check_handler: CheckHandler
 
     should_reset_auth: bool
 
@@ -71,7 +73,8 @@ class TombaContext(CommonContext):
         self.should_reset_auth = False
         self.had_invalid_slot_data = None
 
-        self.item_check_handler = ItemCheckHandler(self, self.tomba)
+        self.found_handler = FoundHandler(self, self.tomba)
+        self.check_handler = CheckHandler(self, self.tomba)
 
         self.won = False
 
@@ -87,6 +90,10 @@ class TombaContext(CommonContext):
     async def check_locations(self, locations: list[int]) -> None:
         logger.debug(f"Location checks: {locations}")
         await super().check_locations(locations)
+
+        for id in locations:
+            location = LocationHandler.by_id[id]
+            await self.check_handler.handle(location.name)
 
     def run_gui(self):
         from kvui import GameManager
@@ -212,7 +219,7 @@ class TombaContext(CommonContext):
 
                         await self.process_items_received()
 
-                        await self.item_check_handler.update_found_items()
+                        await self.found_handler.update_found_items()
 
                     now = time.time()
                     tick_duration = now - last_tick
