@@ -5,7 +5,7 @@ from ...constants import Addresses, Events, EventStatus, Items, Locations, Regio
 from ...events import EventHandler, EventData
 from ...locations import LocationHandler, get_name
 from ...items import ItemHandler
-from ...sections import Sections
+from ..handlers.doors import Doors
 
 
 class EventsHandler(AbstractHandler):
@@ -51,9 +51,7 @@ class EventsHandler(AbstractHandler):
             self.start(Events.THE_MOUSE_PIG_BAG)
 
             # Allow the player to go to Baccus Village
-            await self.tomba.warp_hanlder.unlock_warp(Sections.BACCUS_VILLAGE)
-
-            # TODO: Open the door connecting Stormy Mountain to Baccus Village (REVERSE required)
+            self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_the_100_flower_forest(self):
         """Clear related events"""
@@ -125,7 +123,7 @@ class EventsHandler(AbstractHandler):
         self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
 
     async def is_victory(self):
-        return (await self.get_event_state(Events.GRANDPAS_BRACELET)) is EventStatus.CLEARED
+        return (await self.get_event_state(Events.THE_REAL_EVIL_PIG)) is EventStatus.CLEARED
 
     async def check_win_conditions(self):
         if not self.tomba.check_safe_gameplay():

@@ -77,6 +77,7 @@ def connect_regions(world: TombaWorld) -> None:
         lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
     )
 
+    connect(world, Regions.LAVA_CAVES_PURIFIED, Regions.HIDDEN_VILLAGE, Rules.CAN_GRAPPLE)
     connect(world, Regions.CHARITY_SQUARE, Regions.HIDDEN_VILLAGE, Has(Items.LEAF_BUTTERFLY, 29))
     connect(world, Regions.HIDDEN_VILLAGE, Regions.LAVA_CAVES_PURIFIED, Has(Cleared(Events.LAVA_CAVES)))
 
