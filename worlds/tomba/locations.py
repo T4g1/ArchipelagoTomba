@@ -549,37 +549,37 @@ class LocationHandler:
         ),
         # Baccus Village
         ItemLocData(
-            "Some Cheese 1",
+            Locations.SOME_CHEESE_PLEASE_1,
             Regions.BACCUS_VILLAGE,
             Items.LARGE_LUNCH_BOX,
-            Section(0x05, 0x02),
+            Sections.BACCUS_VILLAGE,
             x=574,
             y=350,
             rule=Has(Items.CHEESE, 10),
         ),
         ItemLocData(
-            "Some Cheese 2",
+            Locations.SOME_CHEESE_PLEASE_2,
             Regions.BACCUS_VILLAGE,
             Items.LARGE_LUNCH_BOX,
-            Section(0x05, 0x02),
+            Sections.BACCUS_VILLAGE,
             x=574,
             y=350,
             rule=Has(Items.CHEESE, 10),
         ),
-        ItemLocData("More Cheese", Regions.BACCUS_VILLAGE, Items.GOLDEN_FRUIT, rule=Has(Items.CHEESE, 15)),
+        ItemLocData(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE, Items.GOLDEN_FRUIT, rule=Has(Items.CHEESE, 15)),
         ItemLocData("Grownups", Regions.BACCUS_VILLAGE, Items.WEED_KILLER, rule=HasCleared(Events.MONSTER_HUNT)),
         ItemLocData(
             "Give the Baby Pig",
             Regions.BACCUS_VILLAGE,
             Items.KOKKA_CLAW,
-            Section(0x05, 0x00),
+            Sections.BACCUS_VILLAGE,
             rule=Has(Items.BABY_PIG) & HasCleared(Events.CANT_STOP_CRYING),
         ),
         ItemLocData(
             "Weed Killer",
             Regions.BACCUS_VILLAGE,
             Items.CHARITY_WINGS,
-            Section(0x05, 0x00),
+            Sections.BACCUS_VILLAGE,
             rule=HasStarted(Events.DEATH_FRUIT_JUICE),
         ),
         # Central Park
@@ -1127,7 +1127,9 @@ class LocationHandler:
     ]
 
     @staticmethod
-    def filter_and_sort(item: ItemData, section: Section, camera_horizontal: int, camera_vertical: int) -> list[int]:
+    def filter_and_sort(
+        item: ItemData, section: Section, camera_horizontal: int, camera_vertical: int
+    ) -> list[ItemLocData]:
         item_ids: list[int] = [item.id]
         if item.is_pants():
             item_ids: list[int] = [ItemHandler.by_name[item_name].id for item_name in PANTS]
@@ -1147,7 +1149,7 @@ class LocationHandler:
             filtered_locations, key=lambda location: location.get_distance(camera_horizontal, camera_vertical)
         )
 
-        return [location.id for location in filtered_locations]
+        return filtered_locations
 
     @staticmethod
     def filter(

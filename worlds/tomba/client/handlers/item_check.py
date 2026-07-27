@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 from CommonClient import logger
 
-from . import AbstractHandler
+from . import Handler, AbstractHandler
 from ... import constants
-from ...constants import Addresses, CustomCommand
+from ...constants import Addresses, CustomCommand, Locations, Regions
 from ...items import ItemData, ItemHandler, ItemException, ItemBehavior
 from ...sections import Section
-from ...locations import LocationHandler
+from ...locations import LocationHandler, get_name
 
 
 @dataclass
@@ -42,6 +42,19 @@ class ItemCheckHandler(AbstractHandler):
     """This class defines additional operations upon receiving a specific item from the multiworld"""
 
     found_items: list[FoundItem] = []
+
+    def init_handlers(self):
+        self.handlers = {get_name(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE): Handler(self.on_golden_fruit)}
+
+    async def on_golden_fruit(self):
+        """Trigger locations from Some Cheese Please"""
+        await self.check(Locations.SOME_CHEESE_PLEASE_1, Regions.BACCUS_VILLAGE)
+        await self.check(Locations.SOME_CHEESE_PLEASE_2, Regions.BACCUS_VILLAGE)
+
+    async def check(self, location_name: str, region_name: str):
+        location = LocationHandler.by_name.get(get_name(location_name, region_name), None)
+        assert location is not None
+        await self.ctx.check_locations([location.id])
 
     async def get_found_items_counter(self) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
@@ -94,10 +107,10 @@ class ItemCheckHandler(AbstractHandler):
             logger.debug(f"Normal pickup for {item.name} (not a randomized location)")
             return await self.tomba.inventory_handler.receive_item(item, 0)
 
-        location_ids = LocationHandler.filter_and_sort(
+        locations = LocationHandler.filter_and_sort(
             item, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
         )
-        if location_ids is None:
+        if locations is None:
             logger.error(f"Player got an item with no location: {item.name}")
             logger.debug(
                 f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
@@ -105,17 +118,21 @@ class ItemCheckHandler(AbstractHandler):
             # TODO: Should be removed for release so player can't get unintended items
             return await self.tomba.inventory_handler.receive_item(item, 0)
 
-        first_unchecked = next((id for id in location_ids if id not in self.ctx.checked_locations), None)
+        first_unchecked = next(
+            (location for location in locations if location.id not in self.ctx.checked_locations), None
+        )
 
-        location_id = first_unchecked
-        if location_id is None:
+        location = first_unchecked
+        if location is None:
             logger.error(f"Player has found {item.name} but there are no location left to send it.")
             logger.debug(
                 f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
             )
-            logger.debug(f"Candidates were: {location_ids}")
+            logger.debug(f"Candidates were: {[location.name for location in locations]}")
             return True
 
-        logger.debug(f"Sending location check to server for {location_id}")
-        await self.ctx.check_locations([location_id])
+        logger.debug(f"Sending location check to server for {location.id}: {location.name}")
+        await self.ctx.check_locations([location.id])
+
+        await self.handle(location.name)
         return True

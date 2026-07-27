@@ -12,7 +12,7 @@ class DoorState(IntEnum):
     OPEN = 0x02
 
 
-class DoorsHandler(AbstractHandler):
+class DoorHandler(AbstractHandler):
     """Manipulates connection/door between areas/sections"""
 
     def set_door(self, door: Doors, state: DoorState):

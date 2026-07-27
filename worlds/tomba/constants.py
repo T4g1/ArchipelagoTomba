@@ -20,13 +20,16 @@ class Locations(str):
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
     FIRE_STARTER = "Fire Starter"
+    GOLDEN_FRUIT = "More Cheese"
     HIDDEN_CHEST_FOREST_100_FLOWER_1 = "Hidden Chest Wing 1"
     HIDDEN_CHEST_FOREST_100_FLOWER_2 = "Hidden Chest Wing 2"
     MAILBOX = "Mailbox"
-    MONSTER_HUNT = "Monster Fight"
-    WATCH_TOWER_PANTS = "Tower Pants"
-    STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
     MASAKARI_JUNGLE_PANTS = "Funga Pants"
+    MONSTER_HUNT = "Monster Fight"
+    SOME_CHEESE_PLEASE_1 = "Some Cheese 1"
+    SOME_CHEESE_PLEASE_2 = "Some Cheese 2"
+    STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
+    WATCH_TOWER_PANTS = "Tower Pants"
 
 
 class Regions(str):

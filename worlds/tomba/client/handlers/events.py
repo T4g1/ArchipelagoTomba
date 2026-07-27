@@ -5,7 +5,7 @@ from ...constants import Addresses, Events, EventStatus, Items, Locations, Regio
 from ...events import EventHandler, EventData
 from ...locations import LocationHandler, get_name
 from ...items import ItemHandler
-from ..handlers.doors import Doors
+from .door import Doors
 
 
 class EventsHandler(AbstractHandler):
