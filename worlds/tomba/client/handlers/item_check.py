@@ -88,7 +88,10 @@ class ItemCheckHandler(AbstractHandler):
 
     async def on_item_get(self, found_item: FoundItem) -> bool:
         item = found_item.item
+        logger.debug(f"Player has found {item.name}")
+
         if item.behavior is ItemBehavior.ORIGINAL:
+            logger.debug(f"Normal pickup for {item.name} (not a randomized location)")
             return await self.tomba.inventory_handler.receive_item(item, 0)
 
         location_ids = LocationHandler.filter_and_sort(
@@ -96,6 +99,9 @@ class ItemCheckHandler(AbstractHandler):
         )
         if location_ids is None:
             logger.error(f"Player got an item with no location: {item.name}")
+            logger.debug(
+                f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
+            )
             # TODO: Should be removed for release so player can't get unintended items
             return await self.tomba.inventory_handler.receive_item(item, 0)
 
@@ -104,6 +110,9 @@ class ItemCheckHandler(AbstractHandler):
         location_id = first_unchecked
         if location_id is None:
             logger.error(f"Player has found {item.name} but there are no location left to send it.")
+            logger.debug(
+                f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
+            )
             logger.debug(f"Candidates were: {location_ids}")
             return True
 

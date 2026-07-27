@@ -52,6 +52,9 @@ class Patcher:
         self.playstation.write_memory(Addresses.PATCH_INTERFACE_HANDLER, interface_patch)
         self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
 
+        # Allows Tomba to grab pants he already owns
+        self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
+
         logger.info("Game patched")
 
     async def is_patched_or_unloaded(self) -> bool:

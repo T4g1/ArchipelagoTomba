@@ -1,4 +1,4 @@
-# Tomba! Archipelago developement
+# Tomba! APWorld
 
 ## Technical stuff
 
@@ -14,6 +14,12 @@ The game is patched at run time because:
 * Healing mushroom, frog and Blue powder are not randomized: Don't really know what to do with those as they are infinite
 * If the client crashes, the game will store items it grabs in a LIFO list because it's much much easier to do in Assembly. Functionaly, it means that once the client reconnects, Archipelago will receive checks in reverse order! It's good enough probably besides, you should not continue playing while the client is down anyway
 * You can walk in the Masakari River if Archipelago send you that way (getting Fuel Bar before learning how to swim), in that case, you will receive a free Charity Wing to get out.
+* It's a complex matter to match items found in game with Archipelago locations. The current algorithm has some flaws, it uses the position of the items to determines what was picked up but Tombi can grab some items and finish picking them up at another position so two of the same item can be picked at the same location. Because of that, the algorithm uses nearest location position with some error margin:
+  1. Save state
+  2. Pick an item close to another item of the same type (a good example are Bunk Flower in the Lava Caves or Chick in the Forest of All Beginings): Location is checked
+  3. Load state
+  4. Pick the same item: The location for the other item will be checked
+There are few uses for this and it's not such a big deal so expect a few inconsistencies in the log when using save states like that
 
 ## Issues
 

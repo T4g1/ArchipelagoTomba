@@ -1,10 +1,11 @@
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
-from ...constants import Addresses, Events, EventStatus, Items
+from ...constants import Addresses, Events, EventStatus, Items, Locations, Regions
 from ...events import EventHandler, EventData
-from ...locations import LocationHandler
+from ...locations import LocationHandler, get_name
 from ...items import ItemHandler
+from ..handlers.doors import Doors
 
 
 class EventsHandler(AbstractHandler):
@@ -17,7 +18,74 @@ class EventsHandler(AbstractHandler):
         self.handlers = {
             Events.HIDE_AND_GO_SEEK: Handler(self.on_hide_and_go_seek),
             Events.LOOK_AND_SEE: Handler(self.on_look_and_see),
+            Events.WHERED_THE_LIGHTS_GO: Handler(self.on_where_the_lights_go),
+            Events.I_WANT_A_SILVER_MEDAL: Handler(self.on_i_want_a_silver_medal),
+            Events.THE_HAUNTED_MANSION: Handler(self.on_haunted_mansion),
+            Events.LAVA_CAVES: Handler(self.on_lava_caves),
+            Events.THE_100_FLOWER_FOREST: Handler(self.on_the_100_flower_forest),
+            Events.PHOENIX_MOUNTAIN: Handler(self.on_phoenix_mountain),
+            Events.BACCUS_VILLAGE: Handler(self.on_baccus_village),
+            Events.THE_DEEP_JUNGLE_PIG: Handler(self.on_deep_jungle_pig),
+            Events.TRICK_VILLAGE: Handler(self.on_trick_village),
         }
+
+    async def on_trick_village(self):
+        """Clear related events"""
+        self.clear(Events.THE_UNDERWATER_PIG_BAG)
+
+    async def on_deep_jungle_pig(self):
+        """Clear related events"""
+        self.clear(Events.THE_JUNGLE_PIG_BAG)
+
+    async def on_baccus_village(self):
+        """Clear related events"""
+        self.clear(Events.THE_MOUSE_PIG_BAG)
+
+    async def on_phoenix_mountain(self):
+        """Clear related events"""
+        self.clear(Events.A_STORMY_PIG_BAG)
+
+        # If the player seal the evil pig before going in the mountain for the first time
+        if self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
+            # Prevents softlock if speaking to the Phoenix guy
+            self.start(Events.THE_MOUSE_PIG_BAG)
+
+            # Allow the player to go to Baccus Village
+            self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+
+    async def on_the_100_flower_forest(self):
+        """Clear related events"""
+        self.clear(Events.THE_EVIL_PIG_BAG)
+
+    async def on_lava_caves(self):
+        """Clear related events"""
+        self.clear(Events.THE_FIRE_PIG_BAG)
+
+    async def on_haunted_mansion(self):
+        """Clear related events"""
+        self.clear(Events.PAINTING_OF_A_BIG_KEY)
+        self.clear(Events.THE_HAUNTED_PIG_BAG)
+
+    async def on_i_want_a_silver_medal(self):
+        """Lock the bronze medal out"""
+        # Check the location
+        location = LocationHandler.by_name.get(
+            get_name(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK), None
+        )
+        assert location is not None
+        await self.ctx.check_locations([location.id])
+
+        # Clear the event
+        event = EventHandler.by_name.get(Events.I_WANT_A_BRONZE_MEDAL)
+        assert event is not None
+
+        self.set_event_state(event, EventStatus.CLEARED)
+
+    async def on_where_the_lights_go(self):
+        """This can be cleared without requiring the dwarf to hand the torch, we need to check that manualy"""
+        location = LocationHandler.by_name.get(get_name(Locations.FIRE_STARTER, Regions.DWARF_VILLAGE), None)
+        assert location is not None
+        await self.ctx.check_locations([location.id])
 
     async def on_hide_and_go_seek(self):
         # Clear Take Out as it becomes softlocked when this one is cleared
@@ -40,8 +108,22 @@ class EventsHandler(AbstractHandler):
         if Events.TAKE_OUT in self.externaly_triggered:
             await self.ctx.check_locations([location.id for location in LocationHandler.take_out_event_locations])
 
+    def get_event(self, event_name: str) -> EventData:
+        event = EventHandler.by_name.get(event_name)
+        assert event is not None
+        return event
+
+    def clear(self, event_name: str):
+        self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
+
+    def forget(self, event_name: str):
+        self.set_event_state(self.get_event(event_name), EventStatus.UNDISCOVERED)
+
+    def start(self, event_name: str):
+        self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
+
     async def is_victory(self):
-        return (await self.get_event_state(Events.GRANDPAS_BRACELET)) is EventStatus.CLEARED
+        return (await self.get_event_state(Events.THE_REAL_EVIL_PIG)) is EventStatus.CLEARED
 
     async def check_win_conditions(self):
         if not self.tomba.check_safe_gameplay():

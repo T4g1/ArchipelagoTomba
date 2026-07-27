@@ -16,7 +16,17 @@ FOUND_ITEM_STRUCTURE_SIZE = 8
 class Locations(str):
     AP_150_000 = "150,000 AP"
     BARON = "Baron"
+    BRONZE_MEDAL = "Bronze Medal"
+    CRY_CHEESE_LEFT = "Cry Cheese Left"
+    CRY_CHEESE_RIGHT = "Cry Cheese Right"
+    FIRE_STARTER = "Fire Starter"
+    HIDDEN_CHEST_FOREST_100_FLOWER_1 = "Hidden Chest Wing 1"
+    HIDDEN_CHEST_FOREST_100_FLOWER_2 = "Hidden Chest Wing 2"
     MAILBOX = "Mailbox"
+    MONSTER_HUNT = "Monster Fight"
+    WATCH_TOWER_PANTS = "Tower Pants"
+    STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
+    MASAKARI_JUNGLE_PANTS = "Funga Pants"
 
 
 class Regions(str):
@@ -212,7 +222,6 @@ class Events(str):
     A_MAGIC_MIRROR = "A Magic Mirror?"
     A_MANS_BEST_FRIEND = "A Man's Best Friend"
     A_PRECIOUS_TREASURE_CHEST = "A Precious Treasure Chest?"
-    A_REAL_EVIL_PIG = "A Real Evil Pig"
     A_REFRESHING_DRING = "A Refreshing Drink"
     A_SAFE_MUSHROOM = "A Safe Mushroom?"
     A_SMALL_KEY_HOLE = "A Small Key Hole!"
@@ -302,6 +311,7 @@ class Events(str):
     THE_MYSTERIOUS_MUSHROOM = "The Mysterious Mushroom"
     THE_PHOENIXS_FAVORITE = "The Phoenix's Favorite"
     THE_PUMPS_ROCKS = "The Pump Rocks"
+    THE_REAL_EVIL_PIG = "The Real Evil Pig"
     THE_RED_FORTUNE_TELLER = "The Red Fortune Teller"
     THE_THIEFS_DOOR = "The Thief's Door"
     THE_TROUBLED_THIEF = "The Troubled Thief"
@@ -394,6 +404,7 @@ class Addresses(IntEnum):
     PATCH_INTERFACE_HANDLER = 0xB150
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
+    PATCH_PANTS_PICKUP = 0x04111C
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0

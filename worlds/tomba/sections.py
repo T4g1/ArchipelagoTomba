@@ -31,7 +31,8 @@ class Sections(Section):
     NONE = Section(0xFF, 0xFF)
 
     VILLAGE_OF_ALL_BEGINNING = Section(0x00, 0x00)
-    FOREST_OF_ALL_BEGINNING = Section(0x00, 0x01)
+    FOREST_OF_ALL_BEGINNING_PART_1 = Section(0x00, 0x01)
+    FOREST_OF_ALL_BEGINNING_PART_2 = Section(0x00, 0x02)
     HUNDREDS_YEAR_OLD_MANS_HUT = Section(0x00, 0x03)
     OL_POND = Section(0x00, 0x05)
 
@@ -57,8 +58,10 @@ class Sections(Section):
     HAUNTED_MANSION_WEST = Section(0x04, 0x01)
     HAUNTED_MANSION_SOUTH = Section(0x04, 0x02)
     HAUNTED_MANSION_EAST = Section(0x04, 0x03)
+    PINK_EVIL_PIG_BAG_ROOM = Section(0x04, 0x07)
     CIVILIZATION_ROOM = Section(0x04, 0x0B)
     THOUSAND_YEAR_OLD_MANS_ROOM = Section(0x04, 0x0F)
+    CRY_ROOM = Section(0x04, 0x13)
 
     BACCUS_VILLAGE = Section(0x05, 0x00)
     CENTRAL_PARK = Section(0x05, 0x01)

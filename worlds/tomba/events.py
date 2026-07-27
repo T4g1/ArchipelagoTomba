@@ -122,7 +122,6 @@ class EventHandler:
             Events.STOP_THE_FIGHT,
             Regions.DWARF_VILLAGE,
             started_rule=HasCleared(Events.WHERED_THE_LIGHTS_GO),
-            cleared_rule=Has(Items.BROKEN_VASE),
         ),
         EventData(0x15, Events.THE_GREAT_ESCAPE, Regions.DWARF_VILLAGE, started_rule=HasCleared(Events.STOP_THE_FIGHT)),
         EventData(0x16, Events.LOOK_AND_SEE, Regions.WATCH_TOWER, cleared_rule=Has(Items.TELESCOPE)),
@@ -307,7 +306,7 @@ class EventHandler:
             0x51,
             Events.THE_BOSS_TREASURE,
             Regions.HAUNTED_MANSION,
-            started_rule=HasCleared(Events.THE_HAUNTED_MANSION),
+            started_rule=HasCleared(Events.THE_HAUNTED_MANSION) & HasCleared(Events.WHAT_THE_THIEF_FORGOT),
             cleared_rule=Has(Items.SMALL_KEY) & Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         EventData(
@@ -468,7 +467,7 @@ class EventHandler:
             0x79,
             Events.THE_MERMAIDS_SINGING_ROCK,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            started_rule=Has(Items.FUEL_BAR) & CanReachRegion(Regions.VILLAGE_OF_ALL_BEGINNINGS),
+            started_rule=CanReachRegion(Regions.THE_MERMAIDS_SINGING_ROCK),
         ),
         # EventData(0x7A, Events., Regions.), # Unused
         EventData(
@@ -633,7 +632,7 @@ class EventHandler:
         ),
         EventData(
             0xA0,
-            Events.A_REAL_EVIL_PIG,
+            Events.THE_REAL_EVIL_PIG,
             Regions.THE_STRANGE_SMALL_ROOM,
             started_rule=HasCleared(Events.MILLION_YEAR_OLD_WISH),
             cleared_rule=HasCleared(Events.SEVEN_FRIENDS),
@@ -689,7 +688,9 @@ class EventHandler:
         ),
         EventData(0xAC, Events.THE_FIRE_PIG_BAG, Regions.LAVA_CAVES, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)),
         EventData(0xAD, Events.CHARLES_PANTS, Regions.STORMY_MOUNTAIN, cleared_rule=Has(Items.CHARLES_PANTS)),
-        EventData(0xAE, Events.THE_HAUNTED_PIG_BAG, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.PINK_EVIL_PIG_BAG)),
+        EventData(
+            0xAE, Events.THE_HAUNTED_PIG_BAG, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+        ),
         EventData(0xAF, Events.THE_WORLDS_GREATEST_SMILE, Regions.MUSHROOM_FOREST),
         EventData(0xB0, Events.THE_WORLDS_GREATEST_POUT, Regions.MUSHROOM_FOREST),
         EventData(0xB1, Events.SOMETHINGS_COOKIN, Regions.FOREST_OF_100_FLOWERS, cleared_rule=Has(Items.BAKED_YAM)),
@@ -708,7 +709,10 @@ class EventHandler:
             cleared_rule=Has(Items.TORCH),
         ),
         EventData(
-            0xB4, Events.WHERE_THE_BARREL_ROLLS, Regions.WOBBLY_WHARF, cleared_rule=HasCleared(Events.WHATS_UNDERWATER)
+            0xB4,
+            Events.WHERE_THE_BARREL_ROLLS,
+            Regions.WOBBLY_WHARF,
+            cleared_rule=HasCleared(Events.WHATS_UNDERWATER) & Rules.CAN_LIGHT_BREAK_STUFF,
         ),
         EventData(0xB5, Events.READY_SET_GO, Regions.STORMY_MOUNTAIN, started_rule=HasCleared(Events.THE_GREAT_ESCAPE)),
         EventData(
@@ -747,13 +751,13 @@ class EventHandler:
             Events.THE_TROUBLED_THIEF,
             Regions.LAVA_CAVES,
             started_rule=HasCleared(Events.LAVA_CAVES),
-            cleared_rule=CanReachRegion(Regions.HIDDEN_VILLAGE),
+            cleared_rule=Has(Items.WHAT_THE_THIEF_LOST),
         ),
         EventData(
             0xBF,
             Events.WHAT_THE_THIEF_FORGOT,
             Regions.LAVA_CAVES,
-            started_rule=Has(Items.WHAT_THE_THIEF_LOST),
+            started_rule=HasCleared(Events.THE_TROUBLED_THIEF),
             cleared_rule=HasCleared(Events.THE_HAUNTED_MANSION) & Has(Items.WHAT_THE_THIEF_FORGOT),
         ),
     ]

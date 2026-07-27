@@ -19,6 +19,7 @@ from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
 from .handlers.events import EventsHandler
+from .handlers.doors import DoorsHandler
 from ..client import retroarch
 from ..sections import Sections, Section
 from ..locations import LocationHandler
@@ -44,6 +45,7 @@ class TombaGame:
     pickup_handler: PickupHandler
     warp_hanlder: WarpHandler
     events_handler: EventsHandler
+    doors_handler: DoorsHandler
 
     def __init__(self, ctx: TombaContext, retroarch_address="127.0.0.1", retroarch_port=55355):
         self.ctx = ctx
@@ -60,6 +62,7 @@ class TombaGame:
         self.pickup_handler = PickupHandler(self.ctx, self)
         self.warp_hanlder = WarpHandler(self.ctx, self)
         self.events_handler = EventsHandler(self.ctx, self)
+        self.doors_handler = DoorsHandler(self.ctx, self)
 
     async def wait_for_retroarch_connection(self):
         logger.info("Waiting on connection to Retroarch...")
