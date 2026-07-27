@@ -9,7 +9,7 @@ from rule_builder.rules import Has, Rule
 
 from . import constants
 from .constants import Regions, Items, Locations, Events
-from .items import ItemHandler, ItemData, TombaItem
+from .items import ItemHandler, ItemData, TombaItem, PANTS
 from .sections import Section, Sections
 from .helpers import HasStarted, HasCleared, Started, Cleared, Rules
 from .events import EventHandler
@@ -270,8 +270,19 @@ class LocationHandler:
         # Watch Tower
         ItemLocData("Top of Watch Tower", Regions.WATCH_TOWER, Items.TELESCOPE),
         ItemLocData("Push the Boulder", Regions.WATCH_TOWER, Items.DIRTY_MIRROR),
-        ItemLocData("Under the Boulder", Regions.WATCH_TOWER, Items.FLOWER_SEEDS, rule=HasCleared(Events.A_LOST_CHILD)),
-        ItemLocData("100 Year Chest", Regions.WATCH_TOWER, Items.JUMPING_PANTS, rule=Has(Items.HUNDRED_YEAR_OLD_KEY)),
+        ItemLocData(
+            "Find the seeds",
+            Regions.WATCH_TOWER,
+            Items.FLOWER_SEEDS,
+            rule=HasCleared(Events.A_LOST_CHILD) & HasCleared(Events.THE_100_FLOWER_FOREST),
+        ),
+        ItemLocData(
+            Locations.WATCH_TOWER_PANTS,
+            Regions.WATCH_TOWER,
+            Items.JUMPING_PANTS,
+            Sections.WATCH_TOWER,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+        ),
         ItemLocData(
             "10,000 Year Chest",
             Regions.WATCH_TOWER,
@@ -415,7 +426,11 @@ class LocationHandler:
         ItemLocData("Herbs", Regions.STORMY_MOUNTAIN, Items.HEALING_HERBS),
         ItemLocData("Give back the Pants", Regions.STORMY_MOUNTAIN, Items.FUNKY_PARASOL, rule=Has(Items.CHARLES_PANTS)),
         ItemLocData(
-            "100 Year Old Pants", Regions.STORMY_MOUNTAIN, Items.DASHING_PANTS, rule=Has(Items.HUNDRED_YEAR_OLD_KEY)
+            Locations.STORMY_MOUNTAIN_PANTS,
+            Regions.STORMY_MOUNTAIN,
+            Items.DASHING_PANTS,
+            Sections.STORMY_MOUNTAINS_SECOND,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "100 Year Old Chest Wing 1",
@@ -712,7 +727,13 @@ class LocationHandler:
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
         ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
-        ItemLocData("New Pants", Regions.MASAKARI_JUNGLE, Items.FLASH_PANTS, rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)),
+        ItemLocData(
+            Locations.MASAKARI_JUNGLE_PANTS,
+            Regions.MASAKARI_JUNGLE,
+            Items.FLASH_PANTS,
+            Sections.MASAKARI_JUNGLE,
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+        ),
         ItemLocData(
             "100 Year Old Chest",
             Regions.MASAKARI_JUNGLE,
@@ -1107,9 +1128,13 @@ class LocationHandler:
 
     @staticmethod
     def filter_and_sort(item: ItemData, section: Section, camera_horizontal: int, camera_vertical: int) -> list[int]:
-        filtered_locations = LocationHandler.filter(LocationHandler.location_table, item.id, section)
+        item_ids: list[int] = [item.id]
+        if item.is_pants():
+            item_ids: list[int] = [ItemHandler.by_name[item_name].id for item_name in PANTS]
+
+        filtered_locations = LocationHandler.filter(LocationHandler.location_table, item_ids, section)
         if len(filtered_locations) <= 0 and item.name == Items.CHEESE:
-            filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item.id, section)
+            filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item_ids, section)
 
         # Remove locations that are too far away
         filtered_locations = [
@@ -1125,13 +1150,15 @@ class LocationHandler:
         return [location.id for location in filtered_locations]
 
     @staticmethod
-    def filter(locations: list[LocationData] | list[ItemLocData], item_id: int, section: Section) -> list[ItemLocData]:
+    def filter(
+        locations: list[LocationData] | list[ItemLocData], item_ids: list[int], section: Section
+    ) -> list[ItemLocData]:
         return [
             location
             for location in locations
             if isinstance(location, ItemLocData)
             and location.item is not None
-            and location.item.id == item_id
+            and location.item.id in item_ids
             and (location.section is None or location.section.equals(section))
         ]
 

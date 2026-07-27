@@ -24,6 +24,9 @@ class Locations(str):
     HIDDEN_CHEST_FOREST_100_FLOWER_2 = "Hidden Chest Wing 2"
     MAILBOX = "Mailbox"
     MONSTER_HUNT = "Monster Fight"
+    WATCH_TOWER_PANTS = "Tower Pants"
+    STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
+    MASAKARI_JUNGLE_PANTS = "Funga Pants"
 
 
 class Regions(str):

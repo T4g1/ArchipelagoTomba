@@ -23,6 +23,9 @@ class ItemBehavior(IntEnum):
     ORIGINAL = 2  # Archipelago does not handle this item at all
 
 
+PANTS: list[str] = [Items.DASHING_PANTS, Items.JUMPING_PANTS, Items.FLASH_PANTS]
+
+
 @dataclass
 class ItemData:
     _id_counter: ClassVar[int] = 1  # ID 0 is reserved
@@ -56,6 +59,9 @@ class ItemData:
 
     def __repr__(self) -> str:
         return self.name
+
+    def is_pants(self) -> bool:
+        return self.name in PANTS
 
 
 class ItemHandler:

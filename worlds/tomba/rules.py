@@ -50,7 +50,7 @@ def integrity_checks():
                     f"with a countable item {location.item.name} "
                     "but no area/section or coordinates discriminator"
                 )
-        elif location.section is not None:
+        elif location.section is not None and not location.item.is_pants():
             raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
 
     for item in ItemHandler.item_table:
