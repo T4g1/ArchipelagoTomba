@@ -42,7 +42,8 @@ class AbstractHandler:
         """Override this to define handlers"""
         pass
 
-    async def handle(self, something: object, *args: Any, **kwargs: Any):
+    async def handle(self, something: object, *args: Any, **kwargs: Any) -> bool:
         handler = self.handlers.get(something, None)
         if handler:
-            await handler.callback(*args, **kwargs)
+            return await handler.callback(*args, **kwargs)
+        return False

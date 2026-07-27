@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from random import Random
 from typing import TYPE_CHECKING, ClassVar
 from enum import IntEnum
 
@@ -18,9 +19,12 @@ class ItemException(Exception):
 
 
 class ItemBehavior(IntEnum):
-    RANDOMIZED = 0  # Archipelago choose when this item is retrieved
-    LOCKED = 1  # Archipelago put that item in a pre-determined location
-    ORIGINAL = 2  # Archipelago does not handle this item at all
+    RANDOMIZED = 0  # Archipelago choose when this item is retrieved (location check and in item pool)
+    LOCKED = 1  # Archipelago put that item in a pre-determined location (not added in item pool)
+    ORIGINAL = 2  # Archipelago does not handle this item at all (directly given to Tomba)
+    HANLDER = (
+        3  # Skip location association and rely on specific handler (skip location check and not added in item pool)
+    )
 
 
 PANTS: list[str] = [Items.DASHING_PANTS, Items.JUMPING_PANTS, Items.FLASH_PANTS]
@@ -75,7 +79,7 @@ class ItemHandler:
         ItemData(0x06, IC.progression, Items.HUNDRED_YEAR_OLD_KEY),
         ItemData(0x07, IC.filler, Items.CHARITY_WINGS, True),
         ItemData(0x08, IC.progression, Items.BITING_PLANT_FLOWER, True),
-        ItemData(0x09, IC.filler, Items.HEALING_MUSHROOM, True, behavior=ItemBehavior.ORIGINAL),
+        ItemData(0x09, IC.filler, Items.HEALING_MUSHROOM, True, behavior=ItemBehavior.HANLDER),
         ItemData(0x0A, IC.progression, Items.BUCKET),
         ItemData(0x0B, IC.progression, Items.TELESCOPE),
         ItemData(0x0C, IC.progression, Items.TEAR_JAR),
@@ -241,22 +245,31 @@ class ItemHandler:
         name_to_id[item.name] = item.id
 
     @staticmethod
-    def get_random_filler_item_name(world: TombaWorld) -> str:
-        return world.random.choices(
-            [
+    def get_random_filler_item(random: Random = Random()) -> ItemData:
+        random_fillers: list[ItemData] = [
+            ItemHandler.by_name[name]
+            for name in [
                 Items.CHARITY_WINGS,
                 Items.HEALING_MUSHROOM,
                 Items.LUNCH_BOX,
                 Items.LARGE_LUNCH_BOX,
-            ],
+            ]
+        ]
+
+        return random.choices(
+            random_fillers,
             weights=[
-                3,
                 2,
+                3,
                 2,
                 1,
             ],
             k=1,
         )[0]
+
+    @staticmethod
+    def get_random_filler_item_name(world: TombaWorld) -> str:
+        return ItemHandler.get_random_filler_item(world.random).name
 
     @staticmethod
     def create_item(world: TombaWorld, name: str) -> TombaItem:

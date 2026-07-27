@@ -21,27 +21,6 @@ The game is patched at run time because:
   4. Pick the same item: The location for the other item will be checked
 There are few uses for this and it's not such a big deal so expect a few inconsistencies in the log when using save states like that
 
-## Issues
-
-* Prevent player out of lunch box for the event in hidden village
-* When grabbing the key of 100 Year Old Wise Man: The sprite stays there
-* Fight with Blue Evil Pig is glitched when accessing with Million Year Old Bell (but doable)
-
-## Ideas
-
-* [REVERSE] Display custom text
-* Heal Tomba
-* Change Tomba status (normal, cry, laugh)
-* [REVERSE] Intercept Life pickup and Max life pickup
-* [REVERSE] Intercept animal dash
-* Cache RAM to free some RetroArch exchange
-* Deathlink can be done by triggering a call to 0x8001B0A4 which kills Tomba (or maybe set life to 0 instead ?)
-* [REVERSE] Trigger event cleared/started display (usefull for Take Out softlock prevention)
-
-## Tasks
-
-* Link location that are reward for event to the event that triggers it: This will allow externaly forced cleared event to still give the reward
-
 ## Notes
 
 ### Open chest and leave area
