@@ -401,6 +401,7 @@ class Addresses(IntEnum):
     PATCH_INTERFACE_HANDLER = 0xB150
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
+    PATCH_PANTS_PICKUP = 0x04111C
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
