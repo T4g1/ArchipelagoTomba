@@ -68,18 +68,7 @@ class EventsHandler(AbstractHandler):
 
     async def on_i_want_a_silver_medal(self):
         """Lock the bronze medal out"""
-        # Check the location
-        location = LocationHandler.by_name.get(
-            get_name(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK), None
-        )
-        assert location is not None
-        await self.ctx.check_locations([location.id])
-
-        # Clear the event
-        event = EventHandler.by_name.get(Events.I_WANT_A_BRONZE_MEDAL)
-        assert event is not None
-
-        self.set_event_state(event, EventStatus.CLEARED)
+        self.clear(Events.I_WANT_A_BRONZE_MEDAL)
 
     async def on_where_the_lights_go(self):
         """This can be cleared without requiring the dwarf to hand the torch, we need to check that manualy"""

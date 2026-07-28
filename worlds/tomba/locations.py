@@ -1050,9 +1050,18 @@ class LocationHandler:
         ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
-        ItemLocData(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK, Items.BRONZE_MEDAL),
-        ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),
-        ItemLocData("Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL),
+        ItemLocData(
+            Locations.BRONZE_MEDAL,
+            Regions.THE_MERMAIDS_SINGING_ROCK,
+            Items.BRONZE_MEDAL,
+            event=Events.I_WANT_A_BRONZE_MEDAL,
+        ),
+        ItemLocData(
+            "Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL, event=Events.I_WANT_A_SILVER_MEDAL
+        ),
+        ItemLocData(
+            "Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL, event=Events.I_WANT_A_GOLD_MEDAL
+        ),
         ItemLocData(
             "Flying Wing Leftmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,

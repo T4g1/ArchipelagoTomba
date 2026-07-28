@@ -11,7 +11,24 @@ class PickupHandler(AbstractHandler):
             Items.SEASHELL_NECKLACE: Handler(self.on_seashell_necklace),
             Items.WEED_KILLER: Handler(self.on_weed_killer),
             Items.YANS_LUNCH_BOX: Handler(self.on_yans_lunch_box),
+            Items.GOLD_MEDAL: Handler(self.on_gold_medal),
+            Items.SILVER_MEDAL: Handler(self.on_silver_medal),
+            Items.BRONZE_MEDAL: Handler(self.on_bronze_medal),
         }
+
+    async def on_bronze_medal(self):
+        """Clear Bronze Medal event"""
+        self.tomba.events_handler.clear(Events.I_WANT_A_BRONZE_MEDAL)
+
+    async def on_silver_medal(self):
+        """Clear Silver Medal event"""
+        # This call should naturaly call the handler to provide Bronze Medal location and clear that event too
+        # See on_i_want_a_silver_medal in handler/events.py
+        self.tomba.events_handler.clear(Events.I_WANT_A_SILVER_MEDAL)
+
+    async def on_gold_medal(self):
+        """Clear Gold Medal event"""
+        self.tomba.events_handler.clear(Events.I_WANT_A_GOLD_MEDAL)
 
     async def on_yans_lunch_box(self):
         """Start the Take Out event"""
