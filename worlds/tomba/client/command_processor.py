@@ -34,7 +34,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
         if isinstance(self.ctx, TombaContext):
             item = ItemHandler.by_game_id.get(int(game_id, 16), None)
             if item is not None:
-                await self.ctx.tomba.inventory_handler.receive_item(item, 0)
+                await self.ctx.tomba.inventory_handler.receive_item(item)
 
     def _cmd_start(self, event_id: str):
         """DEBUG: Start an event"""
@@ -71,7 +71,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
                 await self.ctx.tomba.warp_hanlder.unlock_warp(section)
 
             item = ItemHandler.by_name[Items.CHARITY_WINGS]
-            await self.ctx.tomba.inventory_handler.receive_item(item, 0)
+            await self.ctx.tomba.inventory_handler.receive_item(item)
 
     async def _cmd_check(self, location_id: str):
         """DEBUG: Manualy check a location for debug purposes"""

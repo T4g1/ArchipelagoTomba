@@ -408,6 +408,7 @@ class Addresses(IntEnum):
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
     PATCH_PANTS_PICKUP = 0x04111C
+    PATCH_POPUP = 0x0314EC
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
@@ -503,5 +504,5 @@ class MailboxState(IntEnum):
 class CustomCommand(IntEnum):
     """Masks for custom commands"""
 
-    POP_STACK = 0x00000001  # Bit 0 R/W = 1: Clear stack, stack is being cleared
-    SHOW_MESSAGE = 0x00000010  # Bit 1 R/W = 1: Display info message (B142 and B143)
+    POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
+    SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)

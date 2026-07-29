@@ -53,7 +53,12 @@ class Patcher:
         self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
 
         # Allows Tomba to grab pants he already owns
+        # Allows the method to reach the add to inventory method
         self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
+
+        # Patch display popup method
+        # Do not append text on "Acquired!" case
+        self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
 
         logger.info("Game patched")
 

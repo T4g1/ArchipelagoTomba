@@ -78,7 +78,7 @@ class InventoryHandler(AbstractHandler):
 
         return inventory
 
-    async def receive_item(self, item: ItemData, player) -> bool:
+    async def receive_item(self, item: ItemData, player: int | None = None) -> bool:
         """Give iem to the player
 
         Returns:
@@ -122,8 +122,13 @@ class InventoryHandler(AbstractHandler):
             should_display_acquired = True
 
         if should_display_acquired:
-            logger.debug(f"Received {item.name} from {player}")
+            message = f"Found {item.name}"
+            if player is not None and self.ctx.slot != player:
+                player_name = self.ctx.player_names[player]
+                message = f"{player_name} sent {item.name}"
 
+            logger.debug(message)
+            self.tomba.popup_handler.print(message)
             self.tomba.play_sfx(SFX.ACQUIRED)
 
         await self.tomba.pickup_handler.handle(item.name)
