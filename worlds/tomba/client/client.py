@@ -85,7 +85,7 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_events, interval_ms=2000),
             Handler(self.tomba.update_inventory, interval_ms=750),
             Handler(self.tomba.update_locations, interval_ms=5000),
-            Handler(self.tomba.update_popups, interval_ms=500),
+            Handler(self.tomba.update_popups, interval_ms=250),
         ]
 
     async def check_locations(self, locations: list[int]) -> None:

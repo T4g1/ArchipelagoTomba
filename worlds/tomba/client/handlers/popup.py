@@ -152,6 +152,7 @@ class PopupHandler(AbstractHandler):
     message_queue: list[str] = []
 
     POPUP_SLOT_1_STATUS = 0x0A39C2
+    POPUP_SLOT_2_STATUS = 0x0A39BA
     POPUP_SIZES = 0x07D05C
 
     async def update_popups(self):
@@ -164,8 +165,8 @@ class PopupHandler(AbstractHandler):
 
     async def has_free_slot(self) -> bool:
         """Wait for the first slot to be free
-        We do not use the other slots to avoid issue displaying text during cutscenes"""
-        status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_1_STATUS, 2)
+        Leave at least one free slot to avoid issue displaying text during cutscenes"""
+        status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
         return status == bytes.fromhex("FFFF")
 
     def print(self, message: str):
