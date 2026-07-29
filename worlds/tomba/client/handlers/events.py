@@ -3,7 +3,7 @@ from CommonClient import logger
 from . import Handler, AbstractHandler
 from ...constants import Addresses, Events, EventStatus, Items, Locations, Regions
 from ...events import EventHandler, EventData
-from ...locations import LocationHandler, get_name
+from ...locations import LocationHandler, get_name, Cleared
 from ...items import ItemHandler
 from .door import Doors
 
@@ -27,7 +27,23 @@ class EventsHandler(AbstractHandler):
             Events.BACCUS_VILLAGE: Handler(self.on_baccus_village),
             Events.THE_DEEP_JUNGLE_PIG: Handler(self.on_deep_jungle_pig),
             Events.TRICK_VILLAGE: Handler(self.on_trick_village),
+            Events.BREAK_THE_RUSTY_DOOR: Handler(self.on_break_the_rusty_door),
+            Events.WE_NEED_POWER: Handler(self.on_we_need_power),
         }
+
+    async def on_break_the_rusty_door(self):
+        """Uncheck Let's Ride the Raft
+        If it's check at this point, the We Need Power event is softlocked"""
+        self.forget(Events.LETS_RIDE_THE_RAFT)
+
+    async def on_we_need_power(self):
+        """Check if the Let's Ride The Raft has been cleared before
+        See on_break_the_rusty_door: We reset it there to avoid issue"""
+        location = LocationHandler.by_name.get(Cleared(Events.LETS_RIDE_THE_RAFT))
+        assert location is not None
+
+        if location.id in self.ctx.checked_locations:
+            self.clear(Events.LETS_RIDE_THE_RAFT)
 
     async def on_trick_village(self):
         """Clear related events"""
