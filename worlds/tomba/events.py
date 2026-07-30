@@ -35,12 +35,12 @@ class EventData:
 
 class EventHandler:
     event_table: list[EventData] = [
-        EventData(
-            0x00,
-            Events.GRANDPAS_BRACELET,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            cleared_rule=CanReachRegion(Regions.THE_STRANGE_SMALL_ROOM) & HasCleared(Events.SEVEN_FRIENDS),
-        ),
+        # EventData(
+        #     0x00,
+        #     Events.GRANDPAS_BRACELET,
+        #     Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        #     cleared_rule=CanReachRegion(Regions.THE_STRANGE_SMALL_ROOM) & HasCleared(Events.SEVEN_FRIENDS),
+        # ),
         EventData(
             0x01,
             Events.THE_100_YEAR_OLD_WISE_MAN,

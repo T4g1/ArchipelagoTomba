@@ -29,7 +29,12 @@ class EventsHandler(AbstractHandler):
             Events.TRICK_VILLAGE: Handler(self.on_trick_village),
             Events.BREAK_THE_RUSTY_DOOR: Handler(self.on_break_the_rusty_door),
             Events.WE_NEED_POWER: Handler(self.on_we_need_power),
+            Events.THE_REAL_EVIL_PIG: Handler(self.on_the_real_evil_pig),
         }
+
+    async def on_the_real_evil_pig(self):
+        """Win condition"""
+        await self.ctx.on_victory()
 
     async def on_break_the_rusty_door(self):
         """Uncheck Let's Ride the Raft
@@ -126,16 +131,6 @@ class EventsHandler(AbstractHandler):
 
     def start(self, event_name: str):
         self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
-
-    async def is_victory(self):
-        return (await self.get_event_state(Events.THE_REAL_EVIL_PIG)) is EventStatus.CLEARED
-
-    async def check_win_conditions(self):
-        if not self.tomba.check_safe_gameplay():
-            return
-
-        if await self.is_victory():
-            await self.ctx.on_victory()
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]

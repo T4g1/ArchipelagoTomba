@@ -92,4 +92,4 @@ def set_all_location_rules(world: TombaWorld) -> None:
 
 
 def set_completion_condition(world: TombaWorld) -> None:
-    world.set_completion_rule(HasCleared(Events.GRANDPAS_BRACELET))
+    world.set_completion_rule(HasCleared(Events.THE_REAL_EVIL_PIG))

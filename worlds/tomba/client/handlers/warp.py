@@ -86,6 +86,7 @@ class WarpHandler(AbstractHandler):
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
             Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
+            Sections.PHOENIX_NEST: Handler(self.on_phoenix_nest_entry),
         }
 
     async def on_wobbly_warf_left(self, to: Section):
@@ -99,6 +100,11 @@ class WarpHandler(AbstractHandler):
             if self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
+
+    async def on_phoenix_nest_entry(self, to: Section):
+        """Starts the Phoenix's Favorite"""
+        if self.tomba.events_handler.get_event_state(Events.THE_PHOENIXS_FAVORITE) is EventStatus.UNDISCOVERED:
+            self.tomba.events_handler.start(Events.THE_PHOENIXS_FAVORITE)
 
     async def on_forest_of_100_flowers_entry(self, coming_from: Section):
         if not await self.is_purified(Regions.FOREST_OF_100_FLOWERS):
