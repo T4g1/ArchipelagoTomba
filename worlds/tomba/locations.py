@@ -319,7 +319,7 @@ class LocationHandler:
         ItemLocData(
             Locations.FIRE_STARTER, Regions.DWARF_VILLAGE, Items.TORCH, rule=HasStarted(Events.WHERED_THE_LIGHTS_GO)
         ),
-        ItemLocData("Jail", Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
+        ItemLocData(Locations.JAIL, Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
         # Mushroom Forest
         ItemLocData("AP Box", Regions.MUSHROOM_FOREST, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
         ItemLocData("Tear Jar", Regions.MUSHROOM_FOREST, Items.TEAR_JAR, rule=HasCleared(Events.THE_100_FLOWER_FOREST)),
@@ -709,7 +709,7 @@ class LocationHandler:
         ),
         # Baccus Lake
         ItemLocData(
-            "Pipe",
+            Locations.PIPE,
             Regions.BACCUS_LAKE,
             Items.PIPE,
         ),
@@ -1030,24 +1030,25 @@ class LocationHandler:
             y=64380,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData(
-            "Near the Small Strange Room 2",
-            Regions.UNDERGROUND_MAZE,
-            Items.CHEESE,
-            Sections.UNDERGROUND_MAZE,
-            x=240,
-            y=64380,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        ),
-        ItemLocData(
-            "Near the Small Strange Room 3",
-            Regions.UNDERGROUND_MAZE,
-            Items.CHEESE,
-            Sections.UNDERGROUND_MAZE,
-            x=240,
-            y=64380,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        ),
+        # TODO: The two commented locations here are not always provided
+        # ItemLocData(
+        #     "Near the Small Strange Room 2",
+        #     Regions.UNDERGROUND_MAZE,
+        #     Items.CHEESE,
+        #     Sections.UNDERGROUND_MAZE,
+        #     x=240,
+        #     y=64380,
+        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        # ),
+        # ItemLocData(
+        #     "Near the Small Strange Room 3",
+        #     Regions.UNDERGROUND_MAZE,
+        #     Items.CHEESE,
+        #     Sections.UNDERGROUND_MAZE,
+        #     x=240,
+        #     y=64380,
+        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        # ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
         ItemLocData(
@@ -1195,6 +1196,15 @@ def create_regular_locations(world: TombaWorld) -> None:
     # Force baron to be on the original location
     BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
     BARON.place_locked_item(ItemHandler.create_item(world, Items.BARON))
+
+    if not world.options.optionnal_randomized:
+        # Force Pipe
+        PIPE = world.get_location(get_name(Locations.PIPE, Regions.BACCUS_LAKE))
+        PIPE.place_locked_item(ItemHandler.create_item(world, Items.PIPE))
+
+        # Force Broken Vase
+        JAIL = world.get_location(get_name(Locations.JAIL, Regions.DWARF_VILLAGE))
+        JAIL.place_locked_item(ItemHandler.create_item(world, Items.BROKEN_VASE))
 
 
 def create_events(world: TombaWorld) -> None:

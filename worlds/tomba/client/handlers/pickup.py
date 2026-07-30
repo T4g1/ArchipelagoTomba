@@ -14,7 +14,12 @@ class PickupHandler(AbstractHandler):
             Items.GOLD_MEDAL: Handler(self.on_gold_medal),
             Items.SILVER_MEDAL: Handler(self.on_silver_medal),
             Items.BRONZE_MEDAL: Handler(self.on_bronze_medal),
+            Items.BANANA_JUICE: Handler(self.on_banana_juice),
         }
+
+    async def on_banana_juice(self):
+        """Starts a refreshing drink"""
+        self.tomba.events_handler.start(Events.A_REFRESHING_DRINK)
 
     async def on_bronze_medal(self):
         """Clear Bronze Medal event"""

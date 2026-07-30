@@ -29,6 +29,8 @@ class ItemBehavior(IntEnum):
 
 PANTS: list[str] = [Items.DASHING_PANTS, Items.JUMPING_PANTS, Items.FLASH_PANTS]
 
+OPTIONNAL_ITEMS = [Items.PIPE, Items.BROKEN_VASE]
+
 
 @dataclass
 class ItemData:
@@ -67,8 +69,15 @@ class ItemData:
     def is_pants(self) -> bool:
         return self.name in PANTS
 
+    def get_behavior(self, world: TombaWorld):
+        if not world.options.optionnal_randomized and self.name in OPTIONNAL_ITEMS:
+            return ItemBehavior.LOCKED
+
+        return self.behavior
+
 
 class ItemHandler:
+
     item_table: list[ItemData] = [
         ItemData(0x00, IC.progression, Items.CHICK, True, 4),
         ItemData(0x01, IC.filler, Items.FROG, behavior=ItemBehavior.ORIGINAL),
@@ -293,6 +302,9 @@ class ItemHandler:
                 Items.TEN_THOUSAND_YEAR_OLD_BELL,
                 Items.MILLION_YEAR_OLD_BELL,
             ]
+
+        if not world.options.optionnal_randomized:
+            disabled_items += [Items.PIPE, Items.BROKEN_VASE]
 
         for item in ItemHandler.item_table:
             if item.behavior is ItemBehavior.RANDOMIZED and item.name not in disabled_items:
