@@ -1182,10 +1182,15 @@ class TombaLocation(Location):
 def create_all_locations(world: TombaWorld) -> None:
     create_regular_locations(world)
     create_events(world)
+    set_all_events_rules(world)
 
 
 def create_regular_locations(world: TombaWorld) -> None:
     for name, locations in LocationHandler.by_region.items():
+        # Cleared location are already in events
+        if not world.options.cleared_event_rewards:
+            locations = [location for location in locations if isinstance(location, ItemLocData)]
+
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 
@@ -1211,7 +1216,19 @@ def create_events(world: TombaWorld) -> None:
     """Those event are considered cleared once the logic reach the specific region they are in"""
     for event in EventHandler.event_table:
         region = world.get_region(event.region)
-        region.add_event(Started(event.name), rule=event.started_rule, location_type=TombaLocation, item_type=TombaItem)
+        region.add_event(Started(event.name), location_type=TombaLocation, item_type=TombaItem)
+
+        # Adds cleared as events instead of locations
+        if not world.options.cleared_event_rewards:
+            region.add_event(Cleared(event.name), location_type=TombaLocation, item_type=TombaItem)
 
     VILLAGE_OF_ALL_BEGINNINGS = world.get_region(Regions.VILLAGE_OF_ALL_BEGINNINGS)
     VILLAGE_OF_ALL_BEGINNINGS.add_event(Locations.AP_150_000, location_type=TombaLocation, item_type=TombaItem)
+
+
+def set_all_events_rules(world: TombaWorld) -> None:
+    for event in EventHandler.event_table:
+        world.set_rule(world.get_location(Started(event.name)), event.started_rule)
+
+        if not world.options.cleared_event_rewards:
+            world.set_rule(world.get_location(Cleared(event.name)), event.cleared_rule)

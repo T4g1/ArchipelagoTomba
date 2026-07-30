@@ -31,8 +31,19 @@ class OptionnalItemsRandomized(DefaultOnToggle):
     display_name = "Optionnal randomized ?"
 
 
+class ClearedLocation(DefaultOnToggle):
+    """
+    Toggle if event cleared should count as a location check or not
+    If on: You will get random rewards when clearing event
+    If off: Clearing events will give you nothing
+    """
+
+    display_name = "Cleared event rewards"
+
+
 @dataclass
 class TombaOptions(PerGameCommonOptions):
     bell_warp: BellWarp
     keep_blackjack: KeepBlackjack
     optionnal_randomized: OptionnalItemsRandomized
+    cleared_event_rewards: ClearedLocation
