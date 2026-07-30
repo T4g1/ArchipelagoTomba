@@ -78,35 +78,40 @@ class WFMPopup:
     MAGIC_WORD = "WFM3"
     WFM_POPUP_PTR = 0x1F800398
 
-    available: bool = False
     address: int
     dialog_table_offset: int
     dialog_table: int
 
-    async def load_dialog_table(self, psx: RetroArch) -> bool:
+    async def _load_dialog_table(self, psx: RetroArch):
         """Load dialog table addresses"""
-        if not self.available:
-            return False
 
         raw_dialog_table_offset = await psx.read_memory_block(self.address + 8, 2)
         self.dialog_table_offset = int.from_bytes(raw_dialog_table_offset, byteorder="little")
 
         self.dialog_table = self.address + self.dialog_table_offset
 
-        return True
-
     async def load(self, psx: RetroArch) -> bool:
         """Check the WFM table address and availability"""
         raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
         self.address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
 
-        wfm_popup = await psx.read_memory_block(self.address, 4)
-        self.available = wfm_popup.decode("utf-8") == self.MAGIC_WORD
-
-        if not self.available:
+        if not await self.is_available(psx):
             return False
 
-        return await self.load_dialog_table(psx)
+        await self._load_dialog_table(psx)
+
+        return True
+
+    async def is_available(self, psx: RetroArch) -> bool:
+        if not hasattr(self, "address"):
+            return False
+
+        wfm_popup = await psx.read_memory_block(self.address, 4)
+
+        try:
+            return wfm_popup.decode("utf-8") == self.MAGIC_WORD
+        except UnicodeDecodeError:
+            return False
 
     async def get_dialog_entry(self, psx: RetroArch, dialog_index: int):
         """Compute the address of a particular dialog in the dialog table"""
@@ -177,7 +182,7 @@ class PopupHandler(AbstractHandler):
             self.wfm = WFMPopup()
 
         psx = self.tomba.playstation
-        if not self.wfm.available and not await self.wfm.load(psx):
+        if not await self.wfm.is_available(psx) and not await self.wfm.load(psx):
             return False
 
         if not await self.has_free_slot():
