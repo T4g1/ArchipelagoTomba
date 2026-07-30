@@ -7,6 +7,7 @@ from ..constants import Addresses
 
 HANDLER_HOOK_ORIGINAL = "0800E003"
 HANDLER_HOOK = "542C0008"
+PATCH_FLOWER_TEARS = "08000601"
 
 
 class PatchException(Exception):
@@ -73,3 +74,11 @@ class Patcher:
     async def is_patched(self) -> bool:
         hook_value = await self.playstation.read_memory_block(Addresses.PATCH_INTERFACE_HOOK, 4)
         return hook_value == bytearray.fromhex(HANDLER_HOOK)
+
+    async def is_inventory_flower_tears_patched(self) -> bool:
+        value = await self.playstation.read_memory_block(Addresses.PATCH_FLOWER_TEARS, 4)
+        return value == bytearray.fromhex(PATCH_FLOWER_TEARS)
+
+    async def patch_inventory_flower_tears(self):
+        """This changes the script to check Flower Tears usability from inventory"""
+        self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex(PATCH_FLOWER_TEARS))

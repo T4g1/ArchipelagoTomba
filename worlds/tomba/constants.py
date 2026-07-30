@@ -391,7 +391,10 @@ class Addresses(IntEnum):
     PV_MAX = 0x09BCD9
 
     MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
-    MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
+    GAME_STATE_1 = 0x001FD848  # Indicates the main state: title screen or in game
+    GAME_STATE_2 = 0x001FD84A
+    GAME_STATE_3 = 0x001FD84C  # 0x03: In menu
+    GAME_STATE_4 = 0x001FD84E  # 0x03: Menu loaded
 
     # Addresses for items found in game stack
     FOUND_ITEMS_STACK_SIZE = 0xB3F0
@@ -409,6 +412,7 @@ class Addresses(IntEnum):
     PATCH_ADD_ITEM = 0x0297B0
     PATCH_PANTS_PICKUP = 0x04111C
     PATCH_POPUP = 0x0314EC
+    PATCH_FLOWER_TEARS = 0x0F54B8
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0

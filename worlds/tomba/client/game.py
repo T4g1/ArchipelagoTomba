@@ -133,7 +133,7 @@ class TombaGame:
         return (await self.playstation.async_read_memory(Addresses.MENU_STATE))[0]
 
     async def get_screen_state(self) -> Screens:
-        screen_raw = (await self.playstation.async_read_memory(Addresses.MAIN_SCREEN_STATE))[0]
+        screen_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_1))[0]
 
         try:
             return Screens(screen_raw)
@@ -153,6 +153,20 @@ class TombaGame:
     async def patch_game(self):
         await self.patcher.patch_game()
 
+    async def check_flower_tears_patch(self):
+        if await self.patcher.is_inventory_flower_tears_patched():
+            return
+
+        # Patch only if its unpurified
+        if self.section == Sections.CHARITY_SQUARE_PURIFIED:
+            return
+
+        # Patch only if the menu is fully loaded
+        if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
+            return
+
+        await self.patcher.patch_inventory_flower_tears()
+
     async def update_status(self):
         screen = await self.get_screen_state()
         self.screen = screen
@@ -160,6 +174,7 @@ class TombaGame:
         if screen == Screens.GAME_SCREEN:
             if await self.get_menu_state() == MenuState.OPEN:
                 self.status = GameState.IN_MENU
+                await self.check_flower_tears_patch()
             elif await self.is_hud_visible():
                 self.status = GameState.PLAYING
             elif await self.inventory_handler.is_accessible():
