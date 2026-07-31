@@ -415,6 +415,7 @@ class Addresses(IntEnum):
     PATCH_PANTS_PICKUP = 0x04111C
     PATCH_POPUP = 0x0314EC
     PATCH_FLOWER_TEARS = 0x0F54B8
+    PATCH_YANS_LUNCH_BOX = 0x0F4AC0
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0

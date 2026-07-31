@@ -1,7 +1,15 @@
 from worlds._bizhawk import (
-    BizHawkContext, connect, get_script_version, get_hash, 
-    get_system, ConnectionStatus, ping,
-    SyncError, RequestFailedError, read, write
+    BizHawkContext,
+    connect,
+    get_script_version,
+    get_hash,
+    get_system,
+    ConnectionStatus,
+    ping,
+    SyncError,
+    RequestFailedError,
+    read,
+    write,
 )
 
 from .emulator import Emulator, EmulatorStatus, CORE_TYPE, InvalidEmulatorStateError
@@ -20,13 +28,13 @@ class BizHawk(Emulator):
     async def connect(self) -> bool:
         try:
             return await connect(self.ctx)
-        except:
+        except Exception:
             return False
 
     async def get_version(self):
         try:
             return str(await get_script_version(self.ctx))
-        except:
+        except Exception:
             raise InvalidEmulatorStateError("BizHawk: Unable to get version")
 
     async def get_status(self):
@@ -50,7 +58,7 @@ class BizHawk(Emulator):
                 "?",
                 rom_crc,
             )
-        except:
+        except Exception:
             raise InvalidEmulatorStateError("BizHawk: Unable to get status")
 
     async def keep_alive(self):
@@ -62,12 +70,12 @@ class BizHawk(Emulator):
     async def write_memory(self, address, bytes: bytearray | bytes):
         try:
             await write(self.ctx, [(address, bytes, "")])
-        except:
+        except Exception:
             raise InvalidEmulatorStateError(f"BizHawk: Unable to write at {hex(address)}")
 
-    async def async_read_memory(self, address: int, size: int=1) -> bytearray:
+    async def async_read_memory(self, address: int, size: int = 1) -> bytearray:
         try:
             result = await read(self.ctx, [(address, size, "")])
             return bytearray(b"".join(result))
-        except:
+        except Exception:
             raise InvalidEmulatorStateError(f"BizHawk: Unable to read at {hex(address)}")

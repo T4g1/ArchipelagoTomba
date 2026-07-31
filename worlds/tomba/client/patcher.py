@@ -8,6 +8,7 @@ from ..constants import Addresses
 HANDLER_HOOK_ORIGINAL = "0800E003"
 HANDLER_HOOK = "542C0008"
 PATCH_FLOWER_TEARS = "08000601"
+PATCH_YANS_LUNCH_BOX = "FFFF00FF"
 
 
 class PatchException(Exception):
@@ -82,3 +83,7 @@ class Patcher:
     async def patch_inventory_flower_tears(self):
         """This changes the script to check Flower Tears usability from inventory"""
         await self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex(PATCH_FLOWER_TEARS))
+
+    async def patch_inventory_yans_lunch_box(self):
+        """Prevent Yan's Lunch Box to be eaten"""
+        await self.playstation.write_memory(Addresses.PATCH_YANS_LUNCH_BOX, bytes.fromhex(PATCH_YANS_LUNCH_BOX))

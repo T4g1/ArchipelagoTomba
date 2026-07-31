@@ -1,8 +1,6 @@
 from enum import Enum
 from socket import socket as SocketType
 
-from CommonClient import logger
-
 
 class EmulatorException(Exception):
     pass
@@ -26,8 +24,9 @@ class EmulatorStatus(Enum):
     PLAYING = 3
     CONTENTLESS = 3
 
+
 CORE_TYPE = "playstation"
-KEEP_ALIVE_INTERVAL = 4000 # In ms: Determined by BizHawk which has a timeout of 5 seconds
+KEEP_ALIVE_INTERVAL = 4000  # In ms: Determined by BizHawk which has a timeout of 5 seconds
 
 
 class Emulator:
@@ -56,7 +55,7 @@ class Emulator:
     async def write_memory(self, address: int, bytes: bytearray | bytes):
         pass
 
-    async def async_read_memory(self, address: int, size: int=1) -> bytearray:
+    async def async_read_memory(self, address: int, size: int = 1) -> bytearray:
         return bytearray(1)
 
     async def read_memory_block(self, address: int, size: int):

@@ -67,7 +67,7 @@ class EventsHandler(AbstractHandler):
         await self.clear(Events.A_STORMY_PIG_BAG)
 
         # If the player seal the evil pig before going in the mountain for the first time
-        if self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
+        if await self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
             # Prevents softlock if speaking to the Phoenix guy
             await self.start(Events.THE_MOUSE_PIG_BAG)
 

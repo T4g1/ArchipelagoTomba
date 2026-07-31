@@ -21,7 +21,7 @@ from .handlers.warp import WarpHandler
 from .handlers.events import EventsHandler
 from .handlers.door import DoorHandler
 from .handlers.popup import PopupHandler
-from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus, InvalidEmulatorStateError
+from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
 from .emulators.retroarch import RetroArch
 from .emulators.bizhawk import BizHawk
 from ..sections import Sections, Section
@@ -31,7 +31,6 @@ from .patcher import Patcher
 
 class TombaException(Exception):
     pass
-
 
 
 class TombaGame:
@@ -84,7 +83,7 @@ class TombaGame:
                 try:
                     if not await emulator.connect():
                         continue
-                    
+
                     version = await emulator.get_version()
                     status, core_type, rom_name, _ = await emulator.get_status()
 
@@ -167,7 +166,11 @@ class TombaGame:
     async def patch_game(self):
         await self.patcher.patch_game()
 
-    async def check_flower_tears_patch(self):
+    async def check_inventory_patch(self):
+        # Fix Yan's Lunch Box
+        await self.patcher.patch_inventory_yans_lunch_box()
+
+        # Fix Flower Tears
         if await self.patcher.is_inventory_flower_tears_patched():
             return
 
@@ -188,7 +191,7 @@ class TombaGame:
         if screen == Screens.GAME_SCREEN:
             if await self.get_menu_state() == MenuState.OPEN:
                 self.status = GameState.IN_MENU
-                await self.check_flower_tears_patch()
+                await self.check_inventory_patch()
             elif await self.is_hud_visible():
                 self.status = GameState.PLAYING
             elif await self.inventory_handler.is_accessible():
