@@ -15,11 +15,11 @@ class DoorState(IntEnum):
 class DoorHandler(AbstractHandler):
     """Manipulates connection/door between areas/sections"""
 
-    def set_door(self, door: Doors, state: DoorState):
-        self.tomba.playstation.write_memory(door, state.to_bytes())
+    async def set_door(self, door: Doors, state: DoorState):
+        await self.tomba.playstation.write_memory(door, state.to_bytes())
 
-    def open(self, door: Doors):
-        self.set_door(door, DoorState.OPEN)
+    async def open(self, door: Doors):
+        await self.set_door(door, DoorState.OPEN)
 
-    def close(self, door: Doors):
-        self.set_door(door, DoorState.CLOSED)
+    async def close(self, door: Doors):
+        await self.set_door(door, DoorState.CLOSED)

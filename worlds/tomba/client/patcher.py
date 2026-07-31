@@ -2,7 +2,7 @@ import pkgutil
 from CommonClient import logger
 
 from .compiler import Compiler
-from .retroarch import RetroArch
+from .emulators.emulator import Emulator
 from ..constants import Addresses
 
 HANDLER_HOOK_ORIGINAL = "0800E003"
@@ -15,7 +15,7 @@ class PatchException(Exception):
 
 
 class Patcher:
-    def __init__(self, playstation: RetroArch):
+    def __init__(self, playstation: Emulator):
         self.playstation = playstation
 
         interface_file = pkgutil.get_data(__name__, "asm/interface.asm")
@@ -49,17 +49,17 @@ class Patcher:
         interface_patch = bytes.fromhex(self.interface_patch)
         interface_hook = bytes.fromhex(self.handler_hook)
 
-        self.playstation.write_memory(Addresses.PATCH_ADD_ITEM, add_item_patch)
-        self.playstation.write_memory(Addresses.PATCH_INTERFACE_HANDLER, interface_patch)
-        self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
+        await self.playstation.write_memory(Addresses.PATCH_ADD_ITEM, add_item_patch)
+        await self.playstation.write_memory(Addresses.PATCH_INTERFACE_HANDLER, interface_patch)
+        await self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
 
         # Allows Tomba to grab pants he already owns
         # Allows the method to reach the add to inventory method
-        self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
+        await self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
 
         # Patch display popup method
         # Do not append text on "Acquired!" case
-        self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
+        await self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
 
         logger.info("Game patched")
 
@@ -81,4 +81,4 @@ class Patcher:
 
     async def patch_inventory_flower_tears(self):
         """This changes the script to check Flower Tears usability from inventory"""
-        self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex(PATCH_FLOWER_TEARS))
+        await self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex(PATCH_FLOWER_TEARS))

@@ -21,16 +21,17 @@ from .handlers.warp import WarpHandler
 from .handlers.events import EventsHandler
 from .handlers.door import DoorHandler
 from .handlers.popup import PopupHandler
-from ..client import retroarch
+from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus, InvalidEmulatorStateError
+from .emulators.retroarch import RetroArch
+from .emulators.bizhawk import BizHawk
 from ..sections import Sections, Section
 from ..locations import LocationHandler
 from .patcher import Patcher
 
-CORE_TYPE = "playstation"
-
 
 class TombaException(Exception):
     pass
+
 
 
 class TombaGame:
@@ -38,7 +39,7 @@ class TombaGame:
 
     ctx: TombaContext
     patcher: Patcher
-    playstation: retroarch.RetroArch
+    playstation: Emulator
     section: Section
     checked_locations: set[int]
 
@@ -48,16 +49,18 @@ class TombaGame:
     events_handler: EventsHandler
     doors_handler: DoorHandler
 
-    def __init__(self, ctx: TombaContext, retroarch_address="127.0.0.1", retroarch_port=55355):
+    def __init__(self, ctx: TombaContext, emulator_address="127.0.0.1", emulator_port=55355):
         self.ctx = ctx
 
-        self.retroarch_address = retroarch_address
-        self.retroarch_port = retroarch_port
+        self.emulator_address = emulator_address
+        self.emulator_port = emulator_port
         self.should_reset_auth = False
 
         self.status = GameState.UNKNOWN
         self.screen: Screens = Screens.TITLE_SCREEN
         self.section: Section = Sections.NONE
+
+        self.playstation: Emulator
 
         self.inventory_handler = InventoryHandler(self.ctx, self)
         self.pickup_handler = PickupHandler(self.ctx, self)
@@ -66,32 +69,43 @@ class TombaGame:
         self.doors_handler = DoorHandler(self.ctx, self)
         self.popup_handler = PopupHandler(self.ctx, self)
 
-    async def wait_for_retroarch_connection(self):
-        logger.info("Waiting on connection to Retroarch...")
-        self.playstation = retroarch.RetroArch(self.retroarch_address, self.retroarch_port)
-        self.patcher = Patcher(self.playstation)
+    async def wait_for_emulator_connection(self):
+        logger.info("Waiting on connection to emulator...")
 
+        emulator: Emulator | None = None
         while True:
-            try:
-                version = await self.playstation.get_retroarch_version()
-                status, core_type, rom_name, _ = await self.playstation.get_retroarch_status()
+            if emulator is None:
+                if hasattr(self.ctx, "slot_data"):
+                    if self.ctx.slot_data["emulator"] is RetroArch.ID:
+                        emulator = RetroArch(self.emulator_address, self.emulator_port)
+                    else:
+                        emulator = BizHawk(self.emulator_address, self.emulator_port)
+            else:
+                try:
+                    if not await emulator.connect():
+                        continue
+                    
+                    version = await emulator.get_version()
+                    status, core_type, rom_name, _ = await emulator.get_status()
 
-                if retroarch.is_connected(status) and core_type == CORE_TYPE:
-                    break
-            except (BlockingIOError, TimeoutError, ConnectionResetError):
-                await asyncio.sleep(1.0)
-                pass
+                    if (status == EmulatorStatus.PAUSED or status == EmulatorStatus.PLAYING) and core_type == CORE_TYPE:
+                        break
+                except (BlockingIOError, TimeoutError, ConnectionResetError):
+                    await asyncio.sleep(1.0)
+                    pass
 
             await asyncio.sleep(1.0)
 
-        logger.info(f"Connected to Retroarch {version} running {rom_name}")
+        self.playstation = emulator
+        self.patcher = Patcher(emulator)
+        logger.info(f"Connected to {emulator.name} version {version} running {rom_name}")
 
-    def play_sfx(self, sfx_id: int):
-        self.playstation.write_memory(Addresses.PLAY_SFX, sfx_id.to_bytes())
+    async def play_sfx(self, sfx_id: int):
+        await self.playstation.write_memory(Addresses.PLAY_SFX, sfx_id.to_bytes())
 
     async def show_message(self, code: int):
         logger.debug(f"Display message: {code:04x}")
-        self.playstation.write_memory(Addresses.MESSAGE, code.to_bytes(2))
+        await self.playstation.write_memory(Addresses.MESSAGE, code.to_bytes(2))
         await self.set_command(CustomCommand.SHOW_MESSAGE)
 
     async def get_command(self, command_mask=0xFF) -> int:
@@ -102,7 +116,7 @@ class TombaGame:
         command = await self.get_command()
         command |= command_mask
 
-        self.playstation.write_memory(Addresses.CUSTOM_COMMAND, command.to_bytes())
+        await self.playstation.write_memory(Addresses.CUSTOM_COMMAND, command.to_bytes())
 
     async def get_saved_archipelago_index(self) -> int | None:
         """Give saved last index of item received from Archipelago.
@@ -118,16 +132,16 @@ class TombaGame:
         stored_index = await self.playstation.read_memory_block(Addresses.ARCHIPELAGO_RECEIVED_INDEX, 2)
         return int.from_bytes(stored_index, byteorder="big")
 
-    def set_saved_archipelago_index(self, index):
+    async def set_saved_archipelago_index(self, index):
         index = index.to_bytes(2, byteorder="big")
-        self.playstation.write_memory(Addresses.ARCHIPELAGO_RECEIVED_INDEX, index)
+        await self.playstation.write_memory(Addresses.ARCHIPELAGO_RECEIVED_INDEX, index)
 
     async def get_ap_score(self):
         ap_score_raw = await self.playstation.read_memory_block(Addresses.AP_SCORE, 4)
         return int.from_bytes(ap_score_raw, byteorder="little")
 
-    def set_ap_score(self, value: int):
-        self.playstation.write_memory(Addresses.AP_SCORE, value.to_bytes(4, byteorder="little"))
+    async def set_ap_score(self, value: int):
+        await self.playstation.write_memory(Addresses.AP_SCORE, value.to_bytes(4, byteorder="little"))
 
     async def get_menu_state(self):
         return (await self.playstation.async_read_memory(Addresses.MENU_STATE))[0]
@@ -223,3 +237,7 @@ class TombaGame:
 
     async def update_popups(self):
         await self.popup_handler.update_popups()
+
+    async def keep_alive(self):
+        """Raise error if the emulator is no longer working"""
+        await self.playstation.keep_alive()

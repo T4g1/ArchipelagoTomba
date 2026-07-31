@@ -108,7 +108,7 @@ class InventoryHandler(AbstractHandler):
             new_amount = current_amount + 1
             should_display_acquired = True
 
-        self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
+        await self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
 
         if not has_item_already:
             # Adding an item means shifting the whole stack to the right
@@ -116,8 +116,8 @@ class InventoryHandler(AbstractHandler):
             inventory_stack = item.game_id.to_bytes() + inventory_stack[:-1]
             inventory_counter += 1
 
-            self.tomba.playstation.write_memory(Addresses.INVENTORY_STACK, inventory_stack)
-            self.tomba.playstation.write_memory(Addresses.INVENTORY_COUNTER, inventory_counter.to_bytes())
+            await self.tomba.playstation.write_memory(Addresses.INVENTORY_STACK, inventory_stack)
+            await self.tomba.playstation.write_memory(Addresses.INVENTORY_COUNTER, inventory_counter.to_bytes())
 
             should_display_acquired = True
 
@@ -129,7 +129,7 @@ class InventoryHandler(AbstractHandler):
 
             logger.debug(message)
             self.tomba.popup_handler.print(message)
-            self.tomba.play_sfx(SFX.ACQUIRED)
+            await self.tomba.play_sfx(SFX.ACQUIRED)
 
         await self.tomba.pickup_handler.handle(item.name)
 
@@ -141,7 +141,7 @@ class InventoryHandler(AbstractHandler):
         current_amount = await self.get_item_amount(item.game_id)
 
         new_amount = max(current_amount - amount, 0)
-        self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
+        await self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
 
         if new_amount == 0:
             for index in range(inventory_counter):
@@ -150,8 +150,8 @@ class InventoryHandler(AbstractHandler):
                     inventory_counter -= 1
                     break
 
-            self.tomba.playstation.write_memory(Addresses.INVENTORY_STACK, inventory_stack)
-            self.tomba.playstation.write_memory(Addresses.INVENTORY_COUNTER, inventory_counter.to_bytes())
+            await self.tomba.playstation.write_memory(Addresses.INVENTORY_STACK, inventory_stack)
+            await self.tomba.playstation.write_memory(Addresses.INVENTORY_COUNTER, inventory_counter.to_bytes())
 
     async def equip_weapon(self, weapon: int):
-        self.tomba.playstation.write_memory(Addresses.TOMBA_WEAPON, weapon.to_bytes())
+        await self.tomba.playstation.write_memory(Addresses.TOMBA_WEAPON, weapon.to_bytes())

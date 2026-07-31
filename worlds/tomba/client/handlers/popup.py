@@ -1,6 +1,6 @@
 from . import AbstractHandler
 from ...constants import CustomCommand
-from ..retroarch import RetroArch
+from ..emulators.emulator import Emulator
 
 CHARACTER_WIDTH = 0x08
 CHARMAP: dict[str, int] = {
@@ -82,7 +82,7 @@ class WFMPopup:
     dialog_table_offset: int
     dialog_table: int
 
-    async def _load_dialog_table(self, psx: RetroArch):
+    async def _load_dialog_table(self, psx: Emulator):
         """Load dialog table addresses"""
 
         raw_dialog_table_offset = await psx.read_memory_block(self.address + 8, 2)
@@ -90,7 +90,7 @@ class WFMPopup:
 
         self.dialog_table = self.address + self.dialog_table_offset
 
-    async def load(self, psx: RetroArch) -> bool:
+    async def load(self, psx: Emulator) -> bool:
         """Check the WFM table address and availability"""
         raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
         self.address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
@@ -102,7 +102,7 @@ class WFMPopup:
 
         return True
 
-    async def is_available(self, psx: RetroArch) -> bool:
+    async def is_available(self, psx: Emulator) -> bool:
         if not hasattr(self, "address"):
             return False
 
@@ -113,7 +113,7 @@ class WFMPopup:
         except UnicodeDecodeError:
             return False
 
-    async def get_dialog_entry(self, psx: RetroArch, dialog_index: int):
+    async def get_dialog_entry(self, psx: Emulator, dialog_index: int):
         """Compute the address of a particular dialog in the dialog table"""
 
         # The dialog table is constructed with:
@@ -127,25 +127,25 @@ class WFMPopup:
 
         return self.dialog_table + dialog_offset
 
-    async def write_message(self, psx: RetroArch, address: int, message: str):
+    async def write_message(self, psx: Emulator, address: int, message: str):
         # Set size
         size = (len(message) + 2) * CHARACTER_WIDTH
 
         # Header
-        psx.write_memory(address, 0xFFFA.to_bytes(2, byteorder="little"))
-        psx.write_memory(address + 2, size.to_bytes(2, byteorder="little"))
-        psx.write_memory(address + 4, 0x001D.to_bytes(2, byteorder="little"))
+        await psx.write_memory(address, 0xFFFA.to_bytes(2, byteorder="little"))
+        await psx.write_memory(address + 2, size.to_bytes(2, byteorder="little"))
+        await psx.write_memory(address + 4, 0x001D.to_bytes(2, byteorder="little"))
 
         # Message content
         index = 6
         for character in message:
             value = CHARMAP.get(character, 0x8004)
-            psx.write_memory(address + index, value.to_bytes(2, byteorder="little"))
+            await psx.write_memory(address + index, value.to_bytes(2, byteorder="little"))
             index += 2
 
         # Footer
-        psx.write_memory(address + index, 0xFFFD.to_bytes(2, byteorder="little"))
-        psx.write_memory(address + index + 2, 0xFFFE.to_bytes(2, byteorder="little"))
+        await psx.write_memory(address + index, 0xFFFD.to_bytes(2, byteorder="little"))
+        await psx.write_memory(address + index + 2, 0xFFFE.to_bytes(2, byteorder="little"))
 
 
 class PopupHandler(AbstractHandler):
@@ -198,7 +198,7 @@ class PopupHandler(AbstractHandler):
         # Set size
         DEFAULT_SIZE = 12  # + 0x60 when param_2 == 0 (size of Acquired!)
         size = max(0, len(message) + 2 - DEFAULT_SIZE) * CHARACTER_WIDTH
-        psx.write_memory(self.POPUP_SIZES, size.to_bytes(2, byteorder="little"))
+        await psx.write_memory(self.POPUP_SIZES, size.to_bytes(2, byteorder="little"))
 
         await self.tomba.set_command(CustomCommand.SHOW_MESSAGE)
 

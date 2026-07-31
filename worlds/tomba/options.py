@@ -1,12 +1,26 @@
 from dataclasses import dataclass
 
-from Options import PerGameCommonOptions, Toggle, DefaultOnToggle
+from Options import PerGameCommonOptions, Toggle, DefaultOnToggle, Choice
+
+
+class Emulator(Choice):
+    """
+    Choose the emulator you want to use
+    """
+
+    display_name = "Emulator"
+
+    option_bizhawk = 0
+    option_retroarch = 1
+
+    default = 0
 
 
 class BellWarp(Toggle):
     """
     Allow sequence break using the bells.
-    Warning: Expect glitch to happens with this
+    Warning: Expect glitch t 0
+    o happens with this
     """
 
     display_name = "Bell Warp"
@@ -43,6 +57,7 @@ class ClearedLocation(DefaultOnToggle):
 
 @dataclass
 class TombaOptions(PerGameCommonOptions):
+    emulator: Emulator
     bell_warp: BellWarp
     keep_blackjack: KeepBlackjack
     optionnal_randomized: OptionnalItemsRandomized

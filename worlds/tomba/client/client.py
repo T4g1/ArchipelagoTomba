@@ -24,7 +24,7 @@ from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
 from ..client.handlers.found import FoundHandler
 from ..client.handlers.check import CheckHandler
-from ..client.retroarch import RetroArchException
+from .emulators.emulator import EmulatorException, KEEP_ALIVE_INTERVAL
 from ..client.game import TombaGame, TombaException
 
 MIN_TICK_DURATION = 0.1
@@ -79,12 +79,13 @@ class TombaContext(CommonContext):
         self.won = False
 
         self.periodic_handlers: list[Handler] = [
+            Handler(self.tomba.keep_alive, interval_ms=KEEP_ALIVE_INTERVAL),
             Handler(self.tomba.patch_game, interval_ms=1000),
             Handler(self.tomba.update_status, interval_ms=500),
             Handler(self.tomba.update_section, interval_ms=2000),
             Handler(self.tomba.update_events, interval_ms=250),
             Handler(self.tomba.update_inventory, interval_ms=750),
-            Handler(self.tomba.update_locations, interval_ms=5000),
+            Handler(self.tomba.update_locations, interval_ms=3000),
             Handler(self.tomba.update_popups, interval_ms=250),
         ]
 
@@ -175,7 +176,7 @@ class TombaContext(CommonContext):
             elif not await self.tomba.inventory_handler.receive_item(item, network_item.player):
                 return
 
-            self.tomba.set_saved_archipelago_index(index + 1)
+            await self.tomba.set_saved_archipelago_index(index + 1)
 
     async def on_victory(self):
         await self.send_victory()
@@ -200,7 +201,7 @@ class TombaContext(CommonContext):
             try:
                 logger.info("(Re)Starting game loop")
 
-                await self.tomba.wait_for_retroarch_connection()
+                await self.tomba.wait_for_emulator_connection()
 
                 if not self.items_received:
                     await self.sync()
@@ -212,8 +213,8 @@ class TombaContext(CommonContext):
                             self.should_reset_auth = False
                             raise ServerAuthException("Resetting due to wrong archipelago server")
 
-                        current_time = time.perf_counter() * 1000
                         for handler in self.periodic_handlers:
+                            current_time = time.perf_counter() * 1000
                             if current_time - handler.last_run >= handler.interval_ms:
                                 await handler.callback(*handler.args, **handler.kwargs)
                                 handler.last_run = current_time
@@ -228,11 +229,10 @@ class TombaContext(CommonContext):
                     await asyncio.sleep(sleep_duration)
 
                     last_tick = now
-            except (TimeoutError, RetroArchException, TombaException):
-                await asyncio.sleep(1.0)
+            except (TimeoutError, EmulatorException, TombaException) as e:
+                logger.error(e)
             except Exception:  # DEBUG
                 logger.critical(traceback.format_exc())
-                await asyncio.sleep(1.0)
 
 
 async def main(args: Namespace) -> None:
