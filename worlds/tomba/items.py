@@ -29,6 +29,8 @@ class ItemBehavior(IntEnum):
 
 PANTS: list[str] = [Items.DASHING_PANTS, Items.JUMPING_PANTS, Items.FLASH_PANTS]
 
+OPTIONNAL_ITEMS = [Items.PIPE, Items.BROKEN_VASE]
+
 
 @dataclass
 class ItemData:
@@ -293,6 +295,9 @@ class ItemHandler:
                 Items.TEN_THOUSAND_YEAR_OLD_BELL,
                 Items.MILLION_YEAR_OLD_BELL,
             ]
+
+        if not world.options.optionnal_randomized:
+            disabled_items += [Items.PIPE, Items.BROKEN_VASE]
 
         for item in ItemHandler.item_table:
             if item.behavior is ItemBehavior.RANDOMIZED and item.name not in disabled_items:

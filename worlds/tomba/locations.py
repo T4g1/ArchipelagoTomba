@@ -319,7 +319,7 @@ class LocationHandler:
         ItemLocData(
             Locations.FIRE_STARTER, Regions.DWARF_VILLAGE, Items.TORCH, rule=HasStarted(Events.WHERED_THE_LIGHTS_GO)
         ),
-        ItemLocData("Jail", Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
+        ItemLocData(Locations.JAIL, Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
         # Mushroom Forest
         ItemLocData("AP Box", Regions.MUSHROOM_FOREST, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
         ItemLocData("Tear Jar", Regions.MUSHROOM_FOREST, Items.TEAR_JAR, rule=HasCleared(Events.THE_100_FLOWER_FOREST)),
@@ -709,7 +709,7 @@ class LocationHandler:
         ),
         # Baccus Lake
         ItemLocData(
-            "Pipe",
+            Locations.PIPE,
             Regions.BACCUS_LAKE,
             Items.PIPE,
         ),
@@ -1030,29 +1030,39 @@ class LocationHandler:
             y=64380,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData(
-            "Near the Small Strange Room 2",
-            Regions.UNDERGROUND_MAZE,
-            Items.CHEESE,
-            Sections.UNDERGROUND_MAZE,
-            x=240,
-            y=64380,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        ),
-        ItemLocData(
-            "Near the Small Strange Room 3",
-            Regions.UNDERGROUND_MAZE,
-            Items.CHEESE,
-            Sections.UNDERGROUND_MAZE,
-            x=240,
-            y=64380,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        ),
+        # TODO: The two commented locations here are not always provided
+        # ItemLocData(
+        #     "Near the Small Strange Room 2",
+        #     Regions.UNDERGROUND_MAZE,
+        #     Items.CHEESE,
+        #     Sections.UNDERGROUND_MAZE,
+        #     x=240,
+        #     y=64380,
+        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        # ),
+        # ItemLocData(
+        #     "Near the Small Strange Room 3",
+        #     Regions.UNDERGROUND_MAZE,
+        #     Items.CHEESE,
+        #     Sections.UNDERGROUND_MAZE,
+        #     x=240,
+        #     y=64380,
+        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        # ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
-        ItemLocData(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK, Items.BRONZE_MEDAL),
-        ItemLocData("Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL),
-        ItemLocData("Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL),
+        ItemLocData(
+            Locations.BRONZE_MEDAL,
+            Regions.THE_MERMAIDS_SINGING_ROCK,
+            Items.BRONZE_MEDAL,
+            event=Events.I_WANT_A_BRONZE_MEDAL,
+        ),
+        ItemLocData(
+            "Silver Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.SILVER_MEDAL, event=Events.I_WANT_A_SILVER_MEDAL
+        ),
+        ItemLocData(
+            "Gold Medal", Regions.THE_MERMAIDS_SINGING_ROCK, Items.GOLD_MEDAL, event=Events.I_WANT_A_GOLD_MEDAL
+        ),
         ItemLocData(
             "Flying Wing Leftmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
@@ -1172,10 +1182,15 @@ class TombaLocation(Location):
 def create_all_locations(world: TombaWorld) -> None:
     create_regular_locations(world)
     create_events(world)
+    set_all_events_rules(world)
 
 
 def create_regular_locations(world: TombaWorld) -> None:
     for name, locations in LocationHandler.by_region.items():
+        # Cleared location are already in events
+        if not world.options.cleared_event_rewards:
+            locations = [location for location in locations if isinstance(location, ItemLocData)]
+
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 
@@ -1187,12 +1202,33 @@ def create_regular_locations(world: TombaWorld) -> None:
     BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
     BARON.place_locked_item(ItemHandler.create_item(world, Items.BARON))
 
+    if not world.options.optionnal_randomized:
+        # Force Pipe
+        PIPE = world.get_location(get_name(Locations.PIPE, Regions.BACCUS_LAKE))
+        PIPE.place_locked_item(ItemHandler.create_item(world, Items.PIPE))
+
+        # Force Broken Vase
+        JAIL = world.get_location(get_name(Locations.JAIL, Regions.DWARF_VILLAGE))
+        JAIL.place_locked_item(ItemHandler.create_item(world, Items.BROKEN_VASE))
+
 
 def create_events(world: TombaWorld) -> None:
     """Those event are considered cleared once the logic reach the specific region they are in"""
     for event in EventHandler.event_table:
         region = world.get_region(event.region)
-        region.add_event(Started(event.name), rule=event.started_rule, location_type=TombaLocation, item_type=TombaItem)
+        region.add_event(Started(event.name), location_type=TombaLocation, item_type=TombaItem)
+
+        # Adds cleared as events instead of locations
+        if not world.options.cleared_event_rewards:
+            region.add_event(Cleared(event.name), location_type=TombaLocation, item_type=TombaItem)
 
     VILLAGE_OF_ALL_BEGINNINGS = world.get_region(Regions.VILLAGE_OF_ALL_BEGINNINGS)
     VILLAGE_OF_ALL_BEGINNINGS.add_event(Locations.AP_150_000, location_type=TombaLocation, item_type=TombaItem)
+
+
+def set_all_events_rules(world: TombaWorld) -> None:
+    for event in EventHandler.event_table:
+        world.set_rule(world.get_location(Started(event.name)), event.started_rule)
+
+        if not world.options.cleared_event_rewards:
+            world.set_rule(world.get_location(Cleared(event.name)), event.cleared_rule)

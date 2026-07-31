@@ -30,3 +30,5 @@ class APQuestWebWorld(WebWorld):
     )
 
     tutorials = [setup_en, setup_fr]
+
+    bug_report_page = "https://github.com/T4g1/ArchipelagoTomba/issues"

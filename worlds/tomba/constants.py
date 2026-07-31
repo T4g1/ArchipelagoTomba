@@ -23,9 +23,11 @@ class Locations(str):
     GOLDEN_FRUIT = "More Cheese"
     HIDDEN_CHEST_FOREST_100_FLOWER_1 = "Hidden Chest Wing 1"
     HIDDEN_CHEST_FOREST_100_FLOWER_2 = "Hidden Chest Wing 2"
+    JAIL = "Jail"
     MAILBOX = "Mailbox"
     MASAKARI_JUNGLE_PANTS = "Funga Pants"
     MONSTER_HUNT = "Monster Fight"
+    PIPE = "Pipe"
     SOME_CHEESE_PLEASE_1 = "Some Cheese 1"
     SOME_CHEESE_PLEASE_2 = "Some Cheese 2"
     STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
@@ -225,7 +227,7 @@ class Events(str):
     A_MAGIC_MIRROR = "A Magic Mirror?"
     A_MANS_BEST_FRIEND = "A Man's Best Friend"
     A_PRECIOUS_TREASURE_CHEST = "A Precious Treasure Chest?"
-    A_REFRESHING_DRING = "A Refreshing Drink"
+    A_REFRESHING_DRINK = "A Refreshing Drink"
     A_SAFE_MUSHROOM = "A Safe Mushroom?"
     A_SMALL_KEY_HOLE = "A Small Key Hole!"
     A_STORMY_PIG_BAG = "A Stormy Pig Bag"
@@ -391,7 +393,10 @@ class Addresses(IntEnum):
     PV_MAX = 0x09BCD9
 
     MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
-    MAIN_SCREEN_STATE = 0x001FD848  # Indicates the main state: title screen or in game
+    GAME_STATE_1 = 0x001FD848  # Indicates the main state: title screen or in game
+    GAME_STATE_2 = 0x001FD84A
+    GAME_STATE_3 = 0x001FD84C  # 0x03: In menu
+    GAME_STATE_4 = 0x001FD84E  # 0x03: Menu loaded
 
     # Addresses for items found in game stack
     FOUND_ITEMS_STACK_SIZE = 0xB3F0
@@ -408,6 +413,9 @@ class Addresses(IntEnum):
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
     PATCH_PANTS_PICKUP = 0x04111C
+    PATCH_POPUP = 0x0314EC
+    PATCH_FLOWER_TEARS = 0x0F54B8
+    PATCH_YANS_LUNCH_BOX = 0x0F4AC0
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
@@ -503,5 +511,5 @@ class MailboxState(IntEnum):
 class CustomCommand(IntEnum):
     """Masks for custom commands"""
 
-    POP_STACK = 0x00000001  # Bit 0 R/W = 1: Clear stack, stack is being cleared
-    SHOW_MESSAGE = 0x00000010  # Bit 1 R/W = 1: Display info message (B142 and B143)
+    POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
+    SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)

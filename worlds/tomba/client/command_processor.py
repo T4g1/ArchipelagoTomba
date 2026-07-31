@@ -22,47 +22,47 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """Adds 50,000 AP"""
         if isinstance(self.ctx, TombaContext):
             ap_score = await self.ctx.tomba.get_ap_score()
-            self.ctx.tomba.set_ap_score(ap_score + 50000)
+            await self.ctx.tomba.set_ap_score(ap_score + 50000)
 
     async def _cmd_fart(self):
         """Fart: This will not be a fart in every area of the game due to how the game handles SFX"""
         if isinstance(self.ctx, TombaContext):
-            self.ctx.tomba.play_sfx(SFX.FART)
+            await self.ctx.tomba.play_sfx(SFX.FART)
 
     async def _cmd_add(self, game_id: str):
         """DEBUG: Add an item by game ID"""
         if isinstance(self.ctx, TombaContext):
             item = ItemHandler.by_game_id.get(int(game_id, 16), None)
             if item is not None:
-                await self.ctx.tomba.inventory_handler.receive_item(item, 0)
+                await self.ctx.tomba.inventory_handler.receive_item(item)
 
-    def _cmd_start(self, event_id: str):
+    async def _cmd_start(self, event_id: str):
         """DEBUG: Start an event"""
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
-            self.ctx.tomba.events_handler.set_event_state(event, EventStatus.STARTED)
+            await self.ctx.tomba.events_handler.set_event_state(event, EventStatus.STARTED)
 
-    def _cmd_clear(self, event_id: str):
+    async def _cmd_clear(self, event_id: str):
         """DEBUG: Clear an event"""
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
-            self.ctx.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+            await self.ctx.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
-    def _cmd_forget(self, event_id: str):
+    async def _cmd_forget(self, event_id: str):
         """DEBUG: Forget an event"""
         if isinstance(self.ctx, TombaContext):
             event = EventHandler.by_id[int(event_id, 16)]
-            self.ctx.tomba.events_handler.set_event_state(event, EventStatus.UNDISCOVERED)
+            await self.ctx.tomba.events_handler.set_event_state(event, EventStatus.UNDISCOVERED)
 
-    def _cmd_corrupt(self):
+    async def _cmd_corrupt(self):
         """DEBUG: Corrupt all areas"""
         if isinstance(self.ctx, TombaContext):
-            self.ctx.tomba.playstation.write_memory(Addresses.PURIFICATION_FLAGS, bytes([0x00]))
+            await self.ctx.tomba.playstation.write_memory(Addresses.PURIFICATION_FLAGS, bytes([0x00]))
 
-    def _cmd_purify(self):
+    async def _cmd_purify(self):
         """DEBUG: Purify all areas"""
         if isinstance(self.ctx, TombaContext):
-            self.ctx.tomba.playstation.write_memory(Addresses.PURIFICATION_FLAGS, bytes([0xFF]))
+            await self.ctx.tomba.playstation.write_memory(Addresses.PURIFICATION_FLAGS, bytes([0xFF]))
 
     async def _cmd_warp(self):
         """DEBUG: Unlock all warp targets and gives a charity wing"""
@@ -71,7 +71,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
                 await self.ctx.tomba.warp_hanlder.unlock_warp(section)
 
             item = ItemHandler.by_name[Items.CHARITY_WINGS]
-            await self.ctx.tomba.inventory_handler.receive_item(item, 0)
+            await self.ctx.tomba.inventory_handler.receive_item(item)
 
     async def _cmd_check(self, location_id: str):
         """DEBUG: Manualy check a location for debug purposes"""

@@ -2,54 +2,30 @@ import asyncio
 import re
 import select
 import socket
-from enum import Enum
 from socket import socket as SocketType
 
 from CommonClient import logger
 
-
-class RetroArchException(Exception):
-    pass
-
-
-class RetroArchDisconnectError(RetroArchException):
-    pass
-
-
-class InvalidEmulatorStateError(RetroArchException):
-    pass
-
-
-class BadRetroArchResponse(RetroArchException):
-    pass
-
-
-class RetroArchStatus(Enum):
-    UNKNOWN = 1
-    PAUSED = 2
-    PLAYING = 3
-    CONTENTLESS = 3
+from .emulator import EmulatorStatus, Emulator, BadEmulatorResponse
+from ... import options
 
 
 def status_from_string(value):
     match value:
         case "PAUSED":
-            return RetroArchStatus.PAUSED
+            return EmulatorStatus.PAUSED
         case "PLAYING":
-            return RetroArchStatus.PLAYING
+            return EmulatorStatus.PLAYING
         case "CONTENTLESS":
-            return RetroArchStatus.CONTENTLESS
+            return EmulatorStatus.CONTENTLESS
         case _:
-            return RetroArchStatus.UNKNOWN
+            return EmulatorStatus.UNKNOWN
 
 
-def is_connected(value: RetroArchStatus):
-    return value == RetroArchStatus.PAUSED or value == RetroArchStatus.PLAYING
+class RetroArch(Emulator):
+    ID: int = options.Emulator.option_retroarch
+    name: str = "RetroArch"
 
-
-class RetroArch:
-    cache = []
-    last_cache_read = None
     socket: SocketType
 
     def __init__(self, address, port) -> None:
@@ -88,16 +64,16 @@ class RetroArch:
             ok = response.startswith(command.encode())
         if not ok:
             logger.warning(f"Bad response to command {command} - {response}")
-            raise BadRetroArchResponse()
+            raise BadEmulatorResponse()
 
-    async def get_retroarch_version(self):
+    async def get_version(self):
         version = await self.send_command("VERSION")
         return version.decode("ascii", errors="replace")
 
-    async def get_retroarch_status(self):
+    async def get_status(self):
         status = await self.send_command("GET_STATUS")
         if status.count(b" ") < 2:
-            return (RetroArchStatus.UNKNOWN, "", "", "")
+            return (EmulatorStatus.UNKNOWN, "", "", "")
 
         _, status, info = status.split(b" ", 2)
         status = status_from_string(status.decode("ascii", errors="replace"))
@@ -114,16 +90,6 @@ class RetroArch:
             rom_crc,
         )
 
-    async def read_memory_block(self, address: int, size: int):
-        block = bytearray()
-        remaining_size = size
-        while remaining_size:
-            chunk = await self.async_read_memory(address + len(block), remaining_size)
-            remaining_size -= len(chunk)
-            block += chunk
-
-        return block
-
     async def async_read_memory(self, address, size=1):
         command = "READ_CORE_MEMORY"
 
@@ -135,17 +101,17 @@ class RetroArch:
         try:
             response_addr = int(splits[1], 16)
         except ValueError:
-            raise BadRetroArchResponse()
+            raise BadEmulatorResponse()
 
         if response_addr != address:
-            raise BadRetroArchResponse()
+            raise BadEmulatorResponse()
 
         ret = bytearray.fromhex(splits[2])
         if len(ret) > size:
-            raise BadRetroArchResponse()
+            raise BadEmulatorResponse()
         return ret
 
-    def write_memory(self, address, bytes: bytearray | bytes):
+    async def write_memory(self, address, bytes: bytearray | bytes):
         command = "WRITE_CORE_MEMORY"
 
         self.send(f'{command} {hex(address)} {" ".join(hex(b) for b in bytes)}')
@@ -158,15 +124,3 @@ class RetroArch:
 
         if splits[2] == "-1":
             logger.info(splits[3])
-
-    async def get_flag(self, address: int, mask: int) -> bool:
-        value = (await self.async_read_memory(address))[0]
-        return bool(value & mask)
-
-    async def set_flag(self, address: int, mask: int, set: bool = True):
-        value = (await self.async_read_memory(address))[0]
-        if set:
-            value |= mask
-        else:
-            value &= ~mask
-        self.write_memory(address, value.to_bytes())

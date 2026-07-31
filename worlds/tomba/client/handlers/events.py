@@ -3,7 +3,7 @@ from CommonClient import logger
 from . import Handler, AbstractHandler
 from ...constants import Addresses, Events, EventStatus, Items, Locations, Regions
 from ...events import EventHandler, EventData
-from ...locations import LocationHandler, get_name
+from ...locations import LocationHandler, get_name, Cleared
 from ...items import ItemHandler
 from .door import Doors
 
@@ -27,59 +27,69 @@ class EventsHandler(AbstractHandler):
             Events.BACCUS_VILLAGE: Handler(self.on_baccus_village),
             Events.THE_DEEP_JUNGLE_PIG: Handler(self.on_deep_jungle_pig),
             Events.TRICK_VILLAGE: Handler(self.on_trick_village),
+            Events.BREAK_THE_RUSTY_DOOR: Handler(self.on_break_the_rusty_door),
+            Events.WE_NEED_POWER: Handler(self.on_we_need_power),
+            Events.THE_REAL_EVIL_PIG: Handler(self.on_the_real_evil_pig),
         }
+
+    async def on_the_real_evil_pig(self):
+        """Win condition"""
+        await self.ctx.on_victory()
+
+    async def on_break_the_rusty_door(self):
+        """Uncheck Let's Ride the Raft
+        If it's check at this point, the We Need Power event is softlocked"""
+        await self.forget(Events.LETS_RIDE_THE_RAFT)
+
+    async def on_we_need_power(self):
+        """Check if the Let's Ride The Raft has been cleared before
+        See on_break_the_rusty_door: We reset it there to avoid issue"""
+        location = LocationHandler.by_name.get(Cleared(Events.LETS_RIDE_THE_RAFT))
+        assert location is not None
+
+        if location.id in self.ctx.checked_locations:
+            await self.clear(Events.LETS_RIDE_THE_RAFT)
 
     async def on_trick_village(self):
         """Clear related events"""
-        self.clear(Events.THE_UNDERWATER_PIG_BAG)
+        await self.clear(Events.THE_UNDERWATER_PIG_BAG)
 
     async def on_deep_jungle_pig(self):
         """Clear related events"""
-        self.clear(Events.THE_JUNGLE_PIG_BAG)
+        await self.clear(Events.THE_JUNGLE_PIG_BAG)
 
     async def on_baccus_village(self):
         """Clear related events"""
-        self.clear(Events.THE_MOUSE_PIG_BAG)
+        await self.clear(Events.THE_MOUSE_PIG_BAG)
 
     async def on_phoenix_mountain(self):
         """Clear related events"""
-        self.clear(Events.A_STORMY_PIG_BAG)
+        await self.clear(Events.A_STORMY_PIG_BAG)
 
         # If the player seal the evil pig before going in the mountain for the first time
-        if self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
+        if await self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
             # Prevents softlock if speaking to the Phoenix guy
-            self.start(Events.THE_MOUSE_PIG_BAG)
+            await self.start(Events.THE_MOUSE_PIG_BAG)
 
             # Allow the player to go to Baccus Village
-            self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_the_100_flower_forest(self):
         """Clear related events"""
-        self.clear(Events.THE_EVIL_PIG_BAG)
+        await self.clear(Events.THE_EVIL_PIG_BAG)
 
     async def on_lava_caves(self):
         """Clear related events"""
-        self.clear(Events.THE_FIRE_PIG_BAG)
+        await self.clear(Events.THE_FIRE_PIG_BAG)
 
     async def on_haunted_mansion(self):
         """Clear related events"""
-        self.clear(Events.PAINTING_OF_A_BIG_KEY)
-        self.clear(Events.THE_HAUNTED_PIG_BAG)
+        await self.clear(Events.PAINTING_OF_A_BIG_KEY)
+        await self.clear(Events.THE_HAUNTED_PIG_BAG)
 
     async def on_i_want_a_silver_medal(self):
         """Lock the bronze medal out"""
-        # Check the location
-        location = LocationHandler.by_name.get(
-            get_name(Locations.BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK), None
-        )
-        assert location is not None
-        await self.ctx.check_locations([location.id])
-
-        # Clear the event
-        event = EventHandler.by_name.get(Events.I_WANT_A_BRONZE_MEDAL)
-        assert event is not None
-
-        self.set_event_state(event, EventStatus.CLEARED)
+        await self.clear(Events.I_WANT_A_BRONZE_MEDAL)
 
     async def on_where_the_lights_go(self):
         """This can be cleared without requiring the dwarf to hand the torch, we need to check that manualy"""
@@ -92,7 +102,7 @@ class EventsHandler(AbstractHandler):
         take_out = EventHandler.by_name.get(Events.TAKE_OUT)
         assert take_out is not None
 
-        self.set_event_state(take_out, EventStatus.CLEARED)
+        await self.set_event_state(take_out, EventStatus.CLEARED)
 
     async def on_look_and_see(self):
         """When this is cleared prior to grabbing the Telescope, that location becomes unreachable"""
@@ -113,32 +123,22 @@ class EventsHandler(AbstractHandler):
         assert event is not None
         return event
 
-    def clear(self, event_name: str):
-        self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
+    async def clear(self, event_name: str):
+        await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
 
-    def forget(self, event_name: str):
-        self.set_event_state(self.get_event(event_name), EventStatus.UNDISCOVERED)
+    async def forget(self, event_name: str):
+        await self.set_event_state(self.get_event(event_name), EventStatus.UNDISCOVERED)
 
-    def start(self, event_name: str):
-        self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
-
-    async def is_victory(self):
-        return (await self.get_event_state(Events.THE_REAL_EVIL_PIG)) is EventStatus.CLEARED
-
-    async def check_win_conditions(self):
-        if not self.tomba.check_safe_gameplay():
-            return
-
-        if await self.is_victory():
-            await self.ctx.on_victory()
+    async def start(self, event_name: str):
+        await self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
         return EventStatus(self.event_states[event.id])
 
-    def set_event_state(self, event: EventData, status: EventStatus):
+    async def set_event_state(self, event: EventData, status: EventStatus):
         self.externaly_triggered.append(event.name)
-        self.tomba.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
+        await self.tomba.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
 
     async def update_events(self):
         old_states = self.event_states

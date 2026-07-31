@@ -35,12 +35,12 @@ class EventData:
 
 class EventHandler:
     event_table: list[EventData] = [
-        EventData(
-            0x00,
-            Events.GRANDPAS_BRACELET,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            cleared_rule=CanReachRegion(Regions.THE_STRANGE_SMALL_ROOM) & HasCleared(Events.SEVEN_FRIENDS),
-        ),
+        # EventData(
+        #     0x00,
+        #     Events.GRANDPAS_BRACELET,
+        #     Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        #     cleared_rule=CanReachRegion(Regions.THE_STRANGE_SMALL_ROOM) & HasCleared(Events.SEVEN_FRIENDS),
+        # ),
         EventData(
             0x01,
             Events.THE_100_YEAR_OLD_WISE_MAN,
@@ -260,7 +260,7 @@ class EventHandler:
             cleared_rule=HasStarted(Events.THE_5_GOLDEN_ITEMS),
         ),
         EventData(0x3F, Events.THE_PUMPS_ROCKS, Regions.OLD_TREE_HILL),
-        EventData(0x40, Events.A_REFRESHING_DRING, Regions.MASAKARI_JUNGLE, cleared_rule=Has(Items.BANANA_JUICE)),
+        EventData(0x40, Events.A_REFRESHING_DRINK, Regions.MASAKARI_JUNGLE, cleared_rule=Has(Items.BANANA_JUICE)),
         EventData(
             0x41,
             Events.I_NEED_A_TEAR_BOTTLE,
@@ -279,7 +279,7 @@ class EventHandler:
             0x49,
             Events.WE_NEED_POWER,
             Regions.CLOCK_TOWER,
-            started_rule=HasCleared(Events.A_REFRESHING_DRING),
+            started_rule=HasCleared(Events.A_REFRESHING_DRINK),
             cleared_rule=Has(Items.BOMB) & CanReachRegion(Regions.IRON_CASTLE),
         ),
         # EventData(0x4A, Events., Regions.), # Unused

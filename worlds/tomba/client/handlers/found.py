@@ -50,7 +50,7 @@ class FoundHandler(AbstractHandler):
         """Random reward on those"""
         reward = ItemHandler.get_random_filler_item()
         logger.info(f"Random pickup: {reward.name}")
-        return await self.tomba.inventory_handler.receive_item(reward, 0)
+        return await self.tomba.inventory_handler.receive_item(reward)
 
     async def get_found_items_counter(self) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
@@ -101,7 +101,7 @@ class FoundHandler(AbstractHandler):
 
         if item.behavior is ItemBehavior.ORIGINAL:
             logger.debug(f"Normal pickup for {item.name} (not a randomized location)")
-            return await self.tomba.inventory_handler.receive_item(item, 0)
+            return await self.tomba.inventory_handler.receive_item(item)
 
         elif item.behavior is ItemBehavior.HANLDER:
             return await self.handle(item.name)
@@ -115,7 +115,7 @@ class FoundHandler(AbstractHandler):
                 f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
             )
             # TODO: Should be removed for release so player can't get unintended items
-            return await self.tomba.inventory_handler.receive_item(item, 0)
+            return await self.tomba.inventory_handler.receive_item(item)
 
         first_unchecked = next(
             (location for location in locations if location.id not in self.ctx.checked_locations), None
