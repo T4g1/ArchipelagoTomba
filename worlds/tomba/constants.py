@@ -217,6 +217,10 @@ class Items(str):
     YANS_LUNCH_BOX = "Yan's Lunch Box"
     YELLOW_EVIL_PIG_BAG = "Yellow Evil Pig Bag"
 
+    # Pickups
+    ONE_UP = "1Up"
+    MAX_VITALITY_1 = "Max Vitality +1"
+
 
 class Events(str):
     A_DRINK_FOR_GROWNUPS = "A Drink for Grownups"
@@ -409,13 +413,15 @@ class Addresses(IntEnum):
     # Send command to the custom handler
     CUSTOM_COMMAND = 0xB141
 
+    ITEM_USABILITY_SCRIPT_OFFSET_TABLE = 0x0F49F0
+
     PATCH_INTERFACE_HANDLER = 0xB150
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
     PATCH_PANTS_PICKUP = 0x04111C
     PATCH_POPUP = 0x0314EC
-    PATCH_FLOWER_TEARS = 0x0F54B8
-    PATCH_YANS_LUNCH_BOX = 0x0F4AC0
+    PATCH_FLOWER_TEARS = ITEM_USABILITY_SCRIPT_OFFSET_TABLE + 0x0D
+    PATCH_YANS_LUNCH_BOX = ITEM_USABILITY_SCRIPT_OFFSET_TABLE + 0x9A
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
@@ -513,3 +519,4 @@ class CustomCommand(IntEnum):
 
     POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
+    INCREASE_VITALITY = 0x08  # Calls the max. vitality increase method from the game

@@ -48,7 +48,7 @@ class FoundHandler(AbstractHandler):
 
     async def on_healing_mushroom(self) -> bool:
         """Random reward on those"""
-        reward = ItemHandler.get_random_filler_item()
+        reward = ItemHandler.get_random_mushroom_filler_item()
         logger.info(f"Random pickup: {reward.name}")
         return await self.tomba.inventory_handler.receive_item(reward)
 

@@ -233,6 +233,8 @@ class ItemHandler:
         ItemData(0x9E, IC.progression, Items.SEAWEED),
         ItemData(0x9F, IC.progression, Items.MINERS_HAT),
         # Tomba! does not handle items above 0x9F
+        ItemData(0xFE, IC.filler, Items.ONE_UP, True),
+        ItemData(0xFF, IC.filler, Items.MAX_VITALITY_1, True, 12),
     ]
 
     by_name: dict[str, ItemData] = {}
@@ -247,10 +249,30 @@ class ItemHandler:
         name_to_id[item.name] = item.id
 
     @staticmethod
+    def get_random_mushroom_filler_item(random: Random = Random()) -> ItemData:
+        random_fillers: list[ItemData] = [
+            ItemHandler.by_name[name]
+            for name in [
+                Items.HEALING_MUSHROOM,
+                Items.LUNCH_BOX,
+            ]
+        ]
+
+        return random.choices(
+            random_fillers,
+            weights=[
+                8,
+                1,
+            ],
+            k=1,
+        )[0]
+
+    @staticmethod
     def get_random_filler_item(random: Random = Random()) -> ItemData:
         random_fillers: list[ItemData] = [
             ItemHandler.by_name[name]
             for name in [
+                Items.ONE_UP,
                 Items.CHARITY_WINGS,
                 Items.HEALING_MUSHROOM,
                 Items.LUNCH_BOX,
@@ -261,6 +283,7 @@ class ItemHandler:
         return random.choices(
             random_fillers,
             weights=[
+                1,
                 2,
                 3,
                 2,

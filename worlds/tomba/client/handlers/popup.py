@@ -58,7 +58,9 @@ CHARMAP: dict[str, int] = {
     "x": 0x802D,
     "y": 0x8023,
     "z": 0x8004,
-    # "0": 0x8020, "1": 0x801D, "2": 0x80, "3": 0x80, "4": 0x80,
+    "0": 0x8020,
+    "1": 0x801D,
+    # "2": 0x80, "3": 0x80, "4": 0x80,
     # "5": 0x80, "6": 0x80, "7": 0x80, "8": 0x80, "9": 0x80,
     # Math
     "*": 0x8038,
@@ -139,7 +141,7 @@ class WFMPopup:
         # Message content
         index = 6
         for character in message:
-            value = CHARMAP.get(character, 0x8004)
+            value = CHARMAP.get(character, 0x8038)
             await psx.write_memory(address + index, value.to_bytes(2, byteorder="little"))
             index += 2
 
@@ -177,7 +179,14 @@ class PopupHandler(AbstractHandler):
     def print(self, message: str):
         self.message_queue.append(message)
 
+    def debug(self):
+        self.message_queue.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        self.message_queue.append("abcdefghijklmnopqrstuvwxyz")
+
     async def _print(self, message: str) -> bool:
+        if True:
+            return True
+
         if self.wfm is None:
             self.wfm = WFMPopup()
 

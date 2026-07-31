@@ -56,11 +56,11 @@ class Patcher:
 
         # Allows Tomba to grab pants he already owns
         # Allows the method to reach the add to inventory method
-        await self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
+        # await self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
 
         # Patch display popup method
         # Do not append text on "Acquired!" case
-        await self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
+        # await self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
 
         logger.info("Game patched")
 
@@ -77,13 +77,13 @@ class Patcher:
         return hook_value == bytearray.fromhex(HANDLER_HOOK)
 
     async def is_inventory_flower_tears_patched(self) -> bool:
-        value = await self.playstation.read_memory_block(Addresses.PATCH_FLOWER_TEARS, 4)
-        return value == bytearray.fromhex(PATCH_FLOWER_TEARS)
+        value = await self.playstation.async_read_memory(Addresses.PATCH_FLOWER_TEARS)
+        return value == bytearray.fromhex("00")
 
     async def patch_inventory_flower_tears(self):
         """This changes the script to check Flower Tears usability from inventory"""
-        await self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex(PATCH_FLOWER_TEARS))
+        await self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex("00"))
 
     async def patch_inventory_yans_lunch_box(self):
-        """Prevent Yan's Lunch Box to be eaten"""
-        await self.playstation.write_memory(Addresses.PATCH_YANS_LUNCH_BOX, bytes.fromhex(PATCH_YANS_LUNCH_BOX))
+        """Prevent Yan's Lunch Box to be eaten by using the always False script"""
+        await self.playstation.write_memory(Addresses.PATCH_YANS_LUNCH_BOX, bytes.fromhex("00"))

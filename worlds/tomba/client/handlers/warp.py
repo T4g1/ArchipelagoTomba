@@ -104,7 +104,7 @@ class WarpHandler(AbstractHandler):
     async def on_phoenix_nest_entry(self, to: Section):
         """Starts the Phoenix's Favorite"""
         if self.tomba.events_handler.get_event_state(Events.THE_PHOENIXS_FAVORITE) is EventStatus.UNDISCOVERED:
-            self.tomba.events_handler.start(Events.THE_PHOENIXS_FAVORITE)
+            await self.tomba.events_handler.start(Events.THE_PHOENIXS_FAVORITE)
 
     async def on_forest_of_100_flowers_entry(self, coming_from: Section):
         if not await self.is_purified(Regions.FOREST_OF_100_FLOWERS):
@@ -124,11 +124,11 @@ class WarpHandler(AbstractHandler):
     async def on_haunted_mansion_irregular_entry(self, coming_from: Section):
         # Haunted Mansion will not load correctly if this is not cleared
         event = EventHandler.by_name[Events.A_DRINK_FOR_GROWNUPS]
-        self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+        await self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
         # Prevent softlock when accessing Baccus Lake
         event = EventHandler.by_name[Events.ROAD_TO_BACCUS_LAKE]
-        self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+        await self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
     async def on_masakari_river(self, coming_from: Section):
         if self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:

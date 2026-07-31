@@ -167,6 +167,10 @@ class TombaGame:
         await self.patcher.patch_game()
 
     async def check_inventory_patch(self):
+        # Patch only if the menu is fully loaded
+        if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
+            return
+
         # Fix Yan's Lunch Box
         await self.patcher.patch_inventory_yans_lunch_box()
 
@@ -176,10 +180,6 @@ class TombaGame:
 
         # Patch only if its unpurified
         if self.section == Sections.CHARITY_SQUARE_PURIFIED:
-            return
-
-        # Patch only if the menu is fully loaded
-        if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
             return
 
         await self.patcher.patch_inventory_flower_tears()
