@@ -69,15 +69,8 @@ class ItemData:
     def is_pants(self) -> bool:
         return self.name in PANTS
 
-    def get_behavior(self, world: TombaWorld):
-        if not world.options.optionnal_randomized and self.name in OPTIONNAL_ITEMS:
-            return ItemBehavior.LOCKED
-
-        return self.behavior
-
 
 class ItemHandler:
-
     item_table: list[ItemData] = [
         ItemData(0x00, IC.progression, Items.CHICK, True, 4),
         ItemData(0x01, IC.filler, Items.FROG, behavior=ItemBehavior.ORIGINAL),

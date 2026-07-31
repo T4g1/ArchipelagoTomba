@@ -19,8 +19,7 @@ class Emulator(Choice):
 class BellWarp(Toggle):
     """
     Allow sequence break using the bells.
-    Warning: Expect glitch t 0
-    o happens with this
+    Warning: Expect glitch to happens with this
     """
 
     display_name = "Bell Warp"
