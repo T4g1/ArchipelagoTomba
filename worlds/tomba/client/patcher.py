@@ -21,8 +21,9 @@ class Patcher:
 
         interface_file = pkgutil.get_data(__name__, "asm/interface.asm")
         add_item_file = pkgutil.get_data(__name__, "asm/add_item.asm")
+        raise_vitality = pkgutil.get_data(__name__, "asm/raise_vitality.asm")
 
-        if interface_file is None or add_item_file is None:
+        if interface_file is None or add_item_file is None or raise_vitality is None:
             raise PatchException("Unable to load required ASM files")
 
         try:
@@ -35,6 +36,9 @@ class Patcher:
 
             # Patch receive item method to create a list of found items in game instead
             self.add_item_patch = compiler.compile(add_item_file.decode())
+
+            # Patch raise max vitality to store the vitality item in that list instead
+            self.raise_vitality_patch = compiler.compile(raise_vitality.decode())
         except Exception as e:
             logger.critical(e)
             raise PatchException("Unable to initialize the patching interface")
@@ -46,10 +50,12 @@ class Patcher:
 
         logger.info("Patching custom methods...")
 
+        raise_vitality_patch = bytes.fromhex(self.raise_vitality_patch)
         add_item_patch = bytes.fromhex(self.add_item_patch)
         interface_patch = bytes.fromhex(self.interface_patch)
         interface_hook = bytes.fromhex(self.handler_hook)
 
+        await self.playstation.write_memory(Addresses.PATCH_RAISE_VITALITY, raise_vitality_patch)
         await self.playstation.write_memory(Addresses.PATCH_ADD_ITEM, add_item_patch)
         await self.playstation.write_memory(Addresses.PATCH_INTERFACE_HANDLER, interface_patch)
         await self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
