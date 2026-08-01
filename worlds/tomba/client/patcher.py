@@ -56,11 +56,11 @@ class Patcher:
 
         # Allows Tomba to grab pants he already owns
         # Allows the method to reach the add to inventory method
-        # await self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
+        await self.playstation.write_memory(Addresses.PATCH_PANTS_PICKUP, bytes.fromhex("00000000"))
 
         # Patch display popup method
         # Do not append text on "Acquired!" case
-        # await self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
+        await self.playstation.write_memory(Addresses.PATCH_POPUP, bytes.fromhex("00000000"))
 
         logger.info("Game patched")
 

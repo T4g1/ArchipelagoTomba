@@ -80,6 +80,8 @@ class WFMPopup:
     MAGIC_WORD = "WFM3"
     WFM_POPUP_PTR = 0x1F800398
 
+    loaded: bool = False
+
     address: int
     dialog_table_offset: int
     dialog_table: int
@@ -97,14 +99,25 @@ class WFMPopup:
         raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
         self.address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
 
-        if not await self.is_available(psx):
+        if not await self.has_magic_word(psx):
             return False
 
         await self._load_dialog_table(psx)
 
+        self.loaded = True
+
         return True
 
-    async def is_available(self, psx: Emulator) -> bool:
+    async def is_loaded(self, psx: Emulator) -> bool:
+        if not await self.has_magic_word(psx):
+            return False
+
+        if not hasattr(self, "dialog_table"):
+            return False
+
+        return self.loaded
+
+    async def has_magic_word(self, psx: Emulator) -> bool:
         if not hasattr(self, "address"):
             return False
 
@@ -153,7 +166,6 @@ class WFMPopup:
 class PopupHandler(AbstractHandler):
     """Handle popup message in the bottom of the screen"""
 
-    loaded = False
     wfm: WFMPopup | None = None
 
     message_queue: list[str] = []
@@ -183,15 +195,18 @@ class PopupHandler(AbstractHandler):
         self.message_queue.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         self.message_queue.append("abcdefghijklmnopqrstuvwxyz")
 
-    async def _print(self, message: str) -> bool:
-        if True:
-            return True
+    def dirty(self):
+        if self.wfm is None:
+            self.wfm = WFMPopup()
 
+        self.wfm.loaded = False
+
+    async def _print(self, message: str) -> bool:
         if self.wfm is None:
             self.wfm = WFMPopup()
 
         psx = self.tomba.playstation
-        if not await self.wfm.is_available(psx) and not await self.wfm.load(psx):
+        if not await self.wfm.is_loaded(psx) and not await self.wfm.load(psx):
             return False
 
         if not await self.has_free_slot():

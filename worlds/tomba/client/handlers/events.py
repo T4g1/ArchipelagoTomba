@@ -1,10 +1,9 @@
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
-from ...constants import Addresses, Events, EventStatus, Items, Locations, Regions
+from ...constants import Addresses, Events, EventStatus, Locations, Regions
 from ...events import EventHandler, EventData
-from ...locations import LocationHandler, get_name, Cleared
-from ...items import ItemHandler
+from ...locations import LocationHandler, Cleared
 from .door import Doors
 
 
@@ -82,10 +81,15 @@ class EventsHandler(AbstractHandler):
         """Clear related events"""
         await self.clear(Events.THE_FIRE_PIG_BAG)
 
+        await self.ctx.check_handler.check(Locations.CHARLES_PANTS, Regions.LAVA_CAVES)
+
     async def on_haunted_mansion(self):
         """Clear related events"""
         await self.clear(Events.PAINTING_OF_A_BIG_KEY)
         await self.clear(Events.THE_HAUNTED_PIG_BAG)
+        await self.clear(Events.BREAK_THE_MAGIC_EGG)
+
+        await self.tomba.playstation.write_memory(Addresses.MAGIC_EGGS_BROKEN_COUNT, 0xFF.to_bytes())
 
     async def on_i_want_a_silver_medal(self):
         """Lock the bronze medal out"""
@@ -93,9 +97,7 @@ class EventsHandler(AbstractHandler):
 
     async def on_where_the_lights_go(self):
         """This can be cleared without requiring the dwarf to hand the torch, we need to check that manualy"""
-        location = LocationHandler.by_name.get(get_name(Locations.FIRE_STARTER, Regions.DWARF_VILLAGE), None)
-        assert location is not None
-        await self.ctx.check_locations([location.id])
+        await self.ctx.check_handler.check(Locations.FIRE_STARTER, Regions.DWARF_VILLAGE)
 
     async def on_hide_and_go_seek(self):
         # Clear Take Out as it becomes softlocked when this one is cleared
@@ -106,11 +108,7 @@ class EventsHandler(AbstractHandler):
 
     async def on_look_and_see(self):
         """When this is cleared prior to grabbing the Telescope, that location becomes unreachable"""
-        telescope = ItemHandler.by_name.get(Items.TELESCOPE)
-        assert telescope is not None
-        locations = LocationHandler.by_item_id.get(telescope.id, [])
-
-        await self.ctx.check_locations(locations)
+        await self.ctx.check_handler.check(Locations.TELESCOPE, Regions.WATCH_TOWER)
 
     async def on_take_out(self):
         # Special case as this one might be force checked by the softlock prevention routine

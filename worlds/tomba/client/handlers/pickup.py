@@ -15,7 +15,12 @@ class PickupHandler(AbstractHandler):
             Items.SILVER_MEDAL: Handler(self.on_silver_medal),
             Items.BRONZE_MEDAL: Handler(self.on_bronze_medal),
             Items.BANANA_JUICE: Handler(self.on_banana_juice),
+            Items.PSYCHIC_FISH: Handler(self.on_psychic_fish),
         }
+
+    async def on_psychic_fish(self):
+        """Clear the 5 Golden Item event which is now softlocked"""
+        await self.tomba.events_handler.clear(Events.THE_5_GOLDEN_ITEMS)
 
     async def on_banana_juice(self):
         """Starts a refreshing drink"""

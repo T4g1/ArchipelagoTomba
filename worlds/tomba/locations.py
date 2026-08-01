@@ -268,7 +268,7 @@ class LocationHandler:
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         # Watch Tower
-        ItemLocData("Top of Watch Tower", Regions.WATCH_TOWER, Items.TELESCOPE),
+        ItemLocData(Locations.TELESCOPE, Regions.WATCH_TOWER, Items.TELESCOPE),
         ItemLocData("Push the Boulder", Regions.WATCH_TOWER, Items.DIRTY_MIRROR),
         ItemLocData(
             "Find the seeds",
@@ -456,7 +456,7 @@ class LocationHandler:
             "1,000 Year Old Grapple", Regions.STORMY_MOUNTAIN, Items.GRAPPLE, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
         ),
         # Lava Caves
-        ItemLocData("Charle's Pant", Regions.LAVA_CAVES, Items.CHARLES_PANTS),
+        ItemLocData(Locations.CHARLES_PANTS, Regions.LAVA_CAVES, Items.CHARLES_PANTS),
         ItemLocData(
             "Green Evil Pig Bag Chest",
             Regions.LAVA_CAVES,

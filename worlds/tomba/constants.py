@@ -17,6 +17,7 @@ class Locations(str):
     AP_150_000 = "150,000 AP"
     BARON = "Baron"
     BRONZE_MEDAL = "Bronze Medal"
+    CHARLES_PANTS = "Charle's Pant"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
     FIRE_STARTER = "Fire Starter"
@@ -31,6 +32,7 @@ class Locations(str):
     SOME_CHEESE_PLEASE_1 = "Some Cheese 1"
     SOME_CHEESE_PLEASE_2 = "Some Cheese 2"
     STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
+    TELESCOPE = "Top of Watch Tower"
     WATCH_TOWER_PANTS = "Tower Pants"
 
 
@@ -440,6 +442,8 @@ class Addresses(IntEnum):
     TOMBA_WEAPON = 0x09C61A
     TOMBA_PANTS = 0x09C61B
     PURIFICATION_FLAGS = 0x9C62B
+
+    MAGIC_EGGS_BROKEN_COUNT = 0x09C263
 
 
 class TombaState(IntEnum):
