@@ -170,7 +170,6 @@ class InventoryHandler(AbstractHandler):
             await self.tomba.playstation.write_memory(Addresses.LIVES, lifes.to_bytes())
 
         elif item.name == Items.MAX_VITALITY_1:
-            print("OK GOOD LOL")
             if await self.tomba.get_command(CustomCommand.INCREASE_VITALITY) > 0:
                 # Wait for previous command to complete first
                 return False
