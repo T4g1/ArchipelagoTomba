@@ -15,8 +15,10 @@ FOUND_ITEM_STRUCTURE_SIZE = 8
 
 class Locations(str):
     AP_150_000 = "150,000 AP"
+    AP_500_000 = "500,000 AP"
     BARON = "Baron"
     BRONZE_MEDAL = "Bronze Medal"
+    CHARLES_PANTS = "Charle's Pant"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
     FIRE_STARTER = "Fire Starter"
@@ -31,6 +33,8 @@ class Locations(str):
     SOME_CHEESE_PLEASE_1 = "Some Cheese 1"
     SOME_CHEESE_PLEASE_2 = "Some Cheese 2"
     STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
+    TELESCOPE = "Top of Watch Tower"
+    VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
 
 
@@ -217,6 +221,10 @@ class Items(str):
     YANS_LUNCH_BOX = "Yan's Lunch Box"
     YELLOW_EVIL_PIG_BAG = "Yellow Evil Pig Bag"
 
+    # Pickups
+    ONE_UP = "1Up"
+    MAX_VITALITY_1 = "Max Vitality +1"
+
 
 class Events(str):
     A_DRINK_FOR_GROWNUPS = "A Drink for Grownups"
@@ -391,6 +399,7 @@ class Addresses(IntEnum):
 
     PV_CURRENT = 0x09BCD8
     PV_MAX = 0x09BCD9
+    PV_MAX_SURPLUS = 0x09C3E8
 
     MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
     GAME_STATE_1 = 0x001FD848  # Indicates the main state: title screen or in game
@@ -409,13 +418,17 @@ class Addresses(IntEnum):
     # Send command to the custom handler
     CUSTOM_COMMAND = 0xB141
 
+    ITEM_USABILITY_SCRIPT_OFFSET_TABLE = 0x0F49F0
+
     PATCH_INTERFACE_HANDLER = 0xB150
     PATCH_INTERFACE_HOOK = 0x01E110
     PATCH_ADD_ITEM = 0x0297B0
     PATCH_PANTS_PICKUP = 0x04111C
     PATCH_POPUP = 0x0314EC
-    PATCH_FLOWER_TEARS = 0x0F54B8
-    PATCH_YANS_LUNCH_BOX = 0x0F4AC0
+    PATCH_FLOWER_TEARS = ITEM_USABILITY_SCRIPT_OFFSET_TABLE + 0x0D
+    PATCH_YANS_LUNCH_BOX = ITEM_USABILITY_SCRIPT_OFFSET_TABLE + 0x9A
+    PATCH_RAISE_VITALITY = 0x0404E8
+    PATCH_RAISE_LIFE = 0x040690
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
@@ -434,6 +447,10 @@ class Addresses(IntEnum):
     TOMBA_WEAPON = 0x09C61A
     TOMBA_PANTS = 0x09C61B
     PURIFICATION_FLAGS = 0x9C62B
+
+    MAGIC_EGGS_BROKEN_COUNT = 0x09C263
+
+    GOLDEN_BOWL_STATUS = 0x09C3E7
 
 
 class TombaState(IntEnum):

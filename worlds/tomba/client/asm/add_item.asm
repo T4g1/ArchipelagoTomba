@@ -1,5 +1,12 @@
 .BASE 0x800297b0            # Where this code is located
 
+# Real Method address is: 0x80029788 as we patch only after the initialization
+# Takes parameters as:
+# $a0: Item ID
+# $a1: Count
+# $a2: Event sync something
+# Those are mapped to $s0, $s1 in the part not overwritten here
+
 # Stack is organized as:
 # STACK_SIZE: 1
 # STACK: Up to 64 items should be ok (0x8000B400 to 0x8000B800)

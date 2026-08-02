@@ -21,8 +21,10 @@ class Patcher:
 
         interface_file = pkgutil.get_data(__name__, "asm/interface.asm")
         add_item_file = pkgutil.get_data(__name__, "asm/add_item.asm")
+        raise_vitality = pkgutil.get_data(__name__, "asm/raise_vitality.asm")
+        raise_life = pkgutil.get_data(__name__, "asm/raise_life.asm")
 
-        if interface_file is None or add_item_file is None:
+        if interface_file is None or add_item_file is None or raise_vitality is None or raise_life is None:
             raise PatchException("Unable to load required ASM files")
 
         try:
@@ -35,6 +37,12 @@ class Patcher:
 
             # Patch receive item method to create a list of found items in game instead
             self.add_item_patch = compiler.compile(add_item_file.decode())
+
+            # Patch raise max vitality to store the vitality item in that list instead
+            self.raise_vitality_patch = compiler.compile(raise_vitality.decode())
+
+            # Same for lifes
+            self.raise_life_patch = compiler.compile(raise_life.decode())
         except Exception as e:
             logger.critical(e)
             raise PatchException("Unable to initialize the patching interface")
@@ -46,10 +54,14 @@ class Patcher:
 
         logger.info("Patching custom methods...")
 
+        raise_vitality_patch = bytes.fromhex(self.raise_vitality_patch)
+        raise_life_patch = bytes.fromhex(self.raise_life_patch)
         add_item_patch = bytes.fromhex(self.add_item_patch)
         interface_patch = bytes.fromhex(self.interface_patch)
         interface_hook = bytes.fromhex(self.handler_hook)
 
+        await self.playstation.write_memory(Addresses.PATCH_RAISE_VITALITY, raise_vitality_patch)
+        await self.playstation.write_memory(Addresses.PATCH_RAISE_LIFE, raise_life_patch)
         await self.playstation.write_memory(Addresses.PATCH_ADD_ITEM, add_item_patch)
         await self.playstation.write_memory(Addresses.PATCH_INTERFACE_HANDLER, interface_patch)
         await self.playstation.write_memory(Addresses.PATCH_INTERFACE_HOOK, interface_hook)
@@ -77,13 +89,13 @@ class Patcher:
         return hook_value == bytearray.fromhex(HANDLER_HOOK)
 
     async def is_inventory_flower_tears_patched(self) -> bool:
-        value = await self.playstation.read_memory_block(Addresses.PATCH_FLOWER_TEARS, 4)
-        return value == bytearray.fromhex(PATCH_FLOWER_TEARS)
+        value = await self.playstation.async_read_memory(Addresses.PATCH_FLOWER_TEARS)
+        return value == bytearray.fromhex("00")
 
     async def patch_inventory_flower_tears(self):
         """This changes the script to check Flower Tears usability from inventory"""
-        await self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex(PATCH_FLOWER_TEARS))
+        await self.playstation.write_memory(Addresses.PATCH_FLOWER_TEARS, bytes.fromhex("00"))
 
     async def patch_inventory_yans_lunch_box(self):
-        """Prevent Yan's Lunch Box to be eaten"""
-        await self.playstation.write_memory(Addresses.PATCH_YANS_LUNCH_BOX, bytes.fromhex(PATCH_YANS_LUNCH_BOX))
+        """Prevent Yan's Lunch Box to be eaten by using the always False script"""
+        await self.playstation.write_memory(Addresses.PATCH_YANS_LUNCH_BOX, bytes.fromhex("00"))

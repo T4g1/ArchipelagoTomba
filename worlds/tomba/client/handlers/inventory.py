@@ -44,7 +44,7 @@ class InventoryHandler(AbstractHandler):
         if self.ctx.slot_data["keep_blackjack"]:
             return
 
-        logger.info("Removing starting Blackjack")
+        logger.debug("Removing starting Blackjack")
 
         blackjack = ItemHandler.by_name[Items.BLACKJACK]
         await self.tomba.inventory_handler.remove_item(blackjack)
@@ -88,6 +88,10 @@ class InventoryHandler(AbstractHandler):
         if not self.tomba.check_safe_gameplay():
             return False
 
+        # Pickup handling
+        if item.game_id >= 0xA0:
+            return await self.receive_pickup(item, player)
+
         inventory_counter = await self.get_inventory_counter()
 
         # Item stack is limited
@@ -122,18 +126,21 @@ class InventoryHandler(AbstractHandler):
             should_display_acquired = True
 
         if should_display_acquired:
-            message = f"Found {item.name}"
-            if player is not None and self.ctx.slot != player:
-                player_name = self.ctx.player_names[player]
-                message = f"{player_name} sent {item.name}"
-
-            logger.debug(message)
-            self.tomba.popup_handler.print(message)
-            await self.tomba.play_sfx(SFX.ACQUIRED)
+            await self.notify_acquired(item, player)
 
         await self.tomba.pickup_handler.handle(item.name)
 
         return True
+
+    async def notify_acquired(self, item: ItemData, player: int | None):
+        message = f"Found {item.name}"
+        if player is not None and self.ctx.slot != player:
+            player_name = self.ctx.player_names[player]
+            message = f"{player_name} sent {item.name}"
+
+        logger.debug(message)
+        self.tomba.popup_handler.print(message)
+        await self.tomba.play_sfx(SFX.ACQUIRED)
 
     async def remove_item(self, item: ItemData, amount: int = 1):
         inventory_counter = await self.get_inventory_counter()
@@ -155,3 +162,14 @@ class InventoryHandler(AbstractHandler):
 
     async def equip_weapon(self, weapon: int):
         await self.tomba.playstation.write_memory(Addresses.TOMBA_WEAPON, weapon.to_bytes())
+
+    async def receive_pickup(self, item: ItemData, player: int | None = None) -> bool:
+        if item.name == Items.ONE_UP:
+            await self.tomba.player_handler.add_life()
+
+        elif item.name == Items.MAX_VITALITY_1:
+            await self.tomba.player_handler.add_vitality()
+
+        await self.notify_acquired(item, player)
+
+        return True

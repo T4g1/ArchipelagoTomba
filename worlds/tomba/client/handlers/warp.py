@@ -8,7 +8,6 @@ from ...sections import Section, Sections
 from ...items import ItemHandler
 from ...events import EventHandler
 from ...bitutils import Bitmask
-from ...locations import LocationHandler, get_name
 
 warp_masks: dict[Section, Bitmask] = {
     Sections.VILLAGE_OF_ALL_BEGINNING: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x01),
@@ -26,7 +25,7 @@ warp_masks: dict[Section, Bitmask] = {
     Sections.MUSHROOM_FOREST: Bitmask(Addresses.WARP_ENTRY_STATE + 0x04, 0x01),
     Sections.STORMY_MOUNTAINS: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x01),
     Sections.LAVA_CAVES: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x02),
-    Sections.PHOENIX_NEST: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x04),
+    Sections.PHOENIXS_NEST: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x04),
     Sections.BACCUS_VILLAGE: Bitmask(Addresses.WARP_ENTRY_STATE + 0x08, 0x01),
     Sections.HAUNTED_MANSION_EAST: Bitmask(Addresses.WARP_ENTRY_STATE + 0x0A, 0x01),
     Sections.HAUNTED_MANSION_SOUTH: Bitmask(Addresses.WARP_ENTRY_STATE + 0x0A, 0x02),
@@ -86,7 +85,7 @@ class WarpHandler(AbstractHandler):
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
             Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
-            Sections.PHOENIX_NEST: Handler(self.on_phoenix_nest_entry),
+            Sections.PHOENIXS_NEST: Handler(self.on_phoenix_nest_entry),
         }
 
     async def on_wobbly_warf_left(self, to: Section):
@@ -97,14 +96,14 @@ class WarpHandler(AbstractHandler):
     async def on_hidden_village_left(self, to: Section):
         if to.equals(Sections.LAVA_CAVES):
             # TODO: Check spawn location is on top of the cave
-            if self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
+            if await self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
 
-    async def on_phoenix_nest_entry(self, to: Section):
+    async def on_phoenix_nest_entry(self, coming_from: Section):
         """Starts the Phoenix's Favorite"""
-        if self.tomba.events_handler.get_event_state(Events.THE_PHOENIXS_FAVORITE) is EventStatus.UNDISCOVERED:
-            self.tomba.events_handler.start(Events.THE_PHOENIXS_FAVORITE)
+        if await self.tomba.events_handler.get_event_state(Events.THE_PHOENIXS_FAVORITE) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.THE_PHOENIXS_FAVORITE)
 
     async def on_forest_of_100_flowers_entry(self, coming_from: Section):
         if not await self.is_purified(Regions.FOREST_OF_100_FLOWERS):
@@ -112,25 +111,20 @@ class WarpHandler(AbstractHandler):
 
         logger.debug(f"Tiggerring Hidden Chest in {Regions.FOREST_OF_100_FLOWERS}")
 
-        # Check two missable location from the chest hidden in the trees
-        wing_1_name = get_name(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1, Regions.FOREST_OF_100_FLOWERS)
-        wing_2_name = get_name(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2, Regions.FOREST_OF_100_FLOWERS)
-        wing_1 = LocationHandler.by_name.get(wing_1_name, None)
-        wing_2 = LocationHandler.by_name.get(wing_2_name, None)
-        assert wing_1 is not None
-        assert wing_2 is not None
-        await self.ctx.check_locations([wing_1.id, wing_2.id])
+        # Check two missable location from the chest hidden in the tree
+        await self.ctx.check_handler.check(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1, Regions.FOREST_OF_100_FLOWERS)
+        await self.ctx.check_handler.check(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2, Regions.FOREST_OF_100_FLOWERS)
 
     async def on_haunted_mansion_irregular_entry(self, coming_from: Section):
         # Haunted Mansion will not load correctly if this is not cleared
         event = EventHandler.by_name[Events.A_DRINK_FOR_GROWNUPS]
-        self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+        await self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
         # Prevent softlock when accessing Baccus Lake
         event = EventHandler.by_name[Events.ROAD_TO_BACCUS_LAKE]
-        self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+        await self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
 
     async def on_masakari_river(self, coming_from: Section):
-        if self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
+        if await self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
             charity_wing = ItemHandler.by_name[Items.CHARITY_WINGS]
             await self.tomba.inventory_handler.receive_item(charity_wing)

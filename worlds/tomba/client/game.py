@@ -21,6 +21,7 @@ from .handlers.warp import WarpHandler
 from .handlers.events import EventsHandler
 from .handlers.door import DoorHandler
 from .handlers.popup import PopupHandler
+from .handlers.player import PlayerHandler
 from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
 from .emulators.retroarch import RetroArch
 from .emulators.bizhawk import BizHawk
@@ -67,6 +68,7 @@ class TombaGame:
         self.events_handler = EventsHandler(self.ctx, self)
         self.doors_handler = DoorHandler(self.ctx, self)
         self.popup_handler = PopupHandler(self.ctx, self)
+        self.player_handler = PlayerHandler(self.ctx, self)
 
     async def wait_for_emulator_connection(self):
         logger.info("Waiting on connection to emulator...")
@@ -167,6 +169,10 @@ class TombaGame:
         await self.patcher.patch_game()
 
     async def check_inventory_patch(self):
+        # Patch only if the menu is fully loaded
+        if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
+            return
+
         # Fix Yan's Lunch Box
         await self.patcher.patch_inventory_yans_lunch_box()
 
@@ -176,10 +182,6 @@ class TombaGame:
 
         # Patch only if its unpurified
         if self.section == Sections.CHARITY_SQUARE_PURIFIED:
-            return
-
-        # Patch only if the menu is fully loaded
-        if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
             return
 
         await self.patcher.patch_inventory_flower_tears()

@@ -50,7 +50,7 @@ class Sections(Section):
     STORMY_MOUNTAINS = Section(0x03, 0x00)
     STORMY_MOUNTAINS_SECOND = Section(0x03, 0x01)
     LAVA_CAVES = Section(0x03, 0x02)
-    PHOENIX_NEST = Section(0x03, 0x03)
+    PHOENIXS_NEST = Section(0x03, 0x03)
     STORMY_MOUNTAINS_PURIFIED = Section(0x03, 0x04)
     STORMY_MOUNTAINS_SECOND_PURIFIED = Section(0x03, 0x05)
 
