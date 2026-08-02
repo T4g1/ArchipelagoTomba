@@ -15,6 +15,7 @@ FOUND_ITEM_STRUCTURE_SIZE = 8
 
 class Locations(str):
     AP_150_000 = "150,000 AP"
+    AP_500_000 = "500,000 AP"
     BARON = "Baron"
     BRONZE_MEDAL = "Bronze Medal"
     CHARLES_PANTS = "Charle's Pant"
@@ -33,6 +34,7 @@ class Locations(str):
     SOME_CHEESE_PLEASE_2 = "Some Cheese 2"
     STORMY_MOUNTAIN_PANTS = "Phoenix Pants"
     TELESCOPE = "Top of Watch Tower"
+    VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
 
 
@@ -397,6 +399,7 @@ class Addresses(IntEnum):
 
     PV_CURRENT = 0x09BCD8
     PV_MAX = 0x09BCD9
+    PV_MAX_SURPLUS = 0x09C3E8
 
     MENU_STATE = 0x1F8001C6  # In game menu (inventory, events, map, status, pause)
     GAME_STATE_1 = 0x001FD848  # Indicates the main state: title screen or in game
@@ -446,6 +449,8 @@ class Addresses(IntEnum):
     PURIFICATION_FLAGS = 0x9C62B
 
     MAGIC_EGGS_BROKEN_COUNT = 0x09C263
+
+    GOLDEN_BOWL_STATUS = 0x09C3E7
 
 
 class TombaState(IntEnum):
@@ -525,4 +530,3 @@ class CustomCommand(IntEnum):
 
     POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
-    INCREASE_VITALITY = 0x08  # Calls the max. vitality increase method from the game

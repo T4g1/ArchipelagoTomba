@@ -1,6 +1,7 @@
 .BASE 0x80040690            # Where this code is located
 
 FUN_FOUND_ITEM:0x80029788
+FUN_SET_AREA_FLAG:0x8002367C
 
     # Save context
     addiu   $sp,$sp,-0x18
@@ -15,6 +16,19 @@ FUN_FOUND_ITEM:0x80029788
     nop
     addiu   $v0, $v0, 0x01
     sb      $v0, 0x04($s0)
+
+    # Flag the corresponding area
+    lbu     $v0, 0x0C($s0)
+    nop
+    andi    $v0, $v0, 0x80
+    bne     $v0,$zero,LAB_NO_FLAG
+    nop
+    lbu     $a0, 0x6B($s0)
+
+    jal     FUN_SET_AREA_FLAG
+    nop
+
+LAB_NO_FLAG:
 
     # Load parameters
     ori     $a0, $zero, 0xFE

@@ -233,7 +233,7 @@ class ItemHandler:
         ItemData(0x9E, IC.progression, Items.SEAWEED),
         ItemData(0x9F, IC.progression, Items.MINERS_HAT),
         # Tomba! does not handle items above 0x9F
-        ItemData(0xFE, IC.filler, Items.ONE_UP, True),
+        ItemData(0xFE, IC.filler, Items.ONE_UP, True, 27),
         ItemData(0xFF, IC.filler, Items.MAX_VITALITY_1, True, 12),
     ]
 

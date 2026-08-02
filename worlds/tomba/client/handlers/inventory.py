@@ -1,7 +1,7 @@
 from CommonClient import logger
 
 from . import AbstractHandler
-from ...constants import SFX, Addresses, Items, CustomCommand
+from ...constants import SFX, Addresses, Items
 from ...items import ItemHandler, ItemData
 
 INVENTORY_STACK_SIZE = 0xFF
@@ -165,16 +165,10 @@ class InventoryHandler(AbstractHandler):
 
     async def receive_pickup(self, item: ItemData, player: int | None = None) -> bool:
         if item.name == Items.ONE_UP:
-            lifes = (await self.tomba.playstation.async_read_memory(Addresses.LIVES))[0]
-            lifes = min(lifes + 1, 99)
-            await self.tomba.playstation.write_memory(Addresses.LIVES, lifes.to_bytes())
+            await self.tomba.player_handler.add_life()
 
         elif item.name == Items.MAX_VITALITY_1:
-            if await self.tomba.get_command(CustomCommand.INCREASE_VITALITY) > 0:
-                # Wait for previous command to complete first
-                return False
-
-            await self.tomba.set_command(CustomCommand.INCREASE_VITALITY)
+            await self.tomba.player_handler.add_vitality()
 
         await self.notify_acquired(item, player)
 
