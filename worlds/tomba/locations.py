@@ -1203,10 +1203,10 @@ class LocationHandler:
         # Underground Maze
         # # TODO: Find where this is called in game (reverse)
         # ItemLocData(
-        #   Locations.VITALITY_INCREASE, 
-        #   Regions.UNDERGROUND_MAZE, 
-        #   Items.MAX_VITALITY_1, 
-        #   Sections.UNDERGROUND_MAZE, 
+        #   Locations.VITALITY_INCREASE,
+        #   Regions.UNDERGROUND_MAZE,
+        #   Items.MAX_VITALITY_1,
+        #   Sections.UNDERGROUND_MAZE,
         #   rule=Has(Locations.AP_500_000)
         # ),
         ItemLocData(
@@ -1501,7 +1501,7 @@ def create_regular_locations(world: TombaWorld) -> None:
     BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
     BARON.place_locked_item(ItemHandler.create_item(world, Items.BARON))
 
-    if not world.options.optionnal_randomized:
+    if not world.options.optional_randomized:
         # Force Pipe
         PIPE = world.get_location(get_name(Locations.PIPE, Regions.BACCUS_LAKE))
         PIPE.place_locked_item(ItemHandler.create_item(world, Items.PIPE))

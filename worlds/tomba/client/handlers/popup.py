@@ -1,79 +1,9 @@
 from . import AbstractHandler
 from ...constants import CustomCommand
 from ..emulators.emulator import Emulator
+from ..popup_mappings import CHARMAPS, DEFAULT_CHARMAP
 
 CHARACTER_WIDTH = 0x08
-CHARMAP: dict[str, int] = {
-    # Uppercase letters
-    "A": 0x800C,
-    "B": 0x801A,
-    "C": 0x8010,
-    "D": 0x8016,
-    "E": 0x8007,
-    "F": 0x8012,
-    "G": 0x802F,
-    "H": 0x8026,
-    "I": 0x802A,
-    "J": 0x802C,
-    "K": 0x8022,
-    "L": 0x8015,
-    "M": 0x8027,
-    "N": 0x802E,
-    "O": 0x801E,
-    "P": 0x8025,
-    "Q": 0x8008,
-    "R": 0x8032,
-    "S": 0x8029,
-    "T": 0x801C,
-    "U": 0x8000,
-    "V": 0x8035,
-    "W": 0x8024,
-    "X": 0x8038,
-    "Y": 0x801F,
-    "Z": 0x8004,
-    # Lowercase letters
-    "a": 0x8018,
-    "b": 0x8030,
-    "c": 0x800D,
-    "d": 0x8003,
-    "e": 0x8002,
-    "f": 0x8019,
-    "g": 0x8014,
-    "h": 0x8006,
-    "i": 0x800A,
-    "j": 0x802B,
-    "k": 0x8011,
-    "l": 0x8021,
-    "m": 0x8028,
-    "n": 0x801B,
-    "o": 0x8013,
-    "p": 0x800B,
-    "q": 0x8008,
-    "r": 0x800E,
-    "s": 0x8001,
-    "t": 0x8005,
-    "u": 0x8009,
-    "v": 0x8033,
-    "w": 0x8017,
-    "x": 0x802D,
-    "y": 0x8023,
-    "z": 0x8004,
-    "0": 0x8020,
-    "1": 0x801D,
-    # "2": 0x80, "3": 0x80, "4": 0x80,
-    # "5": 0x80, "6": 0x80, "7": 0x80, "8": 0x80, "9": 0x80,
-    # Math
-    "*": 0x8038,
-    "+": 0x8036,
-    # Punctuation and Space
-    "!": 0x800F,
-    "?": 0x8004,
-    ".": 0x8037,
-    " ": 0x8004,
-    ",": 0x8031,
-    "'": 0x8034,
-    # Unsupported: QZz?
-}
 
 
 class WFMPopup:
@@ -142,7 +72,9 @@ class WFMPopup:
 
         return self.dialog_table + dialog_offset
 
-    async def write_message(self, psx: Emulator, address: int, message: str):
+    async def write_message(self, psx: Emulator, area_id: int, address: int, message: str):
+        charmaps = CHARMAPS.get(area_id, DEFAULT_CHARMAP)
+
         # Set size
         size = (len(message) + 2) * CHARACTER_WIDTH
 
@@ -154,8 +86,9 @@ class WFMPopup:
         # Message content
         index = 6
         for character in message:
-            value = CHARMAP.get(character, 0x8038)
-            await psx.write_memory(address + index, value.to_bytes(2, byteorder="little"))
+            value = charmaps.get(character, None)
+            if value is not None:
+                await psx.write_memory(address + index, value.to_bytes(2, byteorder="little"))
             index += 2
 
         # Footer
@@ -217,7 +150,7 @@ class PopupHandler(AbstractHandler):
         dialog_offset = 3 * 2
 
         dialog_entry = await self.wfm.get_dialog_entry(psx, dialog_offset)
-        await self.wfm.write_message(psx, dialog_entry, message)
+        await self.wfm.write_message(psx, self.tomba.section.area_id, dialog_entry, message)
 
         # Set size
         DEFAULT_SIZE = 12  # + 0x60 when param_2 == 0 (size of Acquired!)

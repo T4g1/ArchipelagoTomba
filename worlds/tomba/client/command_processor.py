@@ -83,3 +83,11 @@ class TombaCommandProcessor(ClientCommandProcessor):
         if isinstance(self.ctx, TombaContext):
             for location in LocationHandler.location_table:
                 logger.info(f"{location.id}: {location.name}")
+
+    async def _cmd_popup(self):
+        """DEBUG: Debug popup message"""
+        if isinstance(self.ctx, TombaContext):
+            test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            self.ctx.tomba.popup_handler.print(test_string.upper())
+            self.ctx.tomba.popup_handler.print(test_string.lower())
+            self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")

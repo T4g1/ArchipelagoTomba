@@ -319,7 +319,7 @@ class ItemHandler:
                 Items.MILLION_YEAR_OLD_BELL,
             ]
 
-        if not world.options.optionnal_randomized:
+        if not world.options.optional_randomized:
             disabled_items += [Items.PIPE, Items.BROKEN_VASE]
 
         for item in ItemHandler.item_table:
