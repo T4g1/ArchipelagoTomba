@@ -73,6 +73,9 @@ class ItemLocData(LocationData):
     y: int | None
     related_event: str
 
+    # Kept for Poptracker
+    base_name: str
+
     def __init__(
         self,
         name: str,
@@ -86,6 +89,8 @@ class ItemLocData(LocationData):
         at: Bitmask | None = None,
         event: str | None = None,
     ):
+        self.base_name = name
+
         name = get_name(name, region)
 
         item = ItemHandler.by_name.get(item_name, None)
