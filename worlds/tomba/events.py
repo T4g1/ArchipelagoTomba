@@ -632,7 +632,7 @@ class EventHandler:
         ),
         EventData(
             0xA0,
-            Events.THE_REAL_EVIL_PIG,
+            Events.A_REAL_EVIL_PIG,
             Regions.THE_STRANGE_SMALL_ROOM,
             started_rule=HasCleared(Events.MILLION_YEAR_OLD_WISH),
             cleared_rule=HasCleared(Events.SEVEN_FRIENDS),

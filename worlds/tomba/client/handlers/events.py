@@ -28,10 +28,10 @@ class EventsHandler(AbstractHandler):
             Events.TRICK_VILLAGE: Handler(self.on_trick_village),
             Events.BREAK_THE_RUSTY_DOOR: Handler(self.on_break_the_rusty_door),
             Events.WE_NEED_POWER: Handler(self.on_we_need_power),
-            Events.THE_REAL_EVIL_PIG: Handler(self.on_the_real_evil_pig),
+            Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
         }
 
-    async def on_the_real_evil_pig(self):
+    async def on_a_real_evil_pig(self):
         """Win condition"""
         await self.ctx.on_victory()
 
