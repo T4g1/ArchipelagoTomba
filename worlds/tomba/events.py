@@ -259,7 +259,7 @@ class EventHandler:
             Regions.OLD_TREE_HILL,
             cleared_rule=HasStarted(Events.THE_5_GOLDEN_ITEMS),
         ),
-        EventData(0x3F, Events.THE_PUMPS_ROCKS, Regions.OLD_TREE_HILL),
+        EventData(0x3F, Events.THE_PUMPS_ROCK, Regions.OLD_TREE_HILL),
         EventData(0x40, Events.A_REFRESHING_DRINK, Regions.MASAKARI_JUNGLE, cleared_rule=Has(Items.BANANA_JUICE)),
         EventData(
             0x41,
