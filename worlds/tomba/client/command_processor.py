@@ -11,8 +11,10 @@ from CommonClient import ClientCommandProcessor, logger
 from ..constants import EventStatus, Items, SFX, Addresses
 from ..items import ItemHandler
 from ..events import EventHandler
-from ..locations import LocationHandler
+from ..locations import LocationHandler, ItemLocData
+from ..helpers import codify
 from .handlers.warp import warp_masks
+from .debug.entity import EntityHandler
 
 
 class TombaCommandProcessor(ClientCommandProcessor):
@@ -88,6 +90,44 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """DEBUG: Debug popup message"""
         if isinstance(self.ctx, TombaContext):
             test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            self.ctx.tomba.popup_handler.print(test_string.upper())
-            self.ctx.tomba.popup_handler.print(test_string.lower())
-            self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")
+            await self.ctx.tomba.popup_handler.print(test_string.upper())
+            await self.ctx.tomba.popup_handler.print(test_string.lower())
+            await self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")
+
+    async def _cmd_entity(self):
+        """DEBUG: List loaded entities informations"""
+        if isinstance(self.ctx, TombaContext):
+            entities = await EntityHandler.load_entities(self.ctx.tomba.playstation)
+            for entity in entities:
+                if entity.occupied <= 0x00:
+                    continue
+
+                logger.info(entity)
+
+    async def _cmd_patch(self):
+        """DEBUG: Force re-patch"""
+        if isinstance(self.ctx, TombaContext):
+            await self.ctx.tomba.patcher._patch()
+
+    async def _cmd_disable(self, type: str):
+        """DEBUG: Disable entity type"""
+        if isinstance(self.ctx, TombaContext):
+            await EntityHandler.disable(self.ctx.tomba.playstation, int(type, 16))
+
+    async def _cmd_poptracker(self):
+        """Export data for Poptracker"""
+        if isinstance(self.ctx, TombaContext):
+            for item in ItemHandler.item_table:
+                name = codify(item.name)
+                if item.countable:
+                    print(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}", nil, {item.amount} }} }},')
+                else:
+                    print(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}" }} }},')
+
+            for location in LocationHandler.location_table:
+                name = codify(location.name)
+                if not isinstance(location, ItemLocData):
+                    name = name.replace("_cleared", "")
+                    name = "event_" + name
+
+                print(f'    [BASE_LOCATION_ID + {location.id}] = {{ {{ "{name}" }} }},')

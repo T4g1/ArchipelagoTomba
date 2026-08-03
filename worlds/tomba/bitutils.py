@@ -58,3 +58,8 @@ class Bitmask:
             return 1 << (7 - position)
 
         return 1 << position
+
+
+def reverse(hex: str) -> str:
+    """Reverse HEX string"""
+    return "".join([hex[i : i + 2] for i in range(0, len(hex), 2)][::-1])

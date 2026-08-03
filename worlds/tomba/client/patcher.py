@@ -52,6 +52,9 @@ class Patcher:
         if await self.is_patched_or_unloaded():
             return
 
+        await self._patch()
+
+    async def _patch(self):
         logger.info("Patching custom methods...")
 
         raise_vitality_patch = bytes.fromhex(self.raise_vitality_patch)

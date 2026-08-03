@@ -139,7 +139,7 @@ class InventoryHandler(AbstractHandler):
             message = f"{player_name} sent {item.name}"
 
         logger.debug(message)
-        self.tomba.popup_handler.print(message)
+        await self.tomba.popup_handler.print(message)
         await self.tomba.play_sfx(SFX.ACQUIRED)
 
     async def remove_item(self, item: ItemData, amount: int = 1):

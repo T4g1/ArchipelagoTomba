@@ -113,7 +113,10 @@ class PopupHandler(AbstractHandler):
 
         message = self.message_queue[0]
         if await self._print(message):
-            self.message_queue.pop(0)
+            try:
+                self.message_queue.pop(0)
+            except Exception:
+                pass
 
     async def has_free_slot(self) -> bool:
         """Wait for the first slot to be free
@@ -121,8 +124,10 @@ class PopupHandler(AbstractHandler):
         status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
         return status == bytes.fromhex("FFFF")
 
-    def print(self, message: str):
+    async def print(self, message: str):
         self.message_queue.append(message)
+
+        await self.update_popups()
 
     def debug(self):
         self.message_queue.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
