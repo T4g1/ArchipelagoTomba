@@ -85,7 +85,7 @@ class InventoryHandler(AbstractHandler):
             True: The player now owns the item or the item is impossible to give to the player
             False: The item has not been given and should be retried (game is not ready to receive items)
         """
-        if not self.tomba.check_safe_gameplay():
+        if not await self.tomba.is_playing():
             return False
 
         # Pickup handling

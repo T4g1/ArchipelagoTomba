@@ -85,7 +85,13 @@ class Patcher:
         * unaltered: The game should be patched
         * none: The game is not yet loaded"""
         hook_value = await self.playstation.read_memory_block(Addresses.PATCH_INTERFACE_HOOK, 4)
-        return hook_value != bytearray.fromhex(HANDLER_HOOK_ORIGINAL)
+        main_hook_patched = hook_value != bytearray.fromhex(HANDLER_HOOK_ORIGINAL)
+
+        # For some reason, this part is loaded last so patching it too soon will cause the patch to be overwritten
+        hook_vitality = await self.playstation.read_memory_block(Addresses.PATCH_RAISE_VITALITY, 4)
+        vitality_hook_patched = hook_vitality != bytearray.fromhex("0A80023C")
+
+        return main_hook_patched and vitality_hook_patched
 
     async def is_patched(self) -> bool:
         hook_value = await self.playstation.read_memory_block(Addresses.PATCH_INTERFACE_HOOK, 4)
