@@ -264,7 +264,9 @@ class LocationHandler:
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_100_FLOWERS,
         ),
-        ItemLocData("Campfire", Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)),
+        ItemLocData(
+            Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)
+        ),
         ItemLocData(
             Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1,
             Regions.FOREST_OF_100_FLOWERS,

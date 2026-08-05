@@ -3,7 +3,7 @@ from CommonClient import logger
 from . import Handler, AbstractHandler
 from ...constants import Addresses, Events, EventStatus, Locations, Regions
 from ...events import EventHandler, EventData
-from ...locations import LocationHandler, Cleared
+from ...locations import LocationHandler, Cleared, LocationData
 from .door import Doors
 
 
@@ -29,7 +29,14 @@ class EventsHandler(AbstractHandler):
             Events.BREAK_THE_RUSTY_DOOR: Handler(self.on_break_the_rusty_door),
             Events.WE_NEED_POWER: Handler(self.on_we_need_power),
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
+            Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
         }
+
+    async def on_somethings_cookin(self):
+        """When this is cleared and the campfire location is not
+        We re-start the event in game until the campfire is done"""
+        if not self.ctx.check_handler.is_checked(Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS):
+            await self.tomba.events_handler.start(Events.SOMETHINGS_COOKIN)
 
     async def on_a_real_evil_pig(self):
         """Win condition"""
@@ -120,6 +127,15 @@ class EventsHandler(AbstractHandler):
         event = EventHandler.by_name.get(event_name)
         assert event is not None
         return event
+
+    def get_event_location(self, event_name: str) -> LocationData:
+        event = LocationHandler.by_name.get(event_name)
+        assert event is not None
+        return event
+
+    def is_cleared(self, event_name: str) -> bool:
+        event = self.get_event_location(Cleared(event_name))
+        return event.id in self.ctx.checked_locations
 
     async def clear(self, event_name: str):
         await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
