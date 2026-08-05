@@ -37,6 +37,7 @@ class LocationData:
     sections: Section | None
     rule: Rule | None
     at: Bitmask | None
+    non_inventory: bool
 
     def __init__(
         self,
@@ -47,6 +48,7 @@ class LocationData:
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
+        non_inventory: bool = False,
     ):
         self.id = LocationData._id_counter
         LocationData._id_counter += 1
@@ -58,6 +60,7 @@ class LocationData:
         self.section = section
         self.rule = rule
         self.at = at
+        self.non_inventory = non_inventory
 
     def with_section(self, section: Section) -> Self:
         self.section = section
@@ -85,6 +88,7 @@ class ItemLocData(LocationData):
         rule: Rule | None = None,
         at: Bitmask | None = None,
         event: str | None = None,
+        non_inventory: bool = False,
     ):
         name = get_name(name, region)
 
@@ -92,7 +96,7 @@ class ItemLocData(LocationData):
         if item is None:
             raise Exception(f"Trying to create a location {name} with an unknown item: {item_name}")
 
-        super().__init__(name, region, item, section, progress_type, rule, at)
+        super().__init__(name, region, item, section, progress_type, rule, at, non_inventory)
 
         self.x = x
         self.y = y
@@ -327,6 +331,14 @@ class LocationHandler:
             "Win the Race", Regions.WATCH_TOWER, Items.SILVER_POWDER, rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT)
         ),
         # Wobbly Wharf
+        ItemLocData(
+            "100 Year Old Apples",
+            Regions.WOBBLY_WHARF,
+            Items.APPLE,
+			# rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD23, 0x01),
+			non_inventory=True,
+        ),
         ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
         # Dwarf Village
         ItemLocData(
@@ -350,6 +362,14 @@ class LocationHandler:
         ),
         ItemLocData(Locations.JAIL, Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
         # Mushroom Forest
+        ItemLocData(
+            "100 Year Old AP Crystal",
+            Regions.MUSHROOM_FOREST,
+            Items.AP_CRYSTAL,
+			rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1E, 0x80),
+            non_inventory=True,
+        ),
         ItemLocData("AP Box", Regions.MUSHROOM_FOREST, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
         ItemLocData("Tear Jar", Regions.MUSHROOM_FOREST, Items.TEAR_JAR, rule=HasCleared(Events.THE_100_FLOWER_FOREST)),
         ItemLocData(
@@ -450,6 +470,22 @@ class LocationHandler:
         ),
         ItemLocData(Locations.MONSTER_HUNT, Regions.MUSHROOM_FOREST, Items.RISE_AND_SHINE_POWDER),
         # Charity Square
+        ItemLocData(
+            "10,000 Year Old AP Crystal",
+            Regions.CHARITY_SQUARE,
+            Items.AP_CRYSTAL,
+			rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1F, 0x02),
+			non_inventory=True,
+        ),
+        ItemLocData(
+            "1,000 Year Old AP Crystal",
+            Regions.CHARITY_SQUARE,
+            Items.AP_CRYSTAL,
+            at=Bitmask(0x09BD1F, 0x01),
+			rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+			non_inventory=True,
+        ),
         ItemLocData("Sacred Fish", Regions.CHARITY_SQUARE, Items.SACRED_FISH, rule=HasCleared(Events.THE_FLOWER_TOWER)),
         ItemLocData("Crystal Balls", Regions.CHARITY_SQUARE, Items.THREE_CRYSTAL_BALLS, rule=Rules.CAN_BIG_JUMP),
         ItemLocData(
@@ -487,6 +523,32 @@ class LocationHandler:
             y=65005,
         ),
         # Mansion
+        # If Animal Dash is added to the item pool, this will conflict with it
+        # ItemLocData(
+        #     "100 Year Old AP Crystal",
+        #     Regions.MANSION,
+        #     Items.AP_CRYSTAL,
+		# 	rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+        #     at=Bitmask(0x09BE1C, 0x40),
+		# 	non_inventory=True,
+        # ),
+        # Conflicts with the Funky Parasol
+        # ItemLocData(
+        #     "1,000 Year Old AP Crystal",
+        #     Regions.MANSION,
+        #     Items.AP_CRYSTAL,
+		# 	rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        #     at=Bitmask(0x09BE1C, 0x80),
+		# 	non_inventory=True,
+        # ),
+        ItemLocData(
+            "10,000 Year Old AP Crystals",
+            Regions.MANSION,
+            Items.AP_CRYSTAL,
+			rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1D, 0x01),
+			non_inventory=True,
+        ),
         ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
         # Stormy Mountain
         ItemLocData(
@@ -844,6 +906,15 @@ class LocationHandler:
         ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
         # Haunted Mansion
         ItemLocData(
+            "100 Year Old Apples",
+            Regions.HAUNTED_MANSION,
+            Items.APPLE,
+            Section(0x04, 0x0C),
+			rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x10),
+			non_inventory=True,
+        ),
+        ItemLocData(
             Locations.VITALITY_INCREASE,
             Regions.HAUNTED_MANSION,
             Items.MAX_VITALITY_1,
@@ -1007,6 +1078,14 @@ class LocationHandler:
         ),
         ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
         # Old Tree Hill
+        ItemLocData(
+            "Million Year Old AP Crystal",
+            Regions.OLD_TREE_HILL,
+            Items.AP_CRYSTAL,
+			rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x08),
+			non_inventory=True,
+        ),
         ItemLocData("Old Tree", Regions.OLD_TREE_HILL, Items.KNOWLEDGE_FRUIT),
         ItemLocData(
             "Navy Evil Pig Bag",
@@ -1051,6 +1130,14 @@ class LocationHandler:
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
         ),
         # Trick Village
+        ItemLocData(
+            "10,000 Year Old AP Crystal",
+            Regions.TRICK_VILLAGE,
+            Items.AP_CRYSTAL,
+			rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE41, 0x10),
+			non_inventory=True,
+        ),
         ItemLocData(
             Locations.VITALITY_INCREASE,
             Regions.TRICK_VILLAGE,
@@ -1199,6 +1286,14 @@ class LocationHandler:
             x=1083,
             y=65128,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+        ),
+        ItemLocData(
+            "Million Year Old AP Crystal",
+            Regions.UNDERGROUND_MAZE,
+            Items.AP_CRYSTAL,
+			rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x01),
+			non_inventory=True,
         ),
         # Underground Maze
         # # TODO: Find where this is called in game (reverse)
@@ -1489,6 +1584,13 @@ def create_regular_locations(world: TombaWorld) -> None:
         # Cleared location are already in events
         if not world.options.cleared_event_rewards:
             locations = [location for location in locations if isinstance(location, ItemLocData)]
+            
+        if not world.options.non_inventory_chests_randomized:
+            locations = [
+                location
+                for location in locations
+                if not location.non_inventory
+            ]
 
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
@@ -1509,6 +1611,12 @@ def create_regular_locations(world: TombaWorld) -> None:
         # Force Broken Vase
         JAIL = world.get_location(get_name(Locations.JAIL, Regions.DWARF_VILLAGE))
         JAIL.place_locked_item(ItemHandler.create_item(world, Items.BROKEN_VASE))
+
+    if world.options.non_inventory_chests_randomized:
+        APPLE = world.get_location(
+            get_name("100 Year Old Apples", Regions.WOBBLY_WHARF)
+        )
+        APPLE.place_locked_item(world.create_filler())
 
 
 def create_events(world: TombaWorld) -> None:

@@ -24,6 +24,8 @@ def integrity_checks():
     used_names = []
 
     for location in LocationHandler.location_table:
+        if getattr(location, "non_inventory", False):
+            continue
         if location.item is None:
             if Started(location.name) in used_names:
                 raise Exception(f"Trying to re-use the location name {Started(location.name)}")
@@ -57,7 +59,11 @@ def integrity_checks():
         if item.name in bypass_integrity_checks:
             continue
 
-        location_ids = LocationHandler.by_item_id[item.id]
+        location_ids = [
+            location_id
+            for location_id in LocationHandler.by_item_id[item.id]
+            if not LocationHandler.by_id[location_id].non_inventory
+        ]
 
         if not item.countable and len(location_ids) > 1:
             raise Exception(f"Unique item {item.name} reused across several locations")
@@ -87,6 +93,12 @@ def set_all_entrance_rules(_: TombaWorld) -> None:
 
 def set_all_location_rules(world: TombaWorld) -> None:
     for location in LocationHandler.location_table:
+        if (
+            not world.options.non_inventory_chests_randomized
+            and getattr(location, "non_inventory", False)
+        ):
+            continue
+
         if location.rule is not None:
             world.set_rule(world.get_location(location.name), location.rule)
 

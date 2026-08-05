@@ -233,6 +233,8 @@ class ItemHandler:
         ItemData(0x9E, IC.progression, Items.SEAWEED),
         ItemData(0x9F, IC.progression, Items.MINERS_HAT),
         # Tomba! does not handle items above 0x9F
+        ItemData(0xFC, IC.filler, Items.AP_CRYSTAL),
+        ItemData(0xFD, IC.filler, Items.APPLE),
         ItemData(0xFE, IC.filler, Items.ONE_UP, True, 27),
         ItemData(0xFF, IC.filler, Items.MAX_VITALITY_1, True, 12),
     ]
@@ -308,6 +310,8 @@ class ItemHandler:
         disabled_items: list[str] = [
             Items.BARON,
             Items.NORMAL_PANTS,
+            Items.AP_CRYSTAL,
+            Items.APPLE,
         ]
 
         # Apply options

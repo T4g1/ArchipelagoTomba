@@ -225,6 +225,10 @@ class Items(str):
     ONE_UP = "1Up"
     MAX_VITALITY_1 = "Max Vitality +1"
 
+    # Non-inventory Items
+    AP_CRYSTAL = "AP CRYSTAL"
+    APPLE = "APPLE"
+
 
 class Events(str):
     A_DRINK_FOR_GROWNUPS = "A Drink for Grownups"
