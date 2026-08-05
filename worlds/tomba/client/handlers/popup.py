@@ -1,3 +1,5 @@
+from asyncio import Lock
+
 from . import AbstractHandler
 from ...constants import CustomCommand
 from ..emulators.emulator import Emulator
@@ -39,7 +41,7 @@ class WFMPopup:
         return True
 
     async def is_loaded(self, psx: Emulator) -> bool:
-        if not await self.has_magic_word(psx):
+        if not await self.has_magic_word(psx) or not await self.has_correct_wfm(psx):
             return False
 
         if not hasattr(self, "dialog_table"):
@@ -47,7 +49,15 @@ class WFMPopup:
 
         return self.loaded
 
+    async def has_correct_wfm(self, psx: Emulator) -> bool:
+        """Check that we are still using that WFM"""
+        raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
+        address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
+
+        return address == self.address
+
     async def has_magic_word(self, psx: Emulator) -> bool:
+        """Check that the current WFM adress is valid"""
         if not hasattr(self, "address"):
             return False
 
@@ -107,16 +117,19 @@ class PopupHandler(AbstractHandler):
     POPUP_SLOT_2_STATUS = 0x0A39BA
     POPUP_SIZES = 0x07D05C
 
-    async def update_popups(self):
-        if len(self.message_queue) <= 0:
-            return
+    lock: Lock = Lock()
 
-        message = self.message_queue[0]
-        if await self._print(message):
-            try:
-                self.message_queue.pop(0)
-            except Exception:
-                pass
+    async def update_popups(self):
+        async with self.lock:
+            if len(self.message_queue) <= 0:
+                return
+
+            message = self.message_queue[0]
+            if await self._print(message):
+                try:
+                    self.message_queue.pop(0)
+                except Exception:
+                    pass
 
     async def has_free_slot(self) -> bool:
         """Wait for the first slot to be free
