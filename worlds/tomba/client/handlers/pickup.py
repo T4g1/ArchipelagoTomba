@@ -1,5 +1,6 @@
 from . import Handler, AbstractHandler
-from ...constants import Items, Events, Locations, Regions
+from ...constants import Items, Events, Locations, Regions, EventStatus
+from ...items import ItemHandler
 
 
 class PickupHandler(AbstractHandler):
@@ -17,7 +18,17 @@ class PickupHandler(AbstractHandler):
             Items.BANANA_JUICE: Handler(self.on_banana_juice),
             Items.PSYCHIC_FISH: Handler(self.on_psychic_fish),
             Items.RAFT: Handler(self.on_raft),
+            Items.BUNK_FLOWER: Handler(self.on_bunk_flower),
         }
+
+    async def on_bunk_flower(self):
+        """Starts or clear the Phoenix's Favorite"""
+        if await self.tomba.events_handler.get_event_state(Events.THE_PHOENIXS_FAVORITE) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.THE_PHOENIXS_FAVORITE)
+
+        item = ItemHandler.by_name[Items.BUNK_FLOWER]
+        if await self.tomba.inventory_handler.get_item_amount(item.game_id) >= 5:
+            await self.tomba.events_handler.clear(Events.THE_PHOENIXS_FAVORITE)
 
     async def on_raft(self):
         """The corresponding location will no longer be accessible"""
