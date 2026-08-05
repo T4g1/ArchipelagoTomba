@@ -30,6 +30,7 @@ class Locations(str):
     JAIL = "Jail"
     MAILBOX = "Mailbox"
     MASAKARI_JUNGLE_PANTS = "Funga Pants"
+    MIXER = "Mixer"
     MONSTER_HUNT = "Monster Fight"
     PIPE = "Pipe"
     SOME_CHEESE_PLEASE_1 = "Some Cheese 1"

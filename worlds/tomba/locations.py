@@ -1022,7 +1022,7 @@ class LocationHandler:
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
         # Clock Tower
-        ItemLocData("Mixer", Regions.CLOCK_TOWER, Items.BANANA_JUICE, rule=Has(Items.BANANAS)),
+        ItemLocData(Locations.MIXER, Regions.CLOCK_TOWER, Items.BANANA_JUICE, rule=Has(Items.BANANAS)),
         # Lumberjack Factory
         ItemLocData("Bassement", Regions.LUMBERJACK_FACTORY, Items.CHARITY_WINGS, Section(0x0B, 0x02)),
         ItemLocData(

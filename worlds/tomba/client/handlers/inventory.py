@@ -112,7 +112,10 @@ class InventoryHandler(AbstractHandler):
             new_amount = current_amount + 1
             should_display_acquired = True
 
-        await self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
+        if item.record_amount:
+            await self.tomba.playstation.write_memory(
+                Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes()
+            )
 
         if not has_item_already:
             # Adding an item means shifting the whole stack to the right

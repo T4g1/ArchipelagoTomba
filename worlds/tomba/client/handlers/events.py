@@ -108,10 +108,7 @@ class EventsHandler(AbstractHandler):
 
     async def on_hide_and_go_seek(self):
         # Clear Take Out as it becomes softlocked when this one is cleared
-        take_out = EventHandler.by_name.get(Events.TAKE_OUT)
-        assert take_out is not None
-
-        await self.set_event_state(take_out, EventStatus.CLEARED)
+        await self.clear(Events.TAKE_OUT)
 
     async def on_look_and_see(self):
         """When this is cleared prior to grabbing the Telescope, that location becomes unreachable"""

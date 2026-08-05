@@ -30,6 +30,7 @@ class PickupHandler(AbstractHandler):
     async def on_banana_juice(self):
         """Starts a refreshing drink"""
         await self.tomba.events_handler.start(Events.A_REFRESHING_DRINK)
+        await self.ctx.check_handler.check(Locations.MIXER, Regions.CLOCK_TOWER)
 
     async def on_bronze_medal(self):
         """Clear Bronze Medal event"""
