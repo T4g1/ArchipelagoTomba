@@ -1,5 +1,5 @@
 from . import Handler, AbstractHandler
-from ...constants import Items, Events
+from ...constants import Items, Events, Locations, Regions
 
 
 class PickupHandler(AbstractHandler):
@@ -16,7 +16,12 @@ class PickupHandler(AbstractHandler):
             Items.BRONZE_MEDAL: Handler(self.on_bronze_medal),
             Items.BANANA_JUICE: Handler(self.on_banana_juice),
             Items.PSYCHIC_FISH: Handler(self.on_psychic_fish),
+            Items.RAFT: Handler(self.on_raft),
         }
+
+    async def on_raft(self):
+        """The corresponding location will no longer be accessible"""
+        await self.ctx.check_handler.check(Locations.BUILD_A_RAFT, Regions.LUMBERJACK_FACTORY)
 
     async def on_psychic_fish(self):
         """Clear the 5 Golden Item event which is now softlocked"""

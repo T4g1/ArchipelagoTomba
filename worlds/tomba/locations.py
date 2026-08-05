@@ -1023,7 +1023,9 @@ class LocationHandler:
         ItemLocData("Mixer", Regions.CLOCK_TOWER, Items.BANANA_JUICE, rule=Has(Items.BANANAS)),
         # Lumberjack Factory
         ItemLocData("Bassement", Regions.LUMBERJACK_FACTORY, Items.CHARITY_WINGS, Section(0x0B, 0x02)),
-        ItemLocData("Build a Raft", Regions.LUMBERJACK_FACTORY, Items.RAFT, rule=HasStarted(Events.LETS_RIDE_THE_RAFT)),
+        ItemLocData(
+            Locations.BUILD_A_RAFT, Regions.LUMBERJACK_FACTORY, Items.RAFT, rule=HasStarted(Events.LETS_RIDE_THE_RAFT)
+        ),
         ItemLocData(
             "Fuel Bar",
             Regions.LUMBERJACK_FACTORY,

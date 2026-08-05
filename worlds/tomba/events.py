@@ -714,7 +714,12 @@ class EventHandler:
             Regions.WOBBLY_WHARF,
             cleared_rule=HasCleared(Events.WHATS_UNDERWATER) & Rules.CAN_LIGHT_BREAK_STUFF,
         ),
-        EventData(0xB5, Events.READY_SET_GO, Regions.STORMY_MOUNTAIN, started_rule=HasCleared(Events.THE_GREAT_ESCAPE)),
+        EventData(
+            0xB5,
+            Events.READY_SET_GO,
+            Regions.STORMY_MOUNTAIN,
+            started_rule=HasCleared(Events.THE_GREAT_ESCAPE) & HasCleared(Events.LOOK_AND_SEE),
+        ),
         EventData(
             0xB6,
             Events.A_MAGIC_MIRROR,
