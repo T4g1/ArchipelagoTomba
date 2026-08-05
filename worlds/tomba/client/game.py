@@ -7,14 +7,7 @@ if TYPE_CHECKING:
 
 from CommonClient import logger
 
-from ..constants import (
-    GameState,
-    HudState,
-    MenuState,
-    CustomCommand,
-    Addresses,
-    Screens,
-)
+from ..constants import GameState, HudState, MenuState, CustomCommand, Addresses, Screens, Regions
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
@@ -197,7 +190,9 @@ class TombaGame:
             return
 
         # Patch only if its unpurified
-        if self.section == Sections.CHARITY_SQUARE_PURIFIED:
+        if self.section != Sections.CHARITY_SQUARE or await self.warp_hanlder.is_purified(
+            Regions.FOREST_OF_100_FLOWERS
+        ):
             return
 
         await self.patcher.patch_inventory_flower_tears()
