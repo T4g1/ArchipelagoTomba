@@ -67,6 +67,7 @@ class EventsHandler(AbstractHandler):
     async def on_baccus_village(self):
         """Clear related events"""
         await self.clear(Events.THE_MOUSE_PIG_BAG)
+        await self.ctx.check_handler.check(Locations.CENTRAL_PARK_CHEST, Regions.CENTRAL_PARK) # No longer accessible
 
     async def on_phoenix_mountain(self):
         """Clear related events"""

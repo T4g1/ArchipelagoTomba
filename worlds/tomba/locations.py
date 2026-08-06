@@ -151,7 +151,11 @@ class LocationHandler:
             "Magic Mirror",
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.GRAPPLEJACK,
-            rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.GRAPPLE) & Has(Items.GRAPPLEJACK),
+            rule=HasStarted(Events.THE_CUTE_WITCH)
+            & Has(Items.DIRTY_MIRROR)
+            & Has(Items.THREE_CRYSTAL_BALLS)
+            & Has(Items.GRAPPLE)
+            & Has(Items.BLACKJACK),  # Clean Mirror is no use
         ),
         ItemLocData(
             "Make Candy",
@@ -590,7 +594,12 @@ class LocationHandler:
         ),
         ItemLocData("Big Keyhole", Regions.STORMY_MOUNTAIN, Items.RED_EVIL_PIG_BAG, rule=Has(Items.BIG_KEY)),
         ItemLocData("Herbs", Regions.STORMY_MOUNTAIN, Items.HEALING_HERBS),
-        ItemLocData("Give back the Pants", Regions.STORMY_MOUNTAIN, Items.FUNKY_PARASOL, rule=Has(Items.CHARLES_PANTS)),
+        ItemLocData(
+            "Give back the Pants",
+            Regions.STORMY_MOUNTAIN,
+            Items.FUNKY_PARASOL,
+            rule=Has(Items.CHARLES_PANTS) & Rules.CAN_BIG_JUMP,
+        ),
         ItemLocData(
             Locations.STORMY_MOUNTAIN_PANTS,
             Regions.STORMY_MOUNTAIN,
@@ -824,7 +833,9 @@ class LocationHandler:
             rule=Has(Items.CHEESE, 10),
         ),
         ItemLocData(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE, Items.GOLDEN_FRUIT, rule=Has(Items.CHEESE, 15)),
-        ItemLocData("Grownups", Regions.BACCUS_VILLAGE, Items.WEED_KILLER, rule=HasCleared(Events.MONSTER_HUNT)),
+        ItemLocData(
+            Locations.GROWNUPS, Regions.BACCUS_VILLAGE, Items.WEED_KILLER, rule=HasCleared(Events.MONSTER_HUNT)
+        ),
         ItemLocData(
             "Give the Baby Pig",
             Regions.BACCUS_VILLAGE,
@@ -841,7 +852,7 @@ class LocationHandler:
         ),
         # Central Park
         ItemLocData(
-            "Central Park Chest",
+            Locations.CENTRAL_PARK_CHEST,
             Regions.CENTRAL_PARK,
             Items.ORANGE_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)

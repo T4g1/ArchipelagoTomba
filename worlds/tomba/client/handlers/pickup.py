@@ -72,3 +72,4 @@ class PickupHandler(AbstractHandler):
     async def on_weed_killer(self):
         """Needs to start the Death Fruit Juice event"""
         await self.tomba.events_handler.start(Events.DEATH_FRUIT_JUICE)
+        await self.ctx.check_handler.check(Locations.GROWNUPS, Regions.BACCUS_VILLAGE)
