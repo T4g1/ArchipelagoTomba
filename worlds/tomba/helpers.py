@@ -39,5 +39,6 @@ class Rules:
         | Has(Items.DASHING_PANTS)
         | Has(Items.JUMPING_PANTS)
         | Has(Items.SACRED_FISH)
-        | Has(Items.MIGHTY_FISH)
+        | Has(Items.PSYCHIC_FISH)
+        | (Has(Items.BLUE_POWDER) & HasStarted(Events.TO_PHOENIX_MOUNTAIN))
     )
