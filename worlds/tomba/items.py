@@ -31,6 +31,8 @@ PANTS: list[str] = [Items.DASHING_PANTS, Items.JUMPING_PANTS, Items.FLASH_PANTS]
 
 OPTIONNAL_ITEMS = [Items.PIPE, Items.BROKEN_VASE]
 
+BONUS_ITEMS = [Items.AP_CRYSTAL, Items.APPLE]
+
 
 @dataclass
 class ItemData:
@@ -65,6 +67,9 @@ class ItemData:
 
     def __repr__(self) -> str:
         return self.name
+
+    def is_bonus(self) -> bool:
+        return self.name in BONUS_ITEMS
 
     def is_pants(self) -> bool:
         return self.name in PANTS
@@ -233,8 +238,8 @@ class ItemHandler:
         ItemData(0x9E, IC.progression, Items.SEAWEED),
         ItemData(0x9F, IC.progression, Items.MINERS_HAT),
         # Tomba! does not handle items above 0x9F
-        ItemData(0xFC, IC.filler, Items.AP_CRYSTAL),
-        ItemData(0xFD, IC.filler, Items.APPLE),
+        ItemData(0xFC, IC.filler, Items.AP_CRYSTAL, True),
+        ItemData(0xFD, IC.filler, Items.APPLE, True),
         ItemData(0xFE, IC.filler, Items.ONE_UP, True, 27),
         ItemData(0xFF, IC.filler, Items.MAX_VITALITY_1, True, 12),
     ]

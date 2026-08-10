@@ -30,8 +30,8 @@ class Bitmask:
         address: int,
         mask: int | None = None,
         position: int | None = None,
-        on_checked: bool = False,
-        target_value: bool = False,
+        on_checked: bool = True,
+        target_value: bool = True,
     ):
         assert mask is not None or position is not None
 

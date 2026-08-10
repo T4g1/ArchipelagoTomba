@@ -222,27 +222,21 @@ class TombaGame:
         """Process all locations and reset game objects if needed"""
         if self.screen != Screens.GAME_SCREEN:
             return
-            
-        # Check non-inventory locations (AP Crystals and Apples)
-        if self.ctx.slot_data["non_inventory_chests_randomized"]:
-            for location in LocationHandler.with_bitmask:
-                if (
-                    not location.non_inventory
-                    or location.id in self.ctx.checked_locations
-                ):
-                    continue
-
-                assert location.at is not None
-
-                current_byte = (await self.playstation.async_read_memory(location.at.address))[0]
-                is_checked = bool(current_byte & location.at.mask)
-
-                if is_checked:
-                    await self.ctx.check_locations([location.id])
 
         # TODO: Read memory region, localy set flags and write results: 2 calls instead of len(list) * 2
+
+        checks = []
         for location in LocationHandler.with_bitmask:
             assert location.at is not None
+
+            # Check locations that were checked in game
+            if location.id in self.ctx.missing_locations:
+                if await self.playstation.get_flag(location.at.address, location.at.mask):
+                    checks.append(location.id)
+
+            await self.ctx.check_locations(checks)
+
+            # Align checked location and game state
             if not self.section.equals(location.section):
                 if location.at.on_cheked:
                     if location.id in self.ctx.checked_locations:
