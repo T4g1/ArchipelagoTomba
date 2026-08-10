@@ -41,3 +41,26 @@ class Rules:
         | Has(Items.SACRED_FISH)
         | Has(Items.MIGHTY_FISH)
     )
+
+
+def codify(name: str) -> str:
+    """Transform string into acceptable codified version"""
+    name = name.lower()
+    name = name.replace("10,000", "ten_thousand")
+    name = name.replace("1,000", "thousand")
+    name = name.replace("100", "hundred")
+    name = name.replace(".", "")
+    name = name.replace("!", "")
+    name = name.replace("'", "")
+    name = name.replace("?", "")
+    name = name.replace("+", "")
+    name = name.replace("-", "")
+    name = name.replace(",", "")
+    name = name.replace("=", "")
+    name = name.replace("(", "")
+    name = name.replace(")", "")
+    name = name.replace("    ", "_")
+    name = name.replace("   ", "_")
+    name = name.replace("  ", "_")
+    name = name.replace(" ", "_")
+    return name

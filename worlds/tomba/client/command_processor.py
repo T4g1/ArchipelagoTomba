@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import json
 
 if TYPE_CHECKING:
     from .client import TombaContext
@@ -11,8 +12,10 @@ from CommonClient import ClientCommandProcessor, logger
 from ..constants import EventStatus, Items, SFX, Addresses
 from ..items import ItemHandler
 from ..events import EventHandler
-from ..locations import LocationHandler
+from ..locations import LocationHandler, ItemLocData
+from ..helpers import codify
 from .handlers.warp import warp_masks
+from .debug.entity import EntityHandler
 
 
 class TombaCommandProcessor(ClientCommandProcessor):
@@ -88,6 +91,66 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """DEBUG: Debug popup message"""
         if isinstance(self.ctx, TombaContext):
             test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            self.ctx.tomba.popup_handler.print(test_string.upper())
-            self.ctx.tomba.popup_handler.print(test_string.lower())
-            self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")
+            await self.ctx.tomba.popup_handler.print(test_string.upper())
+            await self.ctx.tomba.popup_handler.print(test_string.lower())
+            await self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")
+
+    async def _cmd_entity(self):
+        """DEBUG: List loaded entities informations"""
+        if isinstance(self.ctx, TombaContext):
+            entities = await EntityHandler.load_entities(self.ctx.tomba.playstation)
+            for entity in entities:
+                if entity.occupied <= 0x00:
+                    continue
+
+                logger.info(entity)
+
+    async def _cmd_patch(self):
+        """DEBUG: Force re-patch"""
+        if isinstance(self.ctx, TombaContext):
+            await self.ctx.tomba.patcher._patch()
+
+    async def _cmd_disable(self, type: str):
+        """DEBUG: Disable entity type"""
+        if isinstance(self.ctx, TombaContext):
+            await EntityHandler.disable(self.ctx.tomba.playstation, int(type, 16))
+
+    async def _cmd_poptracker(self, type: str):
+        """Export data for Poptracker"""
+        if isinstance(self.ctx, TombaContext):
+            if type == "item":
+                for item in ItemHandler.item_table:
+                    name = codify(item.name)
+                    if item.countable:
+                        print(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}", nil, {item.amount} }} }},')
+                    else:
+                        print(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}" }} }},')
+
+            elif type == "location":
+                for location in LocationHandler.location_table:
+                    name = codify(location.name)
+                    if not isinstance(location, ItemLocData):
+                        name = name.replace("_cleared", "")
+                        name = "event_" + name
+                    else:
+                        name = f"@{location.base_name}/{location.name}"
+
+                    print(f'    [BASE_LOCATION_ID + {location.id}] = {{ {{ "{name}" }} }},')
+
+            elif type == "check":
+                locations = []
+
+                for location in LocationHandler.location_table:
+                    if not isinstance(location, ItemLocData):
+                        continue
+
+                    location_json = {
+                        "name": location.base_name,
+                        "map_locations": [{"map": "village_of_all_beginnings", "x": 0, "y": 0}],
+                        "sections": [{"name": location.name}],
+                    }
+
+                    locations.append(location_json)
+
+                for location in locations:
+                    print(f"    {json.dumps(location)},")

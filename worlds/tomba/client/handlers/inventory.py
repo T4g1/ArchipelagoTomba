@@ -85,7 +85,7 @@ class InventoryHandler(AbstractHandler):
             True: The player now owns the item or the item is impossible to give to the player
             False: The item has not been given and should be retried (game is not ready to receive items)
         """
-        if not self.tomba.check_safe_gameplay():
+        if not await self.tomba.is_playing():
             return False
 
         # Pickup handling
@@ -112,7 +112,10 @@ class InventoryHandler(AbstractHandler):
             new_amount = current_amount + 1
             should_display_acquired = True
 
-        await self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes())
+        if item.record_amount:
+            await self.tomba.playstation.write_memory(
+                Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes()
+            )
 
         if not has_item_already:
             # Adding an item means shifting the whole stack to the right
@@ -139,7 +142,7 @@ class InventoryHandler(AbstractHandler):
             message = f"{player_name} sent {item.name}"
 
         logger.debug(message)
-        self.tomba.popup_handler.print(message)
+        await self.tomba.popup_handler.print(message)
         await self.tomba.play_sfx(SFX.ACQUIRED)
 
     async def remove_item(self, item: ItemData, amount: int = 1):

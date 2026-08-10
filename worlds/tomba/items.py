@@ -44,6 +44,10 @@ class ItemData:
     # How many are required in the game
     amount: int
 
+    # When this is false, the amount of that particular item will always stay at 0x00
+    # preventing some event/location to become unreachable
+    record_amount: bool
+
     def __init__(
         self,
         game_id: int,
@@ -52,6 +56,7 @@ class ItemData:
         countable: bool = False,
         amount: int = 1,
         behavior: ItemBehavior = ItemBehavior.RANDOMIZED,
+        record_amount: bool = True,
     ):
         self.id = ItemData._id_counter
         ItemData._id_counter += 1
@@ -62,6 +67,7 @@ class ItemData:
         self.countable = countable
         self.amount = amount
         self.behavior = behavior
+        self.record_amount = record_amount
 
     def __repr__(self) -> str:
         return self.name
@@ -218,7 +224,7 @@ class ItemHandler:
         ItemData(0x8F, IC.progression, Items.WHAT_THE_THIEF_LOST),
         ItemData(0x90, IC.progression, Items.WHAT_THE_THIEF_FORGOT),
         ItemData(0x91, IC.filler, Items.BOSS_JEWEL),
-        ItemData(0x92, IC.filler, Items.ORDINARY_MUSHROOM),
+        ItemData(0x92, IC.filler, Items.ORDINARY_MUSHROOM, record_amount=False),
         # ItemData(0x93, IC.filler, Items.ITEM),
         ItemData(0x94, IC.progression, Items.SEASHELL_NECKLACE),
         ItemData(0x95, IC.progression, Items.THIEFS_WIRE),
