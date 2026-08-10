@@ -75,6 +75,7 @@ class WarpHandler(AbstractHandler):
     def init_handlers(self):
         # Handlers for when we leave a section
         self.leaving_handlers = {
+            Sections.FOREST_OF_ALL_BEGINNING_PART_1: Handler(self.on_forest_of_all_beginning_left),
             Sections.WOBBLY_WARF: Handler(self.on_wobbly_warf_left),
             Sections.HIDDEN_VILLAGE: Handler(self.on_hidden_village_left),
         }
@@ -86,6 +87,11 @@ class WarpHandler(AbstractHandler):
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
             Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
         }
+
+    async def on_forest_of_all_beginning_left(self, to: Section):
+        # Replace the blue apple if needed
+        if not self.ctx.check_handler.is_checked(Locations.BITING_PLANT_FLOWER, Regions.FOREST_OF_ALL_BEGINNINGS):
+            await self.tomba.playstation.set_flag(0x09BD00, 0x20, False)
 
     async def on_wobbly_warf_left(self, to: Section):
         # Put back the barrel if the event is not discovered

@@ -224,12 +224,14 @@ class LocationHandler:
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.VILLAGE_OF_ALL_BEGINNING,
+            at=Bitmask(0x09BCFD, 0x08),
         ),
-        ItemLocData(
-            "100 Year Chest in the Tree",
+        ChestLocData(
+            "100 Year Old Bell",
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.HUNDRED_YEAR_OLD_BELL,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BCFE, 0x80),
         ),
         # Forest of all Beginnings
         ItemLocData(
@@ -238,47 +240,57 @@ class LocationHandler:
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BCFE, 0x40),
         ),
         ItemLocData(
-            "Biting Plant",
+            Locations.BITING_PLANT_FLOWER,
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.BITING_PLANT_FLOWER,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
-            at=Bitmask(0x09BD00, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Chest",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.LUNCH_BOX,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BCFE, 0x80),
         ),
-        # The two following ones cannot be deterministicaly identified
         ItemLocData(
-            "Kokka Egg after the Fog 1",
+            "Kokka Egg near the door",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+            at=Bitmask(0x09BCFF, 0x08),
         ),
         ItemLocData(
-            "Kokka Egg after the Fog 2", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, x=2560, y=65010
-        ),  # This one can be grabbed in Forest of All Beginnings part 1 or part 2 depending on the player movements
+            "Kokka Egg on top of Ol' Pond Hut",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.CHICK,
+            at=Bitmask(0x09BCFF, 0x10),
+        ),
         ItemLocData(
             "Kokka Egg near the Top",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_2,
-            3000,
-            64415,
+            at=Bitmask(0x09BD01, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Chest near the Hut",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHARITY_WINGS,
             Sections.FOREST_OF_ALL_BEGINNING_PART_2,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD02, 0x20),
         ),
-        ItemLocData("1Up", Regions.FOREST_OF_ALL_BEGINNINGS, Items.ONE_UP, Sections.FOREST_OF_ALL_BEGINNING_PART_2),
+        ItemLocData(
+            "1Up",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.ONE_UP,
+            Sections.FOREST_OF_ALL_BEGINNING_PART_2,
+            at=Bitmask(0x09BD01, 0x10),
+        ),
         ItemLocData(
             "100 Year Old Reward",
             Regions.FOREST_OF_ALL_BEGINNINGS,
@@ -290,7 +302,7 @@ class LocationHandler:
         ItemLocData("AP Box", Regions.OL_POND, Items.CHEESE, Sections.OL_POND),
         ItemLocData("1Up 1", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND),
         ItemLocData("1Up 2", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Chest",
             Regions.OL_POND,
             Items.TEN_THOUSAND_YEAR_OLD_BELL,
@@ -302,6 +314,7 @@ class LocationHandler:
                 | Has(Items.PSYCHIC_FISH)
                 | (Has(Items.BLUE_POWDER) & Rules.CAN_REACH_MUSHROOM_FOREST)
             ),
+            at=Bitmask(0x09BD02, 0x20),
         ),
         # Forest of 100 Flowers
         *[
@@ -313,40 +326,40 @@ class LocationHandler:
             )
             for index in range(1, 26)
         ],
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.FOREST_OF_100_FLOWERS,
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_100_FLOWERS,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1C, 0x01),
         ),
         ItemLocData(
             Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1,
             Regions.FOREST_OF_100_FLOWERS,
             Items.CHARITY_WINGS,
             Sections.FOREST_OF_100_FLOWERS,
-            x=1427,
-            y=65345,
+            at=Bitmask(0x09BD1D, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2,
             Regions.FOREST_OF_100_FLOWERS,
             Items.CHARITY_WINGS,
             Sections.FOREST_OF_100_FLOWERS,
-            x=1427,
-            y=65345,
+            at=Bitmask(0x09BD1D, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "On Top of the Spikes",
             Regions.FOREST_OF_100_FLOWERS,
             Items.WOOD_BOOMERANG,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1C, 0x20),
         ),
         # Watch Tower
-        ItemLocData(
+        ChestLocData(
             "1Up 1",
             Regions.WATCH_TOWER,
             Items.ONE_UP,
@@ -354,7 +367,7 @@ class LocationHandler:
             at=Bitmask(0x09BD1F, 0x08),
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 2",
             Regions.WATCH_TOWER,
             Items.ONE_UP,
