@@ -30,8 +30,8 @@ class Bitmask:
         address: int,
         mask: int | None = None,
         position: int | None = None,
-        on_checked: bool = False,
-        target_value: bool = False,
+        on_checked: bool = True,
+        target_value: bool = True,
     ):
         assert mask is not None or position is not None
 
@@ -58,3 +58,8 @@ class Bitmask:
             return 1 << (7 - position)
 
         return 1 << position
+
+
+def reverse(hex: str) -> str:
+    """Reverse HEX string"""
+    return "".join([hex[i : i + 2] for i in range(0, len(hex), 2)][::-1])

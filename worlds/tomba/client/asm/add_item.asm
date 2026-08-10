@@ -61,12 +61,15 @@ LOOP:
 
 DONE:
     # Save the updated STACK counter back to memory
-    sb    $t1, 0xB3F0($t0)  # Update memory at 0x8000B3F0
+    sb          $t1, 0xB3F0($t0)  # Update memory at 0x8000B3F0
+
+    addiu       $v1, $zero, -0x01
+    addiu       $v0, $zero, 0x01
 
     # RETURN
-    lw         ra,0x20(sp)
-    lw         s1,0x1C(sp)
-    lw         s0,0x18(sp)
-    addiu      sp,sp,0x28
-    jr         ra
+    lw          ra,0x20(sp)
+    lw          s1,0x1C(sp)
+    lw          s0,0x18(sp)
+    addiu       sp,sp,0x28
+    jr          ra
     nop

@@ -42,3 +42,26 @@ class Rules:
         | Has(Items.PSYCHIC_FISH)
         | (Has(Items.BLUE_POWDER) & HasStarted(Events.TO_PHOENIX_MOUNTAIN))
     )
+
+
+def codify(name: str) -> str:
+    """Transform string into acceptable codified version"""
+    name = name.lower()
+    name = name.replace("10,000", "ten_thousand")
+    name = name.replace("1,000", "thousand")
+    name = name.replace("100", "hundred")
+    name = name.replace(".", "")
+    name = name.replace("!", "")
+    name = name.replace("'", "")
+    name = name.replace("?", "")
+    name = name.replace("+", "")
+    name = name.replace("-", "")
+    name = name.replace(",", "")
+    name = name.replace("=", "")
+    name = name.replace("(", "")
+    name = name.replace(")", "")
+    name = name.replace("    ", "_")
+    name = name.replace("   ", "_")
+    name = name.replace("  ", "_")
+    name = name.replace(" ", "_")
+    return name

@@ -47,7 +47,12 @@ class TombaWorld(World):
 
     def fill_slot_data(self) -> Mapping[str, Any]:
         slot_data = self.options.as_dict(
-            "bell_warp", "keep_blackjack", "emulator", "optional_randomized", "non_inventory_chests_randomized", "cleared_event_rewards"
+            "bell_warp",
+            "keep_blackjack",
+            "emulator",
+            "optional_randomized",
+            "bonus_chests_randomized",
+            "cleared_event_rewards",
         )
 
         slot_data["world_version"] = self.world_version.as_simple_string()

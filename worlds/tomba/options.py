@@ -44,14 +44,15 @@ class OptionalItemsRandomized(DefaultOnToggle):
     display_name = "Optional randomized ?"
 
 
-class  NonInventoryItemChestsRandomized(DefaultOnToggle):
+class BonusChestsRandomized(DefaultOnToggle):
     """
     Toggle if chests containing AP Crystals or Apples, should give a random item too.
     If this is on: Picking the AP Crystals/Apples from these chests will also give a randomized item too
     If this is off: Picking the AP Crystals/Apples from these chests will NOT give a randomized item too.
     """
 
-    display_name = "Non-Inventory Item Chests randomized ?"
+    display_name = "Bonus Chests randomized ?"
+
 
 class ClearedLocation(DefaultOnToggle):
     """
@@ -69,5 +70,5 @@ class TombaOptions(PerGameCommonOptions):
     bell_warp: BellWarp
     keep_blackjack: KeepBlackjack
     optional_randomized: OptionalItemsRandomized
-    non_inventory_chests_randomized: NonInventoryItemChestsRandomized
+    bonus_chests_randomized: BonusChestsRandomized
     cleared_event_rewards: ClearedLocation

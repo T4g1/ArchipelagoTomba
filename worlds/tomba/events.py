@@ -51,7 +51,7 @@ class EventHandler:
             0x02, Events.CLEAR_THE_FOG, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.FURIOUS_TORNADO)
         ),
         EventData(0x03, Events.TAKE_ME_HOME, Regions.OL_POND, started_rule=Rules.CAN_BREAK_STUFF),
-        # EventData(0x04, Events.MOTOCROSS_COURSE, Regions.),
+        EventData(0x04, Events.MOTOCROSS_COURSE, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.FUEL_BAR)),
         EventData(
             0x05,
             Events.WHO_ARE_YOU,
@@ -259,7 +259,7 @@ class EventHandler:
             Regions.OLD_TREE_HILL,
             cleared_rule=HasStarted(Events.THE_5_GOLDEN_ITEMS),
         ),
-        EventData(0x3F, Events.THE_PUMPS_ROCKS, Regions.OLD_TREE_HILL),
+        EventData(0x3F, Events.THE_PUMPS_ROCK, Regions.OLD_TREE_HILL),
         EventData(0x40, Events.A_REFRESHING_DRINK, Regions.MASAKARI_JUNGLE, cleared_rule=Has(Items.BANANA_JUICE)),
         EventData(
             0x41,
@@ -632,7 +632,7 @@ class EventHandler:
         ),
         EventData(
             0xA0,
-            Events.THE_REAL_EVIL_PIG,
+            Events.A_REAL_EVIL_PIG,
             Regions.THE_STRANGE_SMALL_ROOM,
             started_rule=HasCleared(Events.MILLION_YEAR_OLD_WISH),
             cleared_rule=HasCleared(Events.SEVEN_FRIENDS),
@@ -714,7 +714,12 @@ class EventHandler:
             Regions.WOBBLY_WHARF,
             cleared_rule=HasCleared(Events.WHATS_UNDERWATER) & Rules.CAN_LIGHT_BREAK_STUFF,
         ),
-        EventData(0xB5, Events.READY_SET_GO, Regions.STORMY_MOUNTAIN, started_rule=HasCleared(Events.THE_GREAT_ESCAPE)),
+        EventData(
+            0xB5,
+            Events.READY_SET_GO,
+            Regions.STORMY_MOUNTAIN,
+            started_rule=HasCleared(Events.THE_GREAT_ESCAPE) & HasCleared(Events.LOOK_AND_SEE),
+        ),
         EventData(
             0xB6,
             Events.A_MAGIC_MIRROR,

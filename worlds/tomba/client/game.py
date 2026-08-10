@@ -7,14 +7,7 @@ if TYPE_CHECKING:
 
 from CommonClient import logger
 
-from ..constants import (
-    GameState,
-    HudState,
-    MenuState,
-    CustomCommand,
-    Addresses,
-    Screens,
-)
+from ..constants import GameState, HudState, MenuState, CustomCommand, Addresses, Screens, Regions
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
@@ -162,14 +155,30 @@ class TombaGame:
 
         return hud_visibility == HudState.VISIBLE and hud_visibility_timer == HudState.VISIBLE
 
-    def check_safe_gameplay(self):
-        return self.status == GameState.PLAYING or self.status == GameState.NO_HUD
+    async def is_playing(self):
+        status = await self.get_status()
+        return status == GameState.PLAYING or status == GameState.NO_HUD
+
+    async def is_in_menu(self):
+        status = await self.get_status()
+        return status == GameState.IN_MENU
+
+    async def has_game_in_progress(self):
+        status = await self.get_status()
+        return status == GameState.IN_MENU or status == GameState.PLAYING or status == GameState.NO_HUD
 
     async def patch_game(self):
         await self.patcher.patch_game()
 
+        status = await self.get_status()
+        if status == GameState.IN_MENU:
+            await self.check_inventory_patch()
+
     async def check_inventory_patch(self):
         # Patch only if the menu is fully loaded
+        if not await self.is_in_menu():
+            return
+
         if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
             return
 
@@ -181,29 +190,33 @@ class TombaGame:
             return
 
         # Patch only if its unpurified
-        if self.section == Sections.CHARITY_SQUARE_PURIFIED:
+        if self.section != Sections.CHARITY_SQUARE or await self.warp_hanlder.is_purified(
+            Regions.FOREST_OF_100_FLOWERS
+        ):
             return
 
         await self.patcher.patch_inventory_flower_tears()
 
-    async def update_status(self):
+    async def get_status(self) -> GameState:
+        """Called when needed in order to always have the most updated status"""
         screen = await self.get_screen_state()
-        self.screen = screen
+        status = GameState.UNKNOWN
 
         if screen == Screens.GAME_SCREEN:
             if await self.get_menu_state() == MenuState.OPEN:
-                self.status = GameState.IN_MENU
-                await self.check_inventory_patch()
+                status = GameState.IN_MENU
             elif await self.is_hud_visible():
-                self.status = GameState.PLAYING
+                status = GameState.PLAYING
             elif await self.inventory_handler.is_accessible():
-                self.status = GameState.NO_HUD
+                status = GameState.NO_HUD
             else:
-                self.status = GameState.CUTSCENE
+                status = GameState.CUTSCENE
         elif screen == Screens.OPTION_SCREEN:
-            self.status = GameState.OPTIONS
+            status = GameState.OPTIONS
         elif screen == Screens.TRAILER_SCREEN or screen == Screens.TITLE_SCREEN:
-            self.status = GameState.TITLE
+            status = GameState.TITLE
+
+        return status
 
     async def update_section(self):
         area_id = (await self.playstation.async_read_memory(Addresses.SELECTED_AREA))[0]
@@ -220,29 +233,23 @@ class TombaGame:
 
     async def update_locations(self):
         """Process all locations and reset game objects if needed"""
-        if self.screen != Screens.GAME_SCREEN:
+        if not await self.has_game_in_progress():
             return
-            
-        # Check non-inventory locations (AP Crystals and Apples)
-        if self.ctx.slot_data["non_inventory_chests_randomized"]:
-            for location in LocationHandler.with_bitmask:
-                if (
-                    not location.non_inventory
-                    or location.id in self.ctx.checked_locations
-                ):
-                    continue
-
-                assert location.at is not None
-
-                current_byte = (await self.playstation.async_read_memory(location.at.address))[0]
-                is_checked = bool(current_byte & location.at.mask)
-
-                if is_checked:
-                    await self.ctx.check_locations([location.id])
 
         # TODO: Read memory region, localy set flags and write results: 2 calls instead of len(list) * 2
+
+        checks = []
         for location in LocationHandler.with_bitmask:
             assert location.at is not None
+
+            # Check locations that were checked in game
+            if location.id in self.ctx.missing_locations:
+                if await self.playstation.get_flag(location.at.address, location.at.mask):
+                    checks.append(location.id)
+
+            await self.ctx.check_locations(checks)
+
+            # Align checked location and game state
             if not self.section.equals(location.section):
                 if location.at.on_cheked:
                     if location.id in self.ctx.checked_locations:
