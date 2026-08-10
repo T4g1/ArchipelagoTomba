@@ -75,6 +75,7 @@ class Sections(Section):
     CHARITY_SQUARE_PURIFIED = Section(0x07, 0x04)
 
     MUSHROOM_FOREST = Section(0x09, 0x00)
+    MANSION = Section(0x09, 0x03)
 
     MASAKARI_JUNGLE = Section(0x0A, 0x00)
     MASAKARI_RIVER = Section(0x0A, 0x01)
