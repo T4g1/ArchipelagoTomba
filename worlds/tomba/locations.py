@@ -1595,36 +1595,36 @@ class LocationHandler:
             & Has(Items.GOLDEN_FRUIT),
         ),
         # Underground Maze Entrance
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Cheese",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1440,
-            y=64386,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "Needlegator Teeth",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.NEEDLEGATOR_TEETH,
             Sections.UNDERGROUND_MAZE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "Medecine",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.COLD_MEDECINE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Cheese",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1083,
-            y=65128,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x02),
         ),
         ChestLocData(
             "Million Year Old AP Crystal",
@@ -1642,145 +1642,118 @@ class LocationHandler:
         #   Sections.UNDERGROUND_MAZE,
         #   rule=Has(Locations.AP_500_000)
         # ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Cheese 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1149,
-            y=64562,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Cheese 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1149,
-            y=64562,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Lunch",
             Regions.UNDERGROUND_MAZE,
             Items.LUNCH_BOX,
             Sections.UNDERGROUND_MAZE,
-            x=1202,
-            y=64551,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Claw",
             Regions.UNDERGROUND_MAZE,
             Items.KOKKA_CLAW,
             Sections.UNDERGROUND_MAZE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "Butamashi Thorn",
             Regions.UNDERGROUND_MAZE,
             Items.BUTAMUSHI_THORN,
             Sections.UNDERGROUND_MAZE,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Wing 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=816,
-            y=65091,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Wing 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=816,
-            y=65091,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Cheese 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=630,
-            y=64934,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Cheese 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=630,
-            y=64934,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Wing 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=549,
-            y=64739,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Wing 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=549,
-            y=64739,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Lunch",
             Regions.UNDERGROUND_MAZE,
             Items.LUNCH_BOX,
             Sections.UNDERGROUND_MAZE,
-            x=472,
-            y=64707,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "Biting Plant Flower",
             Regions.UNDERGROUND_MAZE,
             Items.BITING_PLANT_FLOWER,
             Sections.UNDERGROUND_MAZE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "Near the Small Strange Room 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=240,
-            y=64380,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x02),
         ),
-        # TODO: The two commented locations here are not always provided
-        # ItemLocData(
-        #     "Near the Small Strange Room 2",
-        #     Regions.UNDERGROUND_MAZE,
-        #     Items.CHEESE,
-        #     Sections.UNDERGROUND_MAZE,
-        #     x=240,
-        #     y=64380,
-        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        # ),
-        # ItemLocData(
-        #     "Near the Small Strange Room 3",
-        #     Regions.UNDERGROUND_MAZE,
-        #     Items.CHEESE,
-        #     Sections.UNDERGROUND_MAZE,
-        #     x=240,
-        #     y=64380,
-        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        # ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
         # TODO: Find where this is called in game (reverse)
@@ -1808,30 +1781,37 @@ class LocationHandler:
             "Flying Wing Leftmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
-            Section(0x06, 0x00),
-            x=1612,
-            y=64956,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBD, 0x10),
         ),
         ItemLocData(
             "Flying Wing Rightmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
-            Section(0x06, 0x00),
-            x=2280,
-            y=65028,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBD, 0x40),
         ),
         ItemLocData(
-            "In the House", Regions.THE_MERMAIDS_SINGING_ROCK, Items.CHARITY_WINGS, Section(0x06, 0x00), x=3158, y=65328
+            "In the House",
+            Regions.THE_MERMAIDS_SINGING_ROCK,
+            Items.CHARITY_WINGS,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBD, 0x02),
         ),
         ItemLocData(
             "In the back House",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
-            Section(0x06, 0x00),
-            x=3260,
-            y=65303,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBE, 0x01),
         ),
-        ItemLocData("Lunch Box", Regions.THE_MERMAIDS_SINGING_ROCK, Items.LUNCH_BOX, Section(0x06, 0x00)),
+        ItemLocData(
+            "Lunch Box",
+            Regions.THE_MERMAIDS_SINGING_ROCK,
+            Items.LUNCH_BOX,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBC, 0x20),
+        ),
         *take_out_event_locations,
     ]
 
