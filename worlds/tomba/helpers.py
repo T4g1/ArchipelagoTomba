@@ -20,6 +20,10 @@ def HasCleared(event_name: str):
 
 
 class Rules:
+    CAN_REACH_MUSHROOM_FOREST = HasStarted(Events.TO_PHOENIX_MOUNTAIN)
+    HAS_ANY_FISH = Has(Items.SACRED_FISH) | Has(Items.PSYCHIC_FISH)
+    HAS_ANY_JEWEL = Has(Items.JEWEL_OF_FIRE) | Has(Items.JEWEL_OF_WATER) | Has(Items.JEWEL_OF_WIND)
+    HAS_BLUE_POWDER = Has(Items.BLUE_POWDER) & CAN_REACH_MUSHROOM_FOREST
     CAN_GRAPPLE = Has(Items.GRAPPLE) | Has(Items.GRAPPLEJACK)
     CAN_LIGHT_BREAK_STUFF = Has(Items.BLACKJACK) | Has(Items.WOOD_BOOMERANG)
     CAN_BREAK_STUFF = (
@@ -38,9 +42,8 @@ class Rules:
         | Has(Items.FLASH_PANTS)
         | Has(Items.DASHING_PANTS)
         | Has(Items.JUMPING_PANTS)
-        | Has(Items.SACRED_FISH)
-        | Has(Items.PSYCHIC_FISH)
-        | (Has(Items.BLUE_POWDER) & HasStarted(Events.TO_PHOENIX_MOUNTAIN))
+        | HAS_ANY_FISH
+        | HAS_BLUE_POWDER
     )
 
 
