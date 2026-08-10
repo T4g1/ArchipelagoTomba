@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, ClassVar, Self
+from enum import IntEnum
 
 from collections import defaultdict
 from dataclasses import dataclass
@@ -25,6 +26,12 @@ def get_name(name: str, region: str):
     return f"{name} ({region})"
 
 
+class LocationType(IntEnum):
+    PICKUP = 0
+    REWARD = 1
+    CHEST = 2
+
+
 @dataclass
 class LocationData:
     _id_counter: ClassVar[int] = 1  # ID 0 is reserved
@@ -37,6 +44,7 @@ class LocationData:
     sections: Section | None
     rule: Rule | None
     at: Bitmask | None
+    type: LocationType
 
     def __init__(
         self,
@@ -47,6 +55,7 @@ class LocationData:
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
+        type: LocationType = LocationType.PICKUP,
     ):
         self.id = LocationData._id_counter
         LocationData._id_counter += 1
@@ -58,10 +67,17 @@ class LocationData:
         self.section = section
         self.rule = rule
         self.at = at
+        self.type = type
 
     def with_section(self, section: Section) -> Self:
         self.section = section
         return self
+
+    def is_bonus(self) -> bool:
+        return self.item is not None and self.item.is_bonus()
+
+    def is_chest(self) -> bool:
+        return self.type is LocationType.CHEST
 
     def __repr__(self) -> str:
         return self.name
@@ -88,6 +104,7 @@ class ItemLocData(LocationData):
         rule: Rule | None = None,
         at: Bitmask | None = None,
         event: str | None = None,
+        type: LocationType = LocationType.PICKUP,
     ):
         self.base_name = name
 
@@ -97,7 +114,7 @@ class ItemLocData(LocationData):
         if item is None:
             raise Exception(f"Trying to create a location {name} with an unknown item: {item_name}")
 
-        super().__init__(name, region, item, section, progress_type, rule, at)
+        super().__init__(name, region, item, section, progress_type, rule, at, type)
 
         self.x = x
         self.y = y
@@ -116,6 +133,23 @@ class ItemLocData(LocationData):
 
         distance = (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
         return distance
+
+
+@dataclass
+class ChestLocData(ItemLocData):
+    def __init__(
+        self,
+        name: str,
+        region: str,
+        item_name: str,
+        section: Section | None = None,
+        x: int | None = None,
+        y: int | None = None,
+        progress_type: LocationProgressType = LocationProgressType.DEFAULT,
+        rule: Rule | None = None,
+        at: Bitmask | None = None,
+    ):
+        super().__init__(name, region, item_name, section, x, y, progress_type, rule, at, type=LocationType.CHEST)
 
 
 class LocationHandler:
@@ -173,7 +207,7 @@ class LocationHandler:
             Locations.MAILBOX,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.FURIOUS_TORNADO,
-            at=Bitmask(0x09BCEC, 0x01, on_checked=True, target_value=True),
+            at=Bitmask(0x09BCEC, 0x01),
         ),
         ItemLocData("Peach Flower Gas", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.BABY_PIG),
         ItemLocData(
@@ -338,6 +372,13 @@ class LocationHandler:
             "Win the Race", Regions.WATCH_TOWER, Items.SILVER_POWDER, rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT)
         ),
         # Wobbly Wharf
+        ChestLocData(
+            "100 Year Old Apples",
+            Regions.WOBBLY_WHARF,
+            Items.APPLE,
+            # rule=Has(Items.HUNDRED_YEAR_OLD_KEY), # This chest does not require a key
+            at=Bitmask(0x09BD23, 0x01),
+        ),
         ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
         # Dwarf Village
         ItemLocData(
@@ -361,6 +402,13 @@ class LocationHandler:
         ),
         ItemLocData(Locations.JAIL, Regions.DWARF_VILLAGE, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
         # Mushroom Forest
+        ChestLocData(
+            "100 Year Old AP Crystal",
+            Regions.MUSHROOM_FOREST,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1E, 0x80),
+        ),
         ItemLocData("AP Box", Regions.MUSHROOM_FOREST, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
         ItemLocData("Tear Jar", Regions.MUSHROOM_FOREST, Items.TEAR_JAR, rule=HasCleared(Events.THE_100_FLOWER_FOREST)),
         ItemLocData(
@@ -461,6 +509,20 @@ class LocationHandler:
         ),
         ItemLocData(Locations.MONSTER_HUNT, Regions.MUSHROOM_FOREST, Items.RISE_AND_SHINE_POWDER),
         # Charity Square
+        ChestLocData(
+            "10,000 Year Old AP Crystal",
+            Regions.CHARITY_SQUARE,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1F, 0x02),
+        ),
+        ChestLocData(
+            "1,000 Year Old AP Crystal",
+            Regions.CHARITY_SQUARE,
+            Items.AP_CRYSTAL,
+            at=Bitmask(0x09BD1F, 0x01),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        ),
         ItemLocData("Sacred Fish", Regions.CHARITY_SQUARE, Items.SACRED_FISH, rule=HasCleared(Events.THE_FLOWER_TOWER)),
         ItemLocData("Crystal Balls", Regions.CHARITY_SQUARE, Items.THREE_CRYSTAL_BALLS, rule=Rules.CAN_BIG_JUMP),
         ItemLocData(
@@ -498,6 +560,29 @@ class LocationHandler:
             y=65005,
         ),
         # Mansion
+        # If Animal Dash is added to the item pool, this will conflict with it
+        # ChestLocData(
+        #     "100 Year Old AP Crystal",
+        #     Regions.MANSION,
+        #     Items.AP_CRYSTAL,
+        # 	rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+        #     at=Bitmask(0x09BE1C, 0x40),
+        # ),
+        # Conflicts with the Funky Parasol
+        # ChestLocData(
+        #     "1,000 Year Old AP Crystal",
+        #     Regions.MANSION,
+        #     Items.AP_CRYSTAL,
+        # 	rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+        #     at=Bitmask(0x09BE1C, 0x80),
+        # ),
+        ChestLocData(
+            "10,000 Year Old AP Crystals",
+            Regions.MANSION,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1D, 0x01),
+        ),
         ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
         # Stormy Mountain
         ItemLocData(
@@ -861,6 +946,14 @@ class LocationHandler:
         ),
         ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
         # Haunted Mansion
+        ChestLocData(
+            "100 Year Old Apples",
+            Regions.HAUNTED_MANSION,
+            Items.APPLE,
+            Section(0x04, 0x0C),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x10),
+        ),
         ItemLocData(
             Locations.VITALITY_INCREASE,
             Regions.HAUNTED_MANSION,
@@ -1025,6 +1118,13 @@ class LocationHandler:
         ),
         ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
         # Old Tree Hill
+        ChestLocData(
+            "Million Year Old AP Crystal",
+            Regions.OLD_TREE_HILL,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x08),
+        ),
         ItemLocData("Old Tree", Regions.OLD_TREE_HILL, Items.KNOWLEDGE_FRUIT),
         ItemLocData(
             "Navy Evil Pig Bag",
@@ -1071,6 +1171,13 @@ class LocationHandler:
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
         ),
         # Trick Village
+        ChestLocData(
+            "10,000 Year Old AP Crystal",
+            Regions.TRICK_VILLAGE,
+            Items.AP_CRYSTAL,
+            rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE41, 0x10),
+        ),
         ItemLocData(
             Locations.VITALITY_INCREASE,
             Regions.TRICK_VILLAGE,
@@ -1219,6 +1326,13 @@ class LocationHandler:
             x=1083,
             y=65128,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+        ),
+        ChestLocData(
+            "Million Year Old AP Crystal",
+            Regions.UNDERGROUND_MAZE,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x01),
         ),
         # Underground Maze
         # # TODO: Find where this is called in game (reverse)
@@ -1506,9 +1620,13 @@ def create_all_locations(world: TombaWorld) -> None:
 
 def create_regular_locations(world: TombaWorld) -> None:
     for name, locations in LocationHandler.by_region.items():
-        # Cleared location are already in events
+        # Settings: Remove cleared event from locations
         if not world.options.cleared_event_rewards:
             locations = [location for location in locations if isinstance(location, ItemLocData)]
+
+        # Settings: Remove bonus chests from locations
+        if not world.options.bonus_chests_randomized:
+            locations = [location for location in locations if not location.is_bonus() or not location.is_chest()]
 
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)

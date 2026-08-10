@@ -237,8 +237,19 @@ class TombaGame:
             return
 
         # TODO: Read memory region, localy set flags and write results: 2 calls instead of len(list) * 2
+
+        checks = []
         for location in LocationHandler.with_bitmask:
             assert location.at is not None
+
+            # Check locations that were checked in game
+            if location.id in self.ctx.missing_locations:
+                if await self.playstation.get_flag(location.at.address, location.at.mask):
+                    checks.append(location.id)
+
+            await self.ctx.check_locations(checks)
+
+            # Align checked location and game state
             if not self.section.equals(location.section):
                 if location.at.on_cheked:
                     if location.id in self.ctx.checked_locations:

@@ -44,6 +44,16 @@ class OptionalItemsRandomized(DefaultOnToggle):
     display_name = "Optional randomized ?"
 
 
+class BonusChestsRandomized(DefaultOnToggle):
+    """
+    Toggle if chests containing AP Crystals or Apples, should give a random item too.
+    If this is on: Picking the AP Crystals/Apples from these chests will also give a randomized item too
+    If this is off: Picking the AP Crystals/Apples from these chests will NOT give a randomized item too.
+    """
+
+    display_name = "Bonus Chests randomized ?"
+
+
 class ClearedLocation(DefaultOnToggle):
     """
     Toggle if event cleared should count as a location check or not
@@ -60,4 +70,5 @@ class TombaOptions(PerGameCommonOptions):
     bell_warp: BellWarp
     keep_blackjack: KeepBlackjack
     optional_randomized: OptionalItemsRandomized
+    bonus_chests_randomized: BonusChestsRandomized
     cleared_event_rewards: ClearedLocation

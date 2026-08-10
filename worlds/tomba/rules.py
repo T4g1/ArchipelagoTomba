@@ -19,11 +19,13 @@ def set_all_rules(world: TombaWorld) -> None:
 
 
 def integrity_checks():
-    bypass_integrity_checks = [Items.LEAF_BUTTERFLY]
+    bypass_integrity_checks = [Items.LEAF_BUTTERFLY, Items.AP_CRYSTAL, Items.APPLE]
 
     used_names = []
 
     for location in LocationHandler.location_table:
+        if getattr(location, "non_inventory", False):
+            continue
         if location.item is None:
             if Started(location.name) in used_names:
                 raise Exception(f"Trying to re-use the location name {Started(location.name)}")
@@ -44,7 +46,7 @@ def integrity_checks():
         # Make sure that every location that has a countable items has AREA and SECTION set
         if location.item.countable:
             has_coordinates = isinstance(location, ItemLocData) and location.x is not None and location.y is not None
-            if location.section is None and not has_coordinates:
+            if location.section is None and not has_coordinates and location.at is None:
                 raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
@@ -87,8 +89,12 @@ def set_all_entrance_rules(_: TombaWorld) -> None:
 
 def set_all_location_rules(world: TombaWorld) -> None:
     for location in LocationHandler.location_table:
+        world_location = world.get_location(location.name)
+        if world_location is None:
+            continue
+
         if location.rule is not None:
-            world.set_rule(world.get_location(location.name), location.rule)
+            world.set_rule(world_location, location.rule)
 
 
 def set_completion_condition(world: TombaWorld) -> None:
