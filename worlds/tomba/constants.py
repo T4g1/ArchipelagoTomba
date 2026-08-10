@@ -77,7 +77,7 @@ class Regions(str):
     VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
     VILLAGE_OF_CIVILIZATION = "Village Of Civilization"
     WATCH_TOWER = "Watch Tower"
-    WOBBLY_WHARF = "Whobbly Warf"
+    WOBBLY_WHARF = "Wobbly Warf"
     Y_CROSSING = "Y-crossing"
 
 

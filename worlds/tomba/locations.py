@@ -175,6 +175,15 @@ class LocationHandler:
 
     location_table: list[LocationData] = [
         # Village of all Beginnings
+        # TODO: Find where this is called in game (reverse)
+        # Not yet working. This Max Vit+1 is given by the Witch after giving her the Cold Medicine which clears the event Take Two of These
+        # ItemLocData(
+        # Locations.VITALITY_INCREASE,
+        # Regions.VILLAGE_OF_ALL_BEGINNINGS,
+        # Items.MAX_VITALITY_1,
+        # Section(0x12, 0x02),
+        # rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.COLD_MEDECINE),
+        # ),
         ItemLocData(
             "What the Witch Lost",
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
@@ -228,6 +237,7 @@ class LocationHandler:
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "Biting Plant",
@@ -284,7 +294,14 @@ class LocationHandler:
             "10,000 Year Old Chest",
             Regions.OL_POND,
             Items.TEN_THOUSAND_YEAR_OLD_BELL,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY) & Rules.CAN_SWIM,
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
+            & (
+                Rules.CAN_SWIM
+                | Has(Items.FUNKY_PARASOL)
+                | Has(Items.SACRED_FISH)
+                | Has(Items.PSYCHIC_FISH)
+                | (Has(Items.BLUE_POWDER) & Rules.CAN_REACH_MUSHROOM_FOREST)
+            ),
         ),
         # Forest of 100 Flowers
         *[
@@ -301,6 +318,7 @@ class LocationHandler:
             Regions.FOREST_OF_100_FLOWERS,
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_100_FLOWERS,
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData(
             Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)
@@ -334,6 +352,7 @@ class LocationHandler:
             Items.ONE_UP,
             Sections.WATCH_TOWER,
             at=Bitmask(0x09BD1F, 0x08),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "1Up 2",
@@ -341,6 +360,7 @@ class LocationHandler:
             Items.ONE_UP,
             Sections.WATCH_TOWER,
             at=Bitmask(0x09BD1F, 0x08),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
         ItemLocData(Locations.TELESCOPE, Regions.WATCH_TOWER, Items.TELESCOPE),
         ItemLocData("Push the Boulder", Regions.WATCH_TOWER, Items.DIRTY_MIRROR),
@@ -362,7 +382,7 @@ class LocationHandler:
             Regions.WATCH_TOWER,
             Items.LARGE_LUNCH_BOX,
             Section(0x01, 0x03),
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "Million Year Chest", Regions.WATCH_TOWER, Items.MILLION_YEAR_OLD_BELL, rule=Has(Items.MILLION_YEAR_OLD_KEY)
@@ -381,6 +401,15 @@ class LocationHandler:
         ),
         ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
         # Dwarf Village
+        # TODO: Find where this is called in game (reverse)
+        # Not yet working. This Max Vit+1 is given by the lady after giving her the Baked Yam which clears the event Something's Cooking
+        # ItemLocData(
+        # Locations.VITALITY_INCREASE,
+        # Regions.DWARF_VILLAGE,
+        # Items.MAX_VITALITY_1,
+        # Section(0x02, 0x00),
+        # rule=HasCleared(Events.SOMETHINGS_COOKIN),
+        # ),
         ItemLocData(
             Locations.BARON,
             Regions.DWARF_VILLAGE,
@@ -465,7 +494,7 @@ class LocationHandler:
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
             x=3493,
             y=64691,
         ),
@@ -474,7 +503,7 @@ class LocationHandler:
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
             x=3142,
             y=64896,
         ),
@@ -524,12 +553,24 @@ class LocationHandler:
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData("Sacred Fish", Regions.CHARITY_SQUARE, Items.SACRED_FISH, rule=HasCleared(Events.THE_FLOWER_TOWER)),
-        ItemLocData("Crystal Balls", Regions.CHARITY_SQUARE, Items.THREE_CRYSTAL_BALLS, rule=Rules.CAN_BIG_JUMP),
+        ItemLocData(
+            "Crystal Balls",
+            Regions.CHARITY_SQUARE,
+            Items.THREE_CRYSTAL_BALLS,
+            rule=Rules.CAN_BIG_JUMP
+            | Has(Items.WOOD_BOOMERANG)
+            | Has(Items.STONE_BOOMERANG)
+            | Has(Items.IRON_BOOMERANG)
+            | Has(Items.FUNKY_PARASOL)
+            | Has(Items.JEWEL_OF_FIRE)
+            | Has(Items.JEWEL_OF_WATER)
+            | Has(Items.JEWEL_OF_WIND),
+        ),
         ItemLocData(
             "1Up 1",
             Regions.CHARITY_SQUARE,
             Items.ONE_UP,
-            rule=Rules.CAN_GRAPPLE & Has(Items.MILLION_YEAR_OLD_KEY),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Has(Items.FUNKY_PARASOL)),
             x=2234,
             y=64757,
             at=Bitmask(0x09BD1F, 0x04),
@@ -538,7 +579,7 @@ class LocationHandler:
             "1Up 2",
             Regions.CHARITY_SQUARE,
             Items.ONE_UP,
-            rule=Rules.CAN_GRAPPLE & Has(Items.MILLION_YEAR_OLD_KEY),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Has(Items.FUNKY_PARASOL)),
             x=2234,
             y=64757,
             at=Bitmask(0x09BD1F, 0x04),
@@ -583,6 +624,30 @@ class LocationHandler:
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1D, 0x01),
         ),
+        ItemLocData(
+            "1Up 1",
+            Regions.MANSION,
+            Items.ONE_UP,
+            Section(0x09, 0x03),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1D, 0x02),
+        ),
+        ItemLocData(
+            "1Up 2",
+            Regions.MANSION,
+            Items.ONE_UP,
+            Section(0x09, 0x03),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1D, 0x02),
+        ),
+        ItemLocData(
+            "1Up 3",
+            Regions.MANSION,
+            Items.ONE_UP,
+            Section(0x09, 0x03),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1D, 0x02),
+        ),
         ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
         # Stormy Mountain
         ItemLocData(
@@ -603,14 +668,29 @@ class LocationHandler:
             "Million Year Old Chest",
             Regions.STORMY_MOUNTAIN,
             Items.IRON_BOOMERANG,
-            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY)
+            & (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_ANY_JEWEL
+                | Rules.HAS_BLUE_POWDER
+            ),
         ),
         ItemLocData(
             "1Up 1,000 Year Old 1",
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE & HasCleared(Events.PHOENIX_MOUNTAIN),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            & Rules.CAN_GRAPPLE
+            & (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_ANY_JEWEL
+                | Rules.HAS_BLUE_POWDER
+            ),
             x=1873,
             y=63832,
             at=Bitmask(0x09BD5C, 0x02),
@@ -620,7 +700,15 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE & HasCleared(Events.PHOENIX_MOUNTAIN),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            & Rules.CAN_GRAPPLE
+            & (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_ANY_JEWEL
+                | Rules.HAS_BLUE_POWDER
+            ),
             x=1873,
             y=63832,
             at=Bitmask(0x09BD5C, 0x02),
@@ -630,7 +718,22 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
+            & Rules.CAN_GRAPPLE
+            & (HasCleared(Events.PHOENIX_MOUNTAIN) & Rules.CAN_BIG_JUMP)
+            | (
+                HasCleared(Events.A_HUNGRY_MONKEY)
+                & (
+                    Has(Items.FLASH_PANTS)
+                    | Has(Items.DASHING_PANTS)
+                    | Has(Items.JUMPING_PANTS)
+                    | Has(Items.JEWEL_OF_FIRE)
+                    | Has(Items.JEWEL_OF_WATER)
+                )
+                | Has(Items.JEWEL_OF_WIND)
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_BLUE_POWDER
+            ),
             x=2618,
             y=63707,
             at=Bitmask(0x09BD5C, 0x04),
@@ -640,7 +743,22 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
+            & Rules.CAN_GRAPPLE
+            & (HasCleared(Events.PHOENIX_MOUNTAIN) & (Rules.CAN_BIG_JUMP | Rules.HAS_ANY_JEWEL | Rules.HAS_BLUE_POWDER))
+            | (
+                HasCleared(Events.A_HUNGRY_MONKEY)
+                & (
+                    Has(Items.FLASH_PANTS)
+                    | Has(Items.DASHING_PANTS)
+                    | Has(Items.JUMPING_PANTS)
+                    | Has(Items.JEWEL_OF_FIRE)
+                    | Has(Items.JEWEL_OF_WATER)
+                )
+                | Has(Items.JEWEL_OF_WIND)
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_BLUE_POWDER
+            ),
             x=2618,
             y=63707,
             at=Bitmask(0x09BD5C, 0x04),
@@ -653,7 +771,19 @@ class LocationHandler:
             x=3150,
             y=63708,
         ),
-        ItemLocData("Funga", Regions.STORMY_MOUNTAIN, Items.MOLASSES, rule=Has(Items.FUNGA_DRUM)),
+        ItemLocData(
+            "Funga",
+            Regions.STORMY_MOUNTAIN,
+            Items.MOLASSES,
+            rule=Has(Items.FUNGA_DRUM)
+            & (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_ANY_JEWEL
+                | Rules.HAS_BLUE_POWDER
+            ),
+        ),
         ItemLocData(
             "Dig",
             Regions.STORMY_MOUNTAIN,
@@ -675,7 +805,14 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.MAX_VITALITY_1,
             Sections.STORMY_MOUNTAINS_SECOND,
-            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY)
+            & (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                | Rules.CAN_BIG_JUMP
+                | Rules.CAN_GRAPPLE
+                | Rules.HAS_ANY_JEWEL
+                | Rules.HAS_BLUE_POWDER
+            ),
         ),
         ItemLocData("Big Keyhole", Regions.STORMY_MOUNTAIN, Items.RED_EVIL_PIG_BAG, rule=Has(Items.BIG_KEY)),
         ItemLocData("Herbs", Regions.STORMY_MOUNTAIN, Items.HEALING_HERBS),
@@ -683,7 +820,8 @@ class LocationHandler:
             "Give back the Pants",
             Regions.STORMY_MOUNTAIN,
             Items.FUNKY_PARASOL,
-            rule=Has(Items.CHARLES_PANTS) & Rules.CAN_BIG_JUMP,
+            rule=Has(Items.CHARLES_PANTS)
+            & (Rules.CAN_BIG_JUMP | Rules.CAN_GRAPPLE | Rules.HAS_ANY_JEWEL | HasCleared(Events.PHOENIX_MOUNTAIN)),
         ),
         ItemLocData(
             Locations.STORMY_MOUNTAIN_PANTS,
@@ -699,7 +837,23 @@ class LocationHandler:
             Sections.STORMY_MOUNTAINS_SECOND,
             x=5086,
             y=62932,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE
+            | (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                & (
+                    HasCleared(Events.A_HUNGRY_MONKEY)
+                    & (
+                        Has(Items.FLASH_PANTS)
+                        | Has(Items.DASHING_PANTS)
+                        | Has(Items.JUMPING_PANTS)
+                        | Has(Items.JEWEL_OF_FIRE)
+                        | Has(Items.JEWEL_OF_WATER)
+                    )
+                    | Has(Items.JEWEL_OF_WIND)
+                    | Rules.HAS_ANY_FISH
+                    | Rules.HAS_BLUE_POWDER
+                )
+            ),
             at=Bitmask(0x09BD5D, 0x20),
         ),
         ItemLocData(
@@ -709,7 +863,23 @@ class LocationHandler:
             Sections.STORMY_MOUNTAINS_SECOND,
             x=5086,
             y=62932,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE
+            | (
+                HasCleared(Events.PHOENIX_MOUNTAIN)
+                & (
+                    HasCleared(Events.A_HUNGRY_MONKEY)
+                    & (
+                        Has(Items.FLASH_PANTS)
+                        | Has(Items.DASHING_PANTS)
+                        | Has(Items.JUMPING_PANTS)
+                        | Has(Items.JEWEL_OF_FIRE)
+                        | Has(Items.JEWEL_OF_WATER)
+                    )
+                    | Has(Items.JEWEL_OF_WIND)
+                    | Rules.HAS_ANY_FISH
+                    | Rules.HAS_BLUE_POWDER
+                )
+            ),
             at=Bitmask(0x09BD5D, 0x20),
         ),
         ItemLocData(
@@ -745,7 +915,10 @@ class LocationHandler:
             "Bunk Flower 7", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2409, y=64400
         ),
         ItemLocData(
-            "Leave Hidden Village", Regions.LAVA_CAVES_PURIFIED, Items.WHAT_THE_THIEF_LOST, rule=Rules.CAN_GRAPPLE
+            "Leave Hidden Village",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.WHAT_THE_THIEF_LOST,
+            rule=Rules.CAN_GRAPPLE | Has(Items.LEAF_BUTTERFLY, 29),
         ),
         ItemLocData(
             Locations.VITALITY_INCREASE,
@@ -959,7 +1132,7 @@ class LocationHandler:
             Regions.HAUNTED_MANSION,
             Items.MAX_VITALITY_1,
             Sections.CIVILIZATION_ROOM,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData(
             "Unbreakable Wire", Regions.HAUNTED_MANSION, Items.STRONG_WIRE, rule=HasStarted(Events.UNBREAKABLE_WIRE)
@@ -1012,11 +1185,11 @@ class LocationHandler:
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
         ),
         ItemLocData(
-            "Millions Year Old Chest 1",
+            "Million Year Old Chest 1",
             Regions.HAUNTED_MANSION,
             Items.LARGE_LUNCH_BOX,
             Section(0x04, 0x04),
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
         ),
         ItemLocData(
             Locations.CRY_CHEESE_LEFT, Regions.HAUNTED_MANSION, Items.CHEESE, Sections.CRY_ROOM, x=160, y=65396
@@ -1114,7 +1287,19 @@ class LocationHandler:
             Regions.MASAKARI_JUNGLE,
             Items.LARGE_LUNCH_BOX,
             Section(0x0A, 0x00),
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY)
+            & (
+                Rules.CAN_GRAPPLE
+                | Has(Items.FUNKY_PARASOL)
+                | Has(Items.JEWEL_OF_WIND)
+                | Rules.HAS_ANY_FISH
+                | Rules.HAS_BLUE_POWDER
+                | (
+                    HasCleared(Events.A_HUNGRY_MONKEY) & Has(Items.FLASH_PANTS)
+                    | Has(Items.JEWEL_OF_FIRE)
+                    | Has(Items.JEWEL_OF_WATER)
+                )
+            ),
         ),
         ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
         # Old Tree Hill
@@ -1183,14 +1368,15 @@ class LocationHandler:
             Regions.TRICK_VILLAGE,
             Items.MAX_VITALITY_1,
             Sections.TRICK_VILLAGE,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
+            & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
         ),
         ItemLocData(
             "1Up 1",
             Regions.TRICK_VILLAGE,
             Items.ONE_UP,
             Sections.TRICK_VILLAGE,
-            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.MILLION_YEAR_OLD_KEY),
             x=1518,
             y=65390,
             at=Bitmask(0x09BE42, 0x02),
@@ -1200,7 +1386,7 @@ class LocationHandler:
             Regions.TRICK_VILLAGE,
             Items.ONE_UP,
             Sections.TRICK_VILLAGE,
-            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.MILLION_YEAR_OLD_KEY),
             x=1518,
             y=65390,
             at=Bitmask(0x09BE42, 0x02),
@@ -1215,7 +1401,8 @@ class LocationHandler:
             Section(0x0A, 0x03),
             x=713,
             y=65294,
-            rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
         ),
         ItemLocData(
             "Right 1,000 Wing",
@@ -1224,7 +1411,8 @@ class LocationHandler:
             Section(0x0A, 0x03),
             x=939,
             y=65194,
-            rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
         ),
         ItemLocData(
             "Rock Bottom",
@@ -1237,19 +1425,53 @@ class LocationHandler:
             "Yellow Pig Bag",
             Regions.TRICK_VILLAGE,
             Items.YELLOW_EVIL_PIG_BAG,
-            rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
+            & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
         ),
         ItemLocData("Math Bead 1", Regions.TRICK_VILLAGE, Items.MATH_BEAD_1, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 2", Regions.TRICK_VILLAGE, Items.MATH_BEAD_2, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 3", Regions.TRICK_VILLAGE, Items.MATH_BEAD_3, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 4", Regions.TRICK_VILLAGE, Items.MATH_BEAD_4, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 5", Regions.TRICK_VILLAGE, Items.MATH_BEAD_5, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 6", Regions.TRICK_VILLAGE, Items.MATH_BEAD_6, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 7", Regions.TRICK_VILLAGE, Items.MATH_BEAD_7, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 8", Regions.TRICK_VILLAGE, Items.MATH_BEAD_8, rule=HasCleared(Events.WHATS_UNDERWATER)),
-        ItemLocData("Math Bead 9", Regions.TRICK_VILLAGE, Items.MATH_BEAD_9, rule=HasCleared(Events.WHATS_UNDERWATER)),
         ItemLocData(
-            "Math Bead 10", Regions.TRICK_VILLAGE, Items.MATH_BEAD_10, rule=HasCleared(Events.WHATS_UNDERWATER)
+            "Math Bead 2",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_2,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE),
+        ),
+        ItemLocData("Math Bead 3", Regions.TRICK_VILLAGE, Items.MATH_BEAD_3, rule=HasCleared(Events.WHATS_UNDERWATER)),
+        ItemLocData(
+            "Math Bead 4",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_4,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | (HasCleared(Events.TRICK_VILLAGE) & Rules.CAN_SWIM),
+        ),
+        ItemLocData(
+            "Math Bead 5",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_5,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE),
+        ),
+        ItemLocData(
+            "Math Bead 6",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_6,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE),
+        ),
+        ItemLocData("Math Bead 7", Regions.TRICK_VILLAGE, Items.MATH_BEAD_7, rule=HasCleared(Events.WHATS_UNDERWATER)),
+        ItemLocData(
+            "Math Bead 8",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_8,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE),
+        ),
+        ItemLocData(
+            "Math Bead 9",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_9,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE),
+        ),
+        ItemLocData(
+            "Math Bead 10",
+            Regions.TRICK_VILLAGE,
+            Items.MATH_BEAD_10,
+            rule=HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE),
         ),
         ItemLocData(
             "Blue Jewel", Regions.TRICK_VILLAGE, Items.JEWEL_OF_WATER, rule=HasCleared(Events.WHATS_UNDERWATER)
@@ -1484,6 +1706,15 @@ class LocationHandler:
         # ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
+        # TODO: Find where this is called in game (reverse)
+        # Not yet working. This Max Vit+1 is given by the Mermaid after getting the Bronze Medal which clears the event I Want a Bronze Medal
+        # ItemLocData(
+        # Locations.VITALITY_INCREASE,
+        # Regions.THE_MERMAIDS_SINGING_ROCK,
+        # Items.MAX_VITALITY_1,
+        # Section(0x06, 0x02),
+        # rule=HasCleared(Events.I_WANT_A_BRONZE_MEDAL),
+        # ),
         ItemLocData(
             Locations.BRONZE_MEDAL,
             Regions.THE_MERMAIDS_SINGING_ROCK,
