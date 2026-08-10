@@ -1323,14 +1323,21 @@ class LocationHandler:
             "Green Jewel", Regions.PHOENIXS_NEST, Items.JEWEL_OF_WIND, rule=HasCleared(Events.THE_PHOENIXS_FAVORITE)
         ),
         # Masakari Jungle
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.MASAKARI_JUNGLE,
             Items.MAX_VITALITY_1,
             Sections.MASAKARI_JUNGLE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x02),
         ),
-        ItemLocData("Get the Drum", Regions.MASAKARI_JUNGLE, Items.FUNGA_DRUM, rule=Has(Items.HUNDRED_YEAR_OLD_KEY)),
+        ChestLocData(
+            "Get the Drum",
+            Regions.MASAKARI_JUNGLE,
+            Items.FUNGA_DRUM,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3D, 0x80),
+        ),
         *[
             ItemLocData(
                 f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY, Sections.MASAKARI_JUNGLE
@@ -1339,14 +1346,15 @@ class LocationHandler:
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
         ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
-        ItemLocData(
+        ChestLocData(
             Locations.MASAKARI_JUNGLE_PANTS,
             Regions.MASAKARI_JUNGLE,
             Items.FLASH_PANTS,
             Sections.MASAKARI_JUNGLE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest",
             Regions.MASAKARI_JUNGLE,
             Items.LARGE_LUNCH_BOX,
@@ -1364,6 +1372,7 @@ class LocationHandler:
                     | Has(Items.JEWEL_OF_WATER)
                 )
             ),
+            at=Bitmask(0x09BE3E, 0x04),
         ),
         ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
         # Old Tree Hill
@@ -1375,11 +1384,12 @@ class LocationHandler:
             at=Bitmask(0x09BE3E, 0x08),
         ),
         ItemLocData("Old Tree", Regions.OLD_TREE_HILL, Items.KNOWLEDGE_FRUIT),
-        ItemLocData(
+        ChestLocData(
             "Navy Evil Pig Bag",
             Regions.OLD_TREE_HILL,
             Items.NAVY_EVIL_PIG_BAG,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x10),
         ),
         # Clock Tower
         ItemLocData(Locations.MIXER, Regions.CLOCK_TOWER, Items.BANANA_JUICE, rule=Has(Items.BANANAS)),
@@ -1405,19 +1415,21 @@ class LocationHandler:
             "Hungry but not for Cheese 1",
             Regions.HIDDEN_VILLAGE,
             Items.CHEESE,
-            Section(0x13, 0x02),
+            Sections.HIDDEN_VILLAGE,
             x=33,
             y=292,
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
+            event=Events.IM_SO_HUNGRY,
         ),
         ItemLocData(
             "Hungry but not for Cheese 2",
             Regions.HIDDEN_VILLAGE,
             Items.CHEESE,
-            Section(0x13, 0x02),
+            Sections.HIDDEN_VILLAGE,
             x=33,
             y=292,
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
+            event=Events.IM_SO_HUNGRY,
         ),
         # Trick Village
         ChestLocData(
@@ -1427,70 +1439,71 @@ class LocationHandler:
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BE41, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.TRICK_VILLAGE,
             Items.MAX_VITALITY_1,
             Sections.TRICK_VILLAGE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE41, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1",
             Regions.TRICK_VILLAGE,
             Items.ONE_UP,
             Sections.TRICK_VILLAGE,
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.MILLION_YEAR_OLD_KEY),
-            x=1518,
-            y=65390,
             at=Bitmask(0x09BE42, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 2",
             Regions.TRICK_VILLAGE,
             Items.ONE_UP,
             Sections.TRICK_VILLAGE,
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.MILLION_YEAR_OLD_KEY),
-            x=1518,
-            y=65390,
             at=Bitmask(0x09BE42, 0x02),
         ),
         ItemLocData(
-            "On Top of Water", Regions.TRICK_VILLAGE, Items.SEASHELL_NECKLACE, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            "On Top of Water",
+            Regions.TRICK_VILLAGE,
+            Items.SEASHELL_NECKLACE,
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE42, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "Left 1,000 Wing",
             Regions.TRICK_VILLAGE,
             Items.CHARITY_WINGS,
-            Section(0x0A, 0x03),
-            x=713,
-            y=65294,
+            Sections.TRICK_VILLAGE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE41, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "Right 1,000 Wing",
             Regions.TRICK_VILLAGE,
             Items.CHARITY_WINGS,
-            Section(0x0A, 0x03),
-            x=939,
-            y=65194,
+            Sections.TRICK_VILLAGE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE41, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "Rock Bottom",
             Regions.TRICK_VILLAGE,
             Items.LARGE_LUNCH_BOX,
-            Section(0x0A, 0x03),
+            Sections.TRICK_VILLAGE,
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE42, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "Yellow Pig Bag",
             Regions.TRICK_VILLAGE,
             Items.YELLOW_EVIL_PIG_BAG,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE42, 0x04),
         ),
         ItemLocData("Math Bead 1", Regions.TRICK_VILLAGE, Items.MATH_BEAD_1, rule=HasCleared(Events.WHATS_UNDERWATER)),
         ItemLocData(
@@ -1855,7 +1868,7 @@ class LocationHandler:
         (Section(0x03, 0x05), 3184, 63708),  # Stormy Mountain
         (Section(0x04, 0x0C), 428, 65416),  # Haunted Mansion
         (Section(0x0A, 0x04), 1101, 65280),  # Masakari Jungle
-        # (Section(0x13, 0x02), 94, 153) # Hidden Village
+        # (Sections.HIDDEN_VILLAGE, 94, 153) # Hidden Village
     ]
 
     # Create a list of location checks based on Yan possible positions which all originates from the Take Out event location
