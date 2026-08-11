@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
+from rule_builder.rules import Has, Rule
 
 from .constants import Items, Events
 from .helpers import Cleared, Started, HasCleared
 from .locations import LocationHandler, ItemLocData
 from .items import ItemHandler
+from .events import EventHandler
 
 if TYPE_CHECKING:
     from .world import TombaWorld
@@ -13,8 +16,8 @@ if TYPE_CHECKING:
 
 def set_all_rules(world: TombaWorld) -> None:
     integrity_checks()
-    set_all_entrance_rules(world)
     set_all_location_rules(world)
+    set_all_events_rules(world)
     set_completion_condition(world)
 
 
@@ -45,12 +48,15 @@ def integrity_checks():
 
         # Make sure that every location that has a countable items has AREA and SECTION set
         if location.item.countable:
-            has_coordinates = isinstance(location, ItemLocData) and location.x is not None and location.y is not None
-            if location.section is None and not has_coordinates and location.at is None:
+            if (
+                location.section is None
+                and location.at is None
+                and (isinstance(location, ItemLocData) and location.event is None)
+            ):
                 raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
-                    "but no area/section or coordinates discriminator"
+                    "but no area/section"
                 )
         elif location.section is not None and not location.item.is_pants():
             raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
@@ -73,9 +79,6 @@ def integrity_checks():
             if location.section is None:
                 continue
 
-            if location.x is not None and location.y is not None:
-                continue
-
             section = str(location.section)
             if section in used_areas_sections:
                 print(f"Duplicate section discriminator for item {item.name}: {section}")
@@ -83,18 +86,26 @@ def integrity_checks():
             used_areas_sections.append(section)
 
 
-def set_all_entrance_rules(_: TombaWorld) -> None:
-    pass
-
-
 def set_all_location_rules(world: TombaWorld) -> None:
     for location in LocationHandler.location_table:
-        world_location = world.get_location(location.name)
-        if world_location is None:
-            continue
-
         if location.rule is not None:
-            world.set_rule(world_location, location.rule)
+            set_rule(world, location.name, location.rule)
+
+
+def set_all_events_rules(world: TombaWorld) -> None:
+    for event in EventHandler.event_table:
+        set_rule(world, Started(event.name), event.started_rule)
+
+        if not world.options.cleared_event_rewards:
+            set_rule(world, Cleared(event.name), event.cleared_rule)
+
+
+def set_rule(world: TombaWorld, location_name: str, rule: Rule[Any]):
+    # Apply specific settings to rules
+    if location_name == Cleared(Events.INSIDE_THE_KOKKA_EGGS):
+        rule = Has(Items.CHICK, world.options.chick_amount.value)
+
+    world.set_rule(world.get_location(location_name), rule)
 
 
 def set_completion_condition(world: TombaWorld) -> None:

@@ -114,7 +114,15 @@ class FoundHandler(AbstractHandler):
             return await self.tomba.inventory_handler.receive_item(item)
 
         first_unchecked = next(
-            (location for location in locations if location.id not in self.ctx.checked_locations), None
+            (
+                location
+                for location in locations
+                if (
+                    location.id not in self.ctx.checked_locations
+                    and location.at is None  # Those will be triggered elsewhere
+                )
+            ),
+            None,
         )
 
         location = first_unchecked

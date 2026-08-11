@@ -15,8 +15,8 @@ class TombaTestBase(WorldTestBase):
 
         return item
 
-    def filter(self, item: ItemData, section: Section, x: int, y: int) -> list[LocationData]:
-        location_ids = LocationHandler.filter_and_sort(item, section, x, y)
+    def filter(self, item: ItemData, section: Section) -> list[LocationData]:
+        location_ids = LocationHandler.filter_and_sort(item, section)
         assert location_ids is not None
 
-        return [LocationHandler.by_id[id] for id in location_ids]
+        return [LocationHandler.by_id[location.id] for location in location_ids]

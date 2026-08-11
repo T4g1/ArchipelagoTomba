@@ -115,12 +115,6 @@ class EventsHandler(AbstractHandler):
         """When this is cleared prior to grabbing the Telescope, that location becomes unreachable"""
         await self.ctx.check_handler.check(Locations.TELESCOPE, Regions.WATCH_TOWER)
 
-    async def on_take_out(self):
-        # Special case as this one might be force checked by the softlock prevention routine
-        # When Hide and Go seek is cleared before clearing this one
-        if Events.TAKE_OUT in self.externaly_triggered:
-            await self.ctx.check_locations([location.id for location in LocationHandler.take_out_event_locations])
-
     def get_event(self, event_name: str) -> EventData:
         event = EventHandler.by_name.get(event_name)
         assert event is not None

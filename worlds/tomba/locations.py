@@ -19,8 +19,6 @@ from .bitutils import Bitmask
 if TYPE_CHECKING:
     from .world import TombaWorld
 
-MAX_DISTANCE_THRESHOLD = 400000
-
 
 def get_name(name: str, region: str):
     return f"{name} ({region})"
@@ -115,19 +113,6 @@ class ItemLocData(LocationData):
         super().__init__(name, region, item, section, progress_type, rule, at, type)
 
         self.event = event
-
-    def with_coordinates(self, x: int, y: int) -> Self:
-        self.x = x
-        self.y = y
-        return self
-
-    def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
-        # A location with no coordinate means it can be found precisely by other filters
-        if self.x is None or self.y is None:
-            return MAX_DISTANCE_THRESHOLD
-
-        distance = (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
-        return distance
 
 
 @dataclass
@@ -240,6 +225,7 @@ class LocationHandler:
             "Kokka Egg on top of Ol' Pond Hut",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
+            Sections.FOREST_OF_ALL_BEGINNING_PART_2,
             at=Bitmask(0x09BCFF, 0x10),
         ),
         ItemLocData(
@@ -268,7 +254,7 @@ class LocationHandler:
             "100 Year Old Reward",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.HUNDRED_YEAR_OLD_KEY,
-            rule=Has(Items.CHICK, 4),
+            rule=HasCleared(Events.INSIDE_THE_KOKKA_EGGS),
         ),
         # Ol' Pond
         ItemLocData("Drown", Regions.OL_POND, Items.BANANAS, Sections.OL_POND),
@@ -388,6 +374,7 @@ class LocationHandler:
             "100 Year Old Apples",
             Regions.WOBBLY_WHARF,
             Items.APPLE,
+            Sections.WOBBLY_WARF,
             # rule=Has(Items.HUNDRED_YEAR_OLD_KEY), # This chest does not require a key
             at=Bitmask(0x09BD23, 0x01),
         ),
@@ -428,6 +415,7 @@ class LocationHandler:
             "100 Year Old AP Crystal",
             Regions.MUSHROOM_FOREST,
             Items.AP_CRYSTAL,
+            Sections.MUSHROOM_FOREST,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1E, 0x80),
         ),
@@ -532,6 +520,7 @@ class LocationHandler:
             "10,000 Year Old AP Crystal",
             Regions.CHARITY_SQUARE,
             Items.AP_CRYSTAL,
+            Sections.CHARITY_SQUARE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD1F, 0x02),
         ),
@@ -560,6 +549,7 @@ class LocationHandler:
             "1Up 1",
             Regions.CHARITY_SQUARE,
             Items.ONE_UP,
+            Sections.CHARITY_SQUARE,
             rule=Has(Items.MILLION_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Has(Items.FUNKY_PARASOL)),
             at=Bitmask(0x09BD1F, 0x04),
         ),
@@ -567,6 +557,7 @@ class LocationHandler:
             "1Up 2",
             Regions.CHARITY_SQUARE,
             Items.ONE_UP,
+            Sections.CHARITY_SQUARE,
             rule=Has(Items.MILLION_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Has(Items.FUNKY_PARASOL)),
             at=Bitmask(0x09BD1F, 0x04),
         ),
@@ -1845,7 +1836,6 @@ class TombaLocation(Location):
 def create_all_locations(world: TombaWorld) -> None:
     create_regular_locations(world)
     create_events(world)
-    set_all_events_rules(world)
 
 
 def create_regular_locations(world: TombaWorld) -> None:
@@ -1895,11 +1885,3 @@ def create_events(world: TombaWorld) -> None:
     # Blue Fortune Teller gives a vitality increase in that case
     # UNDERGROUND_MAZE = world.get_region(Regions.UNDERGROUND_MAZE)
     # UNDERGROUND_MAZE.add_event(Locations.AP_500_000, location_type=TombaLocation, item_type=TombaItem)
-
-
-def set_all_events_rules(world: TombaWorld) -> None:
-    for event in EventHandler.event_table:
-        world.set_rule(world.get_location(Started(event.name)), event.started_rule)
-
-        if not world.options.cleared_event_rewards:
-            world.set_rule(world.get_location(Cleared(event.name)), event.cleared_rule)
