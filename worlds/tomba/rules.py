@@ -56,7 +56,7 @@ def integrity_checks():
                 raise Exception(
                     f"Trying to create a location {location.name} "
                     f"with a countable item {location.item.name} "
-                    "but no area/section, event or bitmask discriminator"
+                    "but no area/section"
                 )
         elif location.section is not None and not location.item.is_pants():
             raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
