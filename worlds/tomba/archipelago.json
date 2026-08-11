@@ -1,8 +1,9 @@
 {
     "game": "Tomba!",
-    "world_version": "0.0.2",
+    "world_version": "0.2.2",
     "minimum_ap_version": "0.6.7",
     "authors": [
-        "T4g1"
+        "T4g1",
+        "bosshunter"
     ]
 }
