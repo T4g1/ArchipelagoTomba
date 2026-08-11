@@ -19,7 +19,7 @@ from .bitutils import Bitmask
 if TYPE_CHECKING:
     from .world import TombaWorld
 
-MAX_DISTANCE_THRESHOLD = 500000
+MAX_DISTANCE_THRESHOLD = 400000
 
 
 def get_name(name: str, region: str):
@@ -98,8 +98,6 @@ class ItemLocData(LocationData):
         region: str,
         item_name: str,
         section: Section | None = None,
-        x: int | None = None,
-        y: int | None = None,
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
@@ -116,9 +114,6 @@ class ItemLocData(LocationData):
 
         super().__init__(name, region, item, section, progress_type, rule, at, type)
 
-        self.x = x
-        self.y = y
-
         self.event = event
 
     def with_coordinates(self, x: int, y: int) -> Self:
@@ -127,9 +122,9 @@ class ItemLocData(LocationData):
         return self
 
     def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
-        # A location with no coordinate is prioritized
+        # A location with no coordinate means it can be found precisely by other filters
         if self.x is None or self.y is None:
-            return 0
+            return MAX_DISTANCE_THRESHOLD
 
         distance = (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
         return distance
@@ -143,36 +138,14 @@ class ChestLocData(ItemLocData):
         region: str,
         item_name: str,
         section: Section | None = None,
-        x: int | None = None,
-        y: int | None = None,
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
     ):
-        super().__init__(name, region, item_name, section, x, y, progress_type, rule, at, type=LocationType.CHEST)
+        super().__init__(name, region, item_name, section, progress_type, rule, at, type=LocationType.CHEST)
 
 
 class LocationHandler:
-    # Special case: Those can happens in any of the locations Yan is in
-    take_out_event_locations: list[ItemLocData] = [
-        ItemLocData(
-            "Take Out 1",
-            Regions.HIDDEN_VILLAGE,
-            Items.CHEESE,
-            Section(0xFF, 0xFF),
-            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-            event=Events.TAKE_OUT,
-        ),
-        ItemLocData(
-            "Take Out 2",
-            Regions.HIDDEN_VILLAGE,
-            Items.CHEESE,
-            Section(0xFF, 0xFF),
-            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-            event=Events.TAKE_OUT,
-        ),
-    ]
-
     location_table: list[LocationData] = [
         # Village of all Beginnings
         # TODO: Find where this is called in game (reverse)
@@ -772,9 +745,7 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_SECOND,
-            x=3150,
-            y=63708,
-            # TODO: No bitmask for that one
+            at=Bitmask(0x09C3E4, 0x01),
         ),
         ItemLocData(
             "Funga",
@@ -795,9 +766,7 @@ class LocationHandler:
             Items.CHEESE,
             Sections.STORMY_MOUNTAINS_SECOND,
             rule=HasCleared(Events.PHOENIX_MOUNTAIN),
-            x=3194,
-            y=63937,
-            # TODO: No bitmask for that one
+            at=Bitmask(0x09C365, 0x01),
         ),
         ItemLocData(
             "When the Wind Dies Down",
@@ -805,7 +774,8 @@ class LocationHandler:
             Items.LARGE_LUNCH_BOX,
             Sections.STORMY_MOUNTAINS_SECOND,
             rule=HasCleared(Events.PHOENIX_MOUNTAIN),
-            # TODO: No bitmask for that one
+            at=Bitmask(0x09C3E5, 0x01),
+            event=Events.WHEN_THE_WIND_DIES_DOWN,
         ),
         ChestLocData(
             Locations.VITALITY_INCREASE,
@@ -1104,8 +1074,6 @@ class LocationHandler:
             Regions.BACCUS_VILLAGE,
             Items.LARGE_LUNCH_BOX,
             Sections.BACCUS_VILLAGE,
-            x=574,
-            y=350,
             rule=Has(Items.CHEESE, 10),
             event=Events.SOME_CHEESE_PLEASE,
         ),
@@ -1114,8 +1082,6 @@ class LocationHandler:
             Regions.BACCUS_VILLAGE,
             Items.LARGE_LUNCH_BOX,
             Sections.BACCUS_VILLAGE,
-            x=574,
-            y=350,
             rule=Has(Items.CHEESE, 10),
             event=Events.SOME_CHEESE_PLEASE,
         ),
@@ -1247,6 +1213,7 @@ class LocationHandler:
             "Use Small Key",
             Regions.HAUNTED_MANSION,
             Items.ONE_UP,
+            Sections.HAUNTED_MANSION_NORTH,
             rule=Has(Items.SMALL_KEY),
             event=Events.A_SMALL_KEY_HOLE,
         ),
@@ -1280,8 +1247,6 @@ class LocationHandler:
             Regions.HAUNTED_MANSION,
             Items.CHEESE,
             Section(0x04, 0x02),
-            x=906,
-            y=64428,
             rule=Has(Items.WHAT_THE_THIEF_FORGOT) & HasCleared(Events.THE_HAUNTED_MANSION),
             event=Events.WHAT_THE_THIEF_FORGOT,
         ),
@@ -1290,8 +1255,6 @@ class LocationHandler:
             Regions.HAUNTED_MANSION,
             Items.CHEESE,
             Section(0x04, 0x02),
-            x=906,
-            y=64428,
             rule=Has(Items.WHAT_THE_THIEF_FORGOT) & HasCleared(Events.THE_HAUNTED_MANSION),
             event=Events.WHAT_THE_THIEF_FORGOT,
         ),
@@ -1416,8 +1379,6 @@ class LocationHandler:
             Regions.HIDDEN_VILLAGE,
             Items.CHEESE,
             Sections.HIDDEN_VILLAGE,
-            x=33,
-            y=292,
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
             event=Events.IM_SO_HUNGRY,
         ),
@@ -1426,8 +1387,6 @@ class LocationHandler:
             Regions.HIDDEN_VILLAGE,
             Items.CHEESE,
             Sections.HIDDEN_VILLAGE,
-            x=33,
-            y=292,
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
             event=Events.IM_SO_HUNGRY,
         ),
@@ -1812,7 +1771,20 @@ class LocationHandler:
             Sections.MOTOCROSS,
             at=Bitmask(0x09BDBC, 0x20),
         ),
-        *take_out_event_locations,
+        ItemLocData(
+            "Take Out 1",
+            Regions.HIDDEN_VILLAGE,
+            Items.CHEESE,
+            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+            event=Events.TAKE_OUT,
+        ),
+        ItemLocData(
+            "Take Out 2",
+            Regions.HIDDEN_VILLAGE,
+            Items.CHEESE,
+            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+            event=Events.TAKE_OUT,
+        ),
     ]
 
     for event in EventHandler.event_table:
@@ -1842,43 +1814,13 @@ class LocationHandler:
         if location.at is not None:
             with_bitmask.append(location)
 
-    yan_positions = [
-        # (Section(0x00, 0x02), 3060, 64861), # Forest of all Beginnings
-        (Section(0x01, 0x04), 3540, 64580),  # Charity Square
-        (Section(0x03, 0x05), 3184, 63708),  # Stormy Mountain
-        (Section(0x04, 0x0C), 428, 65416),  # Haunted Mansion
-        (Section(0x0A, 0x04), 1101, 65280),  # Masakari Jungle
-        # (Sections.HIDDEN_VILLAGE, 94, 153) # Hidden Village
-    ]
-
-    # Create a list of location checks based on Yan possible positions which all originates from the Take Out event location
-    yan_locations: list[ItemLocData] = [
-        location.with_section(position[0]).with_coordinates(position[1], position[2])
-        for position, location in zip(yan_positions, take_out_event_locations)
-    ]
-
     @staticmethod
-    def filter_and_sort(
-        item: ItemData, section: Section, camera_horizontal: int, camera_vertical: int
-    ) -> list[ItemLocData]:
+    def filter_and_sort(item: ItemData, section: Section) -> list[ItemLocData]:
         item_ids: list[int] = [item.id]
         if item.is_pants():
             item_ids: list[int] = [ItemHandler.by_name[item_name].id for item_name in PANTS]
 
         filtered_locations = LocationHandler.filter(LocationHandler.location_table, item_ids, section)
-        if len(filtered_locations) <= 0 and item.name == Items.CHEESE:
-            filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item_ids, section)
-
-        # Remove locations that are too far away
-        filtered_locations = [
-            location
-            for location in filtered_locations
-            if location.get_distance(camera_horizontal, camera_vertical) <= MAX_DISTANCE_THRESHOLD
-        ]
-
-        filtered_locations = sorted(
-            filtered_locations, key=lambda location: location.get_distance(camera_horizontal, camera_vertical)
-        )
 
         return filtered_locations
 

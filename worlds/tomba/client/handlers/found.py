@@ -106,14 +106,10 @@ class FoundHandler(AbstractHandler):
         elif item.behavior is ItemBehavior.HANLDER:
             return await self.handle(item.name)
 
-        locations = LocationHandler.filter_and_sort(
-            item, found_item.section, found_item.camera_horizontal, found_item.camera_vertical
-        )
+        locations = LocationHandler.filter_and_sort(item, found_item.section)
         if locations is None:
             logger.error(f"Player got an item with no location: {item.name}")
-            logger.debug(
-                f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
-            )
+            logger.debug(f"Found item: {found_item.section}")
             # TODO: Should be removed for release so player can't get unintended items
             return await self.tomba.inventory_handler.receive_item(item)
 
@@ -123,10 +119,8 @@ class FoundHandler(AbstractHandler):
 
         location = first_unchecked
         if location is None:
-            logger.error(f"Player has found {item.name} but there are no location left to send it.")
-            logger.debug(
-                f"Found item: {found_item.section}, x={found_item.camera_horizontal}, y={found_item.camera_vertical}"
-            )
+            logger.debug(f"Player has found {item.name} but there are no location left to send it.")
+            logger.debug(f"Found item: {found_item.section}")
             logger.debug(f"Candidates were: {[location.name for location in locations]}")
             return True
 

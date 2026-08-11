@@ -19,7 +19,15 @@ class PickupHandler(AbstractHandler):
             Items.PSYCHIC_FISH: Handler(self.on_psychic_fish),
             Items.RAFT: Handler(self.on_raft),
             Items.BUNK_FLOWER: Handler(self.on_bunk_flower),
+            Items.CHICK: Handler(self.on_chick),
         }
+
+    async def on_chick(self):
+        """Player can't have more than 4 Chick at all time to avoid softlock"""
+        item = ItemHandler.by_name[Items.CHICK]
+        current_amount = await self.tomba.inventory_handler.get_item_amount(item.game_id)
+        if current_amount > 4:
+            await self.tomba.inventory_handler.set_item_amount(item.game_id, 4)
 
     async def on_bunk_flower(self):
         """Starts or clear the Phoenix's Favorite"""

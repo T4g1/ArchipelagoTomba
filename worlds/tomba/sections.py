@@ -68,6 +68,8 @@ class Sections(Section):
     BACCUS_VILLAGE_PURIFIED = Section(0x05, 0x02)
     CENTRAL_PARK_PURIFIED = Section(0x05, 0x03)
 
+    MOTOCROSS = Section(0x06, 0x00)
+
     FOREST_OF_100_FLOWERS_PURIFIED = Section(0x07, 0x00)
     RIGHT_ENTRANCE_PURIFIED = Section(0x07, 0x01)
     WOBBLY_WARF_PURIFIED = Section(0x07, 0x02)

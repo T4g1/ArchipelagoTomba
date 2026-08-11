@@ -59,6 +59,9 @@ class InventoryHandler(AbstractHandler):
     async def get_item_amount(self, game_id: int) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.INVENTORY_ITEM_AMOUNT + game_id))[0]
 
+    async def set_item_amount(self, game_id: int, amount: int):
+        await self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + game_id, amount.to_bytes())
+
     async def get_inventory(self) -> list[dict]:
         inventory = []
         inventory_stack = await self.get_inventory_stack()
@@ -113,9 +116,7 @@ class InventoryHandler(AbstractHandler):
             should_display_acquired = True
 
         if item.record_amount:
-            await self.tomba.playstation.write_memory(
-                Addresses.INVENTORY_ITEM_AMOUNT + item.game_id, new_amount.to_bytes()
-            )
+            await self.set_item_amount(item.game_id, new_amount)
 
         if not has_item_already:
             # Adding an item means shifting the whole stack to the right

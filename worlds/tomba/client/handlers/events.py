@@ -175,9 +175,8 @@ class EventsHandler(AbstractHandler):
                 # Handle Archipelago checks
                 await self.ctx.on_event_cleared(event)
 
-                # Trigger rewards for manualy triggered events
-                if self.is_externaly_triggered(event.name):
-                    await self.ctx.check_locations(LocationHandler.by_event.get(event.name, []))
+                # Trigger rewards
+                await self.ctx.check_locations(LocationHandler.by_event.get(event.name, []))
 
                 await self.handle(event.name)
             except ValueError:
