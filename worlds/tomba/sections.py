@@ -68,6 +68,8 @@ class Sections(Section):
     BACCUS_VILLAGE_PURIFIED = Section(0x05, 0x02)
     CENTRAL_PARK_PURIFIED = Section(0x05, 0x03)
 
+    MOTOCROSS = Section(0x06, 0x00)
+
     FOREST_OF_100_FLOWERS_PURIFIED = Section(0x07, 0x00)
     RIGHT_ENTRANCE_PURIFIED = Section(0x07, 0x01)
     WOBBLY_WARF_PURIFIED = Section(0x07, 0x02)
@@ -75,6 +77,7 @@ class Sections(Section):
     CHARITY_SQUARE_PURIFIED = Section(0x07, 0x04)
 
     MUSHROOM_FOREST = Section(0x09, 0x00)
+    MANSION = Section(0x09, 0x03)
 
     MASAKARI_JUNGLE = Section(0x0A, 0x00)
     MASAKARI_RIVER = Section(0x0A, 0x01)

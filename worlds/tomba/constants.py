@@ -17,6 +17,7 @@ class Locations(str):
     AP_150_000 = "150,000 AP"
     AP_500_000 = "500,000 AP"
     BARON = "Baron"
+    BITING_PLANT_FLOWER = "Biting Plant Flower"
     BRONZE_MEDAL = "Bronze Medal"
     BUILD_A_RAFT = "Build a Raft"
     CAMPFIRE = "Campfire"

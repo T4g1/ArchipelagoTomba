@@ -19,7 +19,7 @@ from .bitutils import Bitmask
 if TYPE_CHECKING:
     from .world import TombaWorld
 
-MAX_DISTANCE_THRESHOLD = 500000
+MAX_DISTANCE_THRESHOLD = 400000
 
 
 def get_name(name: str, region: str):
@@ -98,8 +98,6 @@ class ItemLocData(LocationData):
         region: str,
         item_name: str,
         section: Section | None = None,
-        x: int | None = None,
-        y: int | None = None,
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
@@ -116,9 +114,6 @@ class ItemLocData(LocationData):
 
         super().__init__(name, region, item, section, progress_type, rule, at, type)
 
-        self.x = x
-        self.y = y
-
         self.event = event
 
     def with_coordinates(self, x: int, y: int) -> Self:
@@ -127,9 +122,9 @@ class ItemLocData(LocationData):
         return self
 
     def get_distance(self, camera_horizontal: int, camera_vertical: int) -> float:
-        # A location with no coordinate is prioritized
+        # A location with no coordinate means it can be found precisely by other filters
         if self.x is None or self.y is None:
-            return 0
+            return MAX_DISTANCE_THRESHOLD
 
         distance = (self.x - camera_horizontal) ** 2 + (self.y - camera_vertical) ** 2
         return distance
@@ -143,36 +138,14 @@ class ChestLocData(ItemLocData):
         region: str,
         item_name: str,
         section: Section | None = None,
-        x: int | None = None,
-        y: int | None = None,
         progress_type: LocationProgressType = LocationProgressType.DEFAULT,
         rule: Rule | None = None,
         at: Bitmask | None = None,
     ):
-        super().__init__(name, region, item_name, section, x, y, progress_type, rule, at, type=LocationType.CHEST)
+        super().__init__(name, region, item_name, section, progress_type, rule, at, type=LocationType.CHEST)
 
 
 class LocationHandler:
-    # Special case: Those can happens in any of the locations Yan is in
-    take_out_event_locations: list[ItemLocData] = [
-        ItemLocData(
-            "Take Out 1",
-            Regions.HIDDEN_VILLAGE,
-            Items.CHEESE,
-            Section(0xFF, 0xFF),
-            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-            event=Events.TAKE_OUT,
-        ),
-        ItemLocData(
-            "Take Out 2",
-            Regions.HIDDEN_VILLAGE,
-            Items.CHEESE,
-            Section(0xFF, 0xFF),
-            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
-            event=Events.TAKE_OUT,
-        ),
-    ]
-
     location_table: list[LocationData] = [
         # Village of all Beginnings
         # TODO: Find where this is called in game (reverse)
@@ -224,12 +197,14 @@ class LocationHandler:
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.VILLAGE_OF_ALL_BEGINNING,
+            at=Bitmask(0x09BCFD, 0x08),
         ),
-        ItemLocData(
-            "100 Year Chest in the Tree",
+        ChestLocData(
+            "100 Year Old Bell",
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.HUNDRED_YEAR_OLD_BELL,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BCFE, 0x80),
         ),
         # Forest of all Beginnings
         ItemLocData(
@@ -238,47 +213,57 @@ class LocationHandler:
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BCFE, 0x40),
         ),
         ItemLocData(
-            "Biting Plant",
+            Locations.BITING_PLANT_FLOWER,
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.BITING_PLANT_FLOWER,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
-            at=Bitmask(0x09BD00, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Chest",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.LUNCH_BOX,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BCFE, 0x80),
         ),
-        # The two following ones cannot be deterministicaly identified
         ItemLocData(
-            "Kokka Egg after the Fog 1",
+            "Kokka Egg near the door",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+            at=Bitmask(0x09BCFF, 0x08),
         ),
         ItemLocData(
-            "Kokka Egg after the Fog 2", Regions.FOREST_OF_ALL_BEGINNINGS, Items.CHICK, x=2560, y=65010
-        ),  # This one can be grabbed in Forest of All Beginnings part 1 or part 2 depending on the player movements
+            "Kokka Egg on top of Ol' Pond Hut",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.CHICK,
+            at=Bitmask(0x09BCFF, 0x10),
+        ),
         ItemLocData(
             "Kokka Egg near the Top",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_2,
-            3000,
-            64415,
+            at=Bitmask(0x09BD01, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Chest near the Hut",
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHARITY_WINGS,
             Sections.FOREST_OF_ALL_BEGINNING_PART_2,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD02, 0x20),
         ),
-        ItemLocData("1Up", Regions.FOREST_OF_ALL_BEGINNINGS, Items.ONE_UP, Sections.FOREST_OF_ALL_BEGINNING_PART_2),
+        ItemLocData(
+            "1Up",
+            Regions.FOREST_OF_ALL_BEGINNINGS,
+            Items.ONE_UP,
+            Sections.FOREST_OF_ALL_BEGINNING_PART_2,
+            at=Bitmask(0x09BD01, 0x10),
+        ),
         ItemLocData(
             "100 Year Old Reward",
             Regions.FOREST_OF_ALL_BEGINNINGS,
@@ -290,7 +275,7 @@ class LocationHandler:
         ItemLocData("AP Box", Regions.OL_POND, Items.CHEESE, Sections.OL_POND),
         ItemLocData("1Up 1", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND),
         ItemLocData("1Up 2", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Chest",
             Regions.OL_POND,
             Items.TEN_THOUSAND_YEAR_OLD_BELL,
@@ -302,6 +287,7 @@ class LocationHandler:
                 | Has(Items.PSYCHIC_FISH)
                 | (Has(Items.BLUE_POWDER) & Rules.CAN_REACH_MUSHROOM_FOREST)
             ),
+            at=Bitmask(0x09BD02, 0x20),
         ),
         # Forest of 100 Flowers
         *[
@@ -313,40 +299,40 @@ class LocationHandler:
             )
             for index in range(1, 26)
         ],
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.FOREST_OF_100_FLOWERS,
             Items.MAX_VITALITY_1,
             Sections.FOREST_OF_100_FLOWERS,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1C, 0x01),
         ),
         ItemLocData(
             Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS, Items.BAKED_YAM, rule=Has(Items.BUCKET_OF_WATER)
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1,
             Regions.FOREST_OF_100_FLOWERS,
             Items.CHARITY_WINGS,
             Sections.FOREST_OF_100_FLOWERS,
-            x=1427,
-            y=65345,
+            at=Bitmask(0x09BD1D, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2,
             Regions.FOREST_OF_100_FLOWERS,
             Items.CHARITY_WINGS,
             Sections.FOREST_OF_100_FLOWERS,
-            x=1427,
-            y=65345,
+            at=Bitmask(0x09BD1D, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "On Top of the Spikes",
             Regions.FOREST_OF_100_FLOWERS,
             Items.WOOD_BOOMERANG,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1C, 0x20),
         ),
         # Watch Tower
-        ItemLocData(
+        ChestLocData(
             "1Up 1",
             Regions.WATCH_TOWER,
             Items.ONE_UP,
@@ -354,7 +340,7 @@ class LocationHandler:
             at=Bitmask(0x09BD1F, 0x08),
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 2",
             Regions.WATCH_TOWER,
             Items.ONE_UP,
@@ -370,22 +356,28 @@ class LocationHandler:
             Items.FLOWER_SEEDS,
             rule=HasCleared(Events.A_LOST_CHILD) & HasCleared(Events.THE_100_FLOWER_FOREST),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.WATCH_TOWER_PANTS,
             Regions.WATCH_TOWER,
             Items.JUMPING_PANTS,
             Sections.WATCH_TOWER,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD20, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Chest",
             Regions.WATCH_TOWER,
             Items.LARGE_LUNCH_BOX,
-            Section(0x01, 0x03),
+            Sections.WATCH_TOWER,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD1D, 0x08),
         ),
-        ItemLocData(
-            "Million Year Chest", Regions.WATCH_TOWER, Items.MILLION_YEAR_OLD_BELL, rule=Has(Items.MILLION_YEAR_OLD_KEY)
+        ChestLocData(
+            "Million Year Chest",
+            Regions.WATCH_TOWER,
+            Items.MILLION_YEAR_OLD_BELL,
+            rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD20, 0x01),
         ),
         ItemLocData("Fill the Bucket", Regions.WATCH_TOWER, Items.BUCKET_OF_WATER, rule=Has(Items.BUCKET)),
         ItemLocData(
@@ -407,7 +399,7 @@ class LocationHandler:
         # Locations.VITALITY_INCREASE,
         # Regions.DWARF_VILLAGE,
         # Items.MAX_VITALITY_1,
-        # Section(0x02, 0x00),
+        # Sections.DWARF_VILLAGE,
         # rule=HasCleared(Events.SOMETHINGS_COOKIN),
         # ),
         ItemLocData(
@@ -416,15 +408,16 @@ class LocationHandler:
             Items.BARON,
             rule=Has(Items.SEAWEED) & HasCleared(Events.DELICIOUS_KNOWLEDGE_FRUIT),
         ),
-        ItemLocData("Rescue the Child", Regions.DWARF_VILLAGE, Items.CHEESE, Section(0x02, 0x00)),
+        ItemLocData("Rescue the Child", Regions.DWARF_VILLAGE, Items.CHEESE, Sections.DWARF_VILLAGE),
         ItemLocData("Meet the Dwarf Elder", Regions.DWARF_VILLAGE, Items.BLUE_EVIL_PIG_BAG),
         ItemLocData("Plant a Garden", Regions.DWARF_VILLAGE, Items.GOLD_FLOWER, rule=HasCleared(Events.FLOWER_SEEDS)),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Chest",
             Regions.DWARF_VILLAGE,
             Items.CHARITY_WINGS,
-            Section(0x02, 0x00),
+            Sections.DWARF_VILLAGE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            # TODO: Can't find the bitmask for that one
         ),
         ItemLocData(
             Locations.FIRE_STARTER, Regions.DWARF_VILLAGE, Items.TORCH, rule=HasStarted(Events.WHERED_THE_LIGHTS_GO)
@@ -440,101 +433,98 @@ class LocationHandler:
         ),
         ItemLocData("AP Box", Regions.MUSHROOM_FOREST, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
         ItemLocData("Tear Jar", Regions.MUSHROOM_FOREST, Items.TEAR_JAR, rule=HasCleared(Events.THE_100_FLOWER_FOREST)),
-        ItemLocData(
-            "1,000 Year Chest 1",
+        ChestLocData(
+            "Mysterious Mushroom",
             Regions.MUSHROOM_FOREST,
             Items.MYSTERIOUS_MUSHROOM,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1C, 0x10),
         ),
-        ItemLocData(
-            "1,000 Year Chest 2",
+        ChestLocData(
+            "1,000 Year Old Bell",
             Regions.MUSHROOM_FOREST,
             Items.THOUSAND_YEAR_OLD_BELL,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1C, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Chest near the Stairs",
             Regions.MUSHROOM_FOREST,
             Items.CHARITY_WINGS,
             Sections.MUSHROOM_FOREST,
-            x=1523,
-            y=64863,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        ),  # at=Bitmask(0x09BE1F, 0x10)
-        ItemLocData(
+            at=Bitmask(0x09BE1F, 0x10),
+        ),
+        ChestLocData(
             "1,000 Year Chest in the Pit",
             Regions.MUSHROOM_FOREST,
             Items.CHARITY_WINGS,
             Sections.MUSHROOM_FOREST,
-            x=2745,
-            y=64938,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        ),  # at=Bitmask(0x09BE1F, 0x10)
-        ItemLocData(
+            at=Bitmask(0x09BE1F, 0x01),
+        ),
+        ChestLocData(
             "10,000 Year Chest",
             Regions.MUSHROOM_FOREST,
             Items.CHARITY_WINGS,
             Sections.MUSHROOM_FOREST,
-            x=2433,
-            y=64867,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-        ),  # at=Bitmask(0x09BE1F, 0x04)
-        ItemLocData(
+            at=Bitmask(0x09BE1F, 0x04),
+        ),
+        ChestLocData(
             "Chest near the Spikes",
             Regions.MUSHROOM_FOREST,
             Items.CHARITY_WINGS,
             Sections.MUSHROOM_FOREST,
-            x=3941,
-            y=64847,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1C, 0x01),
         ),
-        ItemLocData("1Up", Regions.MUSHROOM_FOREST, Items.ONE_UP, Sections.MUSHROOM_FOREST, x=3101, y=64489),
-        ItemLocData(
+        ChestLocData(
+            "1Up",
+            Regions.MUSHROOM_FOREST,
+            Items.ONE_UP,
+            Sections.MUSHROOM_FOREST,
+            at=Bitmask(0x09BE1C, 0x20),
+        ),
+        ChestLocData(
             "1Up 1,000 Year Old 1",
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            x=3493,
-            y=64691,
+            at=Bitmask(0x09BE1F, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1,000 Year Old 2",
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            x=3142,
-            y=64896,
+            at=Bitmask(0x09BE1F, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up Million Year Old 1",
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
-            x=2602,
-            y=64860,
             at=Bitmask(0x09BE1F, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up Million Year Old 2",
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
-            x=2602,
-            y=64860,
             at=Bitmask(0x09BE1F, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 10,000 Year Old",
             Regions.MUSHROOM_FOREST,
             Items.ONE_UP,
             Sections.MUSHROOM_FOREST,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-            x=2321,
-            y=64894,
+            at=Bitmask(0x09BE1F, 0x02),
         ),
         ItemLocData(Locations.MONSTER_HUNT, Regions.MUSHROOM_FOREST, Items.RISE_AND_SHINE_POWDER),
         # Charity Square
@@ -566,22 +556,18 @@ class LocationHandler:
             | Has(Items.JEWEL_OF_WATER)
             | Has(Items.JEWEL_OF_WIND),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1",
             Regions.CHARITY_SQUARE,
             Items.ONE_UP,
             rule=Has(Items.MILLION_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Has(Items.FUNKY_PARASOL)),
-            x=2234,
-            y=64757,
             at=Bitmask(0x09BD1F, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 2",
             Regions.CHARITY_SQUARE,
             Items.ONE_UP,
             rule=Has(Items.MILLION_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Has(Items.FUNKY_PARASOL)),
-            x=2234,
-            y=64757,
             at=Bitmask(0x09BD1F, 0x04),
         ),
         ItemLocData(
@@ -589,34 +575,30 @@ class LocationHandler:
             Regions.CHARITY_SQUARE,
             Items.CHARITY_WINGS,
             Sections.CHARITY_SQUARE,
-            x=2900,
-            y=65005,
+            at=Bitmask(0x09BD20, 0x10),
         ),
         ItemLocData(
             "Charity Entrance Right",
             Regions.CHARITY_SQUARE,
             Items.CHARITY_WINGS,
             Sections.CHARITY_SQUARE,
-            x=2930,
-            y=65005,
+            at=Bitmask(0x09BD20, 0x20),
         ),
         # Mansion
-        # If Animal Dash is added to the item pool, this will conflict with it
-        # ChestLocData(
-        #     "100 Year Old AP Crystal",
-        #     Regions.MANSION,
-        #     Items.AP_CRYSTAL,
-        # 	rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-        #     at=Bitmask(0x09BE1C, 0x40),
-        # ),
-        # Conflicts with the Funky Parasol
-        # ChestLocData(
-        #     "1,000 Year Old AP Crystal",
-        #     Regions.MANSION,
-        #     Items.AP_CRYSTAL,
-        # 	rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        #     at=Bitmask(0x09BE1C, 0x80),
-        # ),
+        ChestLocData(
+            "100 Year Old Chest",
+            Regions.MANSION,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1C, 0x40),
+        ),
+        ChestLocData(
+            "1,000 Year Old Chest",
+            Regions.MANSION,
+            Items.AP_CRYSTAL,
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE1C, 0x80),
+        ),
         ChestLocData(
             "10,000 Year Old AP Crystals",
             Regions.MANSION,
@@ -624,47 +606,49 @@ class LocationHandler:
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1D, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1",
             Regions.MANSION,
             Items.ONE_UP,
-            Section(0x09, 0x03),
+            Sections.MANSION,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1D, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 2",
             Regions.MANSION,
             Items.ONE_UP,
-            Section(0x09, 0x03),
+            Sections.MANSION,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1D, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 3",
             Regions.MANSION,
             Items.ONE_UP,
-            Section(0x09, 0x03),
+            Sections.MANSION,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1D, 0x02),
         ),
         ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
         # Stormy Mountain
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest",
             Regions.STORMY_MOUNTAIN,
             Items.LUNCH_BOX,
             Sections.STORMY_MOUNTAINS,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD5C, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Chest",
             Regions.STORMY_MOUNTAIN,
             Items.LARGE_LUNCH_BOX,
             Sections.STORMY_MOUNTAINS,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE,
+            at=Bitmask(0x09BD5C, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "Million Year Old Chest",
             Regions.STORMY_MOUNTAIN,
             Items.IRON_BOOMERANG,
@@ -676,8 +660,9 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
+            at=Bitmask(0x09BD5C, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1,000 Year Old 1",
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
@@ -691,11 +676,9 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
-            x=1873,
-            y=63832,
             at=Bitmask(0x09BD5C, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1,000 Year Old 2",
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
@@ -709,11 +692,9 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
-            x=1873,
-            y=63832,
             at=Bitmask(0x09BD5C, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 10,000 Year Old 1",
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
@@ -734,11 +715,9 @@ class LocationHandler:
                 | Rules.HAS_ANY_FISH
                 | Rules.HAS_BLUE_POWDER
             ),
-            x=2618,
-            y=63707,
             at=Bitmask(0x09BD5C, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 10,000 Year Old 2",
             Regions.STORMY_MOUNTAIN,
             Items.ONE_UP,
@@ -759,8 +738,6 @@ class LocationHandler:
                 | Rules.HAS_ANY_FISH
                 | Rules.HAS_BLUE_POWDER
             ),
-            x=2618,
-            y=63707,
             at=Bitmask(0x09BD5C, 0x04),
         ),
         ItemLocData(
@@ -768,8 +745,7 @@ class LocationHandler:
             Regions.STORMY_MOUNTAIN,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_SECOND,
-            x=3150,
-            y=63708,
+            at=Bitmask(0x09C3E4, 0x01),
         ),
         ItemLocData(
             "Funga",
@@ -790,8 +766,7 @@ class LocationHandler:
             Items.CHEESE,
             Sections.STORMY_MOUNTAINS_SECOND,
             rule=HasCleared(Events.PHOENIX_MOUNTAIN),
-            x=3194,
-            y=63937,
+            at=Bitmask(0x09C365, 0x01),
         ),
         ItemLocData(
             "When the Wind Dies Down",
@@ -799,8 +774,10 @@ class LocationHandler:
             Items.LARGE_LUNCH_BOX,
             Sections.STORMY_MOUNTAINS_SECOND,
             rule=HasCleared(Events.PHOENIX_MOUNTAIN),
+            at=Bitmask(0x09C3E5, 0x01),
+            event=Events.WHEN_THE_WIND_DIES_DOWN,
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.STORMY_MOUNTAIN,
             Items.MAX_VITALITY_1,
@@ -813,9 +790,15 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
+            at=Bitmask(0x09BD5D, 0x08),
         ),
         ItemLocData("Big Keyhole", Regions.STORMY_MOUNTAIN, Items.RED_EVIL_PIG_BAG, rule=Has(Items.BIG_KEY)),
-        ItemLocData("Herbs", Regions.STORMY_MOUNTAIN, Items.HEALING_HERBS),
+        ItemLocData(
+            "Herbs",
+            Regions.STORMY_MOUNTAIN,
+            Items.HEALING_HERBS,
+            at=Bitmask(0x09BD5E, 0x08),
+        ),
         ItemLocData(
             "Give back the Pants",
             Regions.STORMY_MOUNTAIN,
@@ -823,20 +806,19 @@ class LocationHandler:
             rule=Has(Items.CHARLES_PANTS)
             & (Rules.CAN_BIG_JUMP | Rules.CAN_GRAPPLE | Rules.HAS_ANY_JEWEL | HasCleared(Events.PHOENIX_MOUNTAIN)),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.STORMY_MOUNTAIN_PANTS,
             Regions.STORMY_MOUNTAIN,
             Items.DASHING_PANTS,
             Sections.STORMY_MOUNTAINS_SECOND,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD5D, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest Wing 1",
             Regions.STORMY_MOUNTAIN,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_SECOND,
-            x=5086,
-            y=62932,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE
             | (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
@@ -856,13 +838,11 @@ class LocationHandler:
             ),
             at=Bitmask(0x09BD5D, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest Wing 2",
             Regions.STORMY_MOUNTAIN,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_SECOND,
-            x=5086,
-            y=62932,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE
             | (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
@@ -882,125 +862,148 @@ class LocationHandler:
             ),
             at=Bitmask(0x09BD5D, 0x20),
         ),
-        ItemLocData(
-            "1,000 Year Old Grapple", Regions.STORMY_MOUNTAIN, Items.GRAPPLE, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+        ChestLocData(
+            "Grapple",
+            Regions.STORMY_MOUNTAIN,
+            Items.GRAPPLE,
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD5D, 0x40),
         ),
         # Lava Caves
         ItemLocData(Locations.CHARLES_PANTS, Regions.LAVA_CAVES, Items.CHARLES_PANTS),
-        ItemLocData(
+        ChestLocData(
             "Green Evil Pig Bag Chest",
             Regions.LAVA_CAVES,
             Items.GREEN_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD62, 0x01),
         ),
         ItemLocData(
-            "Bunk Flower 1", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=487, y=64860
+            "Bunk Flower 1",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD5F, 0x08),
         ),
         ItemLocData(
-            "Bunk Flower 2", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1049, y=64768
+            "Bunk Flower 2",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD5F, 0x10),
         ),
         ItemLocData(
-            "Bunk Flower 3", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1168, y=64785
+            "Bunk Flower 3",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD5F, 0x20),
         ),
         ItemLocData(
-            "Bunk Flower 4", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=1793, y=64505
+            "Bunk Flower 4",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD5F, 0x80),
         ),
         ItemLocData(
-            "Bunk Flower 5", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2074, y=64517
+            "Bunk Flower 5",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD5F, 0x40),
         ),
         ItemLocData(
-            "Bunk Flower 6", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2047, y=64776
+            "Bunk Flower 6",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD60, 0x02),
         ),
         ItemLocData(
-            "Bunk Flower 7", Regions.LAVA_CAVES_PURIFIED, Items.BUNK_FLOWER, Sections.LAVA_CAVES, x=2409, y=64400
+            "Bunk Flower 7",
+            Regions.LAVA_CAVES_PURIFIED,
+            Items.BUNK_FLOWER,
+            Sections.LAVA_CAVES,
+            at=Bitmask(0x09BD60, 0x01),
         ),
         ItemLocData(
             "Leave Hidden Village",
             Regions.LAVA_CAVES_PURIFIED,
             Items.WHAT_THE_THIEF_LOST,
             rule=Rules.CAN_GRAPPLE | Has(Items.LEAF_BUTTERFLY, 29),
+            at=Bitmask(0x09BD62, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.LAVA_CAVES_PURIFIED,
             Items.MAX_VITALITY_1,
             Sections.LAVA_CAVES,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD62, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 100 Year 1",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            x=1938,
-            y=64371,
+            at=Bitmask(0x09BD61, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1,000 Year Down",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            x=2107,
-            y=64756,
+            at=Bitmask(0x09BD61, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1,000 Year 1",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            x=2208,
-            y=64385,
             at=Bitmask(0x09BD62, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1,000 Year 2",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            x=2208,
-            y=64385,
             at=Bitmask(0x09BD62, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 10,000 Year Up",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-            x=2462,
-            y=64395,
+            at=Bitmask(0x09BD62, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 10,000 Year Down",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-            x=2281,
-            y=64679,
+            at=Bitmask(0x09BD61, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up Million Year 1",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
-            x=2255,
-            y=64887,
             at=Bitmask(0x09BD61, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up Million Year 2",
             Regions.LAVA_CAVES_PURIFIED,
             Items.ONE_UP,
             Sections.LAVA_CAVES,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
-            x=2255,
-            y=64887,
             at=Bitmask(0x09BD61, 0x80),
         ),
         ItemLocData(
@@ -1009,59 +1012,53 @@ class LocationHandler:
             Items.WHAT_THE_THIEF_FORGOT,
             rule=HasCleared(Events.THE_HAUNTED_MANSION),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Charity Wing 1",
             Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
-            x=1539,
-            y=64701,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x10),
+            at=Bitmask(0x09BD61, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Charity Wing 2",
             Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
-            x=1539,
-            y=64701,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x10),
+            at=Bitmask(0x09BD61, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Charity Wing 1",
             Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
-            x=1570,
-            y=64443,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD62, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Charity Wing 2",
             Regions.LAVA_CAVES_PURIFIED,
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
-            x=1570,
-            y=64443,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD62, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "Million Year Large Lunch",
             Regions.LAVA_CAVES_PURIFIED,
             Items.LARGE_LUNCH_BOX,
             Sections.LAVA_CAVES,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD62, 0x02),
         ),
-        ItemLocData(
-            "100 Year Lunch",
+        ChestLocData(
+            "Lunch Box",
             Regions.LAVA_CAVES_PURIFIED,
             Items.LUNCH_BOX,
             Sections.LAVA_CAVES,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD61, 0x04),
         ),
         # Baccus Village
         ItemLocData(
@@ -1077,18 +1074,16 @@ class LocationHandler:
             Regions.BACCUS_VILLAGE,
             Items.LARGE_LUNCH_BOX,
             Sections.BACCUS_VILLAGE,
-            x=574,
-            y=350,
             rule=Has(Items.CHEESE, 10),
+            event=Events.SOME_CHEESE_PLEASE,
         ),
         ItemLocData(
             Locations.SOME_CHEESE_PLEASE_2,
             Regions.BACCUS_VILLAGE,
             Items.LARGE_LUNCH_BOX,
             Sections.BACCUS_VILLAGE,
-            x=574,
-            y=350,
             rule=Has(Items.CHEESE, 10),
+            event=Events.SOME_CHEESE_PLEASE,
         ),
         ItemLocData(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE, Items.GOLDEN_FRUIT, rule=Has(Items.CHEESE, 15)),
         ItemLocData(
@@ -1109,13 +1104,14 @@ class LocationHandler:
             rule=HasStarted(Events.DEATH_FRUIT_JUICE),
         ),
         # Central Park
-        ItemLocData(
+        ChestLocData(
             Locations.CENTRAL_PARK_CHEST,
             Regions.CENTRAL_PARK,
             Items.ORANGE_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & HasCleared(Events.WHERES_THE_BABY_MOUSE)
             & HasCleared(Events.A_DRINK_FOR_GROWNUPS),
+            at=Bitmask(0x09BD62, 0x02),
         ),
         ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
         # Haunted Mansion
@@ -1127,33 +1123,30 @@ class LocationHandler:
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
             at=Bitmask(0x09BD7C, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.HAUNTED_MANSION,
             Items.MAX_VITALITY_1,
             Sections.CIVILIZATION_ROOM,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7E, 0x40),
         ),
         ItemLocData(
             "Unbreakable Wire", Regions.HAUNTED_MANSION, Items.STRONG_WIRE, rule=HasStarted(Events.UNBREAKABLE_WIRE)
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest 1",
             Regions.HAUNTED_MANSION,
             Items.CHEESE,
             Section(0x04, 0x0C),
-            x=464,
-            y=65416,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
             at=Bitmask(0x09BD7C, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest 2",
             Regions.HAUNTED_MANSION,
             Items.CHEESE,
             Section(0x04, 0x0C),
-            x=464,
-            y=65416,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
             at=Bitmask(0x09BD7C, 0x20),
         ),
@@ -1163,58 +1156,90 @@ class LocationHandler:
             Items.MIGHTY_FISH_FOOD,
             rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Chest near Yan",
             Regions.HAUNTED_MANSION,
             Items.LUNCH_BOX,
             Section(0x04, 0x0C),
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Chest 1",
             Regions.HAUNTED_MANSION,
             Items.LARGE_LUNCH_BOX,
             Section(0x04, 0x06),
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x02),
         ),
-        ItemLocData(
-            "10,000 Year Old Chest 1",
+        ChestLocData(
+            "10,000 Year Old Chest",
             Regions.HAUNTED_MANSION,
             Items.LARGE_LUNCH_BOX,
             Section(0x04, 0x10),
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "Million Year Old Chest 1",
             Regions.HAUNTED_MANSION,
             Items.LARGE_LUNCH_BOX,
             Section(0x04, 0x04),
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x01),
         ),
         ItemLocData(
-            Locations.CRY_CHEESE_LEFT, Regions.HAUNTED_MANSION, Items.CHEESE, Sections.CRY_ROOM, x=160, y=65396
+            Locations.CRY_CHEESE_LEFT,
+            Regions.HAUNTED_MANSION,
+            Items.CHEESE,
+            Sections.CRY_ROOM,
+            at=Bitmask(0x09BD7E, 0x20),
         ),
         ItemLocData(
-            Locations.CRY_CHEESE_RIGHT, Regions.HAUNTED_MANSION, Items.CHEESE, Sections.CRY_ROOM, x=160, y=65396
+            Locations.CRY_CHEESE_RIGHT,
+            Regions.HAUNTED_MANSION,
+            Items.CHEESE,
+            Sections.CRY_ROOM,
+            at=Bitmask(0x09BD7E, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "Pink Evil Bag",
             Regions.HAUNTED_MANSION,
             Items.PINK_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Has(Items.BIG_KEY),
+            at=Bitmask(0x09BD7C, 0x04),
         ),
         ItemLocData(
+            "Use Small Key",
+            Regions.HAUNTED_MANSION,
+            Items.ONE_UP,
+            Sections.HAUNTED_MANSION_NORTH,
+            rule=Has(Items.SMALL_KEY),
+            event=Events.A_SMALL_KEY_HOLE,
+        ),
+        ChestLocData(
             "Near the Magic Egg",
             Regions.HAUNTED_MANSION,
             Items.BOSS_JEWEL,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Has(Items.SMALL_KEY) & HasCleared(Events.THE_HAUNTED_MANSION),
+            at=Bitmask(0x09BD7E, 0x80),
         ),
         ItemLocData("Save the Villager", Regions.HAUNTED_MANSION, Items.SMALL_KEY),
-        ItemLocData("Near the Million Year Old Chest", Regions.HAUNTED_MANSION, Items.LARGE_KEY_PANEL_1),
+        ItemLocData(
+            "Near the Million Year Old Chest",
+            Regions.HAUNTED_MANSION,
+            Items.LARGE_KEY_PANEL_1,
+            at=Bitmask(0x09BD7D, 0x01),
+        ),
         ItemLocData("Near the Healing Fountain", Regions.HAUNTED_MANSION, Items.LARGE_KEY_PANEL_2),
         ItemLocData("Near the Siren", Regions.HAUNTED_MANSION, Items.LARGE_KEY_PANEL_3),
         ItemLocData("On the Elevator", Regions.HAUNTED_MANSION, Items.LARGE_KEY_PANEL_4),
-        ItemLocData("Near the Forest Ping Entrance", Regions.HAUNTED_MANSION, Items.LARGE_KEY_PANEL_5),
+        ItemLocData(
+            "Near the Forest Pig Entrance",
+            Regions.HAUNTED_MANSION,
+            Items.LARGE_KEY_PANEL_5,
+            at=Bitmask(0x09BD7D, 0x10),
+        ),
         ItemLocData("In the Chimney", Regions.HAUNTED_MANSION, Items.JEWEL_OF_FIRE),
         ItemLocData("Save the Old Man", Regions.HAUNTED_MANSION, Items.THOUSAND_YEAR_OLD_KEY),
         ItemLocData(
@@ -1222,21 +1247,23 @@ class LocationHandler:
             Regions.HAUNTED_MANSION,
             Items.CHEESE,
             Section(0x04, 0x02),
-            x=906,
-            y=64428,
             rule=Has(Items.WHAT_THE_THIEF_FORGOT) & HasCleared(Events.THE_HAUNTED_MANSION),
+            event=Events.WHAT_THE_THIEF_FORGOT,
         ),
         ItemLocData(
             "Thief in the Chimney 2",
             Regions.HAUNTED_MANSION,
             Items.CHEESE,
             Section(0x04, 0x02),
-            x=906,
-            y=64428,
             rule=Has(Items.WHAT_THE_THIEF_FORGOT) & HasCleared(Events.THE_HAUNTED_MANSION),
+            event=Events.WHAT_THE_THIEF_FORGOT,
         ),
-        ItemLocData(
-            "Stone Boomerang", Regions.HAUNTED_MANSION, Items.STONE_BOOMERANG, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+        ChestLocData(
+            "Stone Boomerang",
+            Regions.HAUNTED_MANSION,
+            Items.STONE_BOOMERANG,
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD7C, 0x08),
         ),
         ItemLocData(
             "Painting of a Big Key",
@@ -1259,14 +1286,21 @@ class LocationHandler:
             "Green Jewel", Regions.PHOENIXS_NEST, Items.JEWEL_OF_WIND, rule=HasCleared(Events.THE_PHOENIXS_FAVORITE)
         ),
         # Masakari Jungle
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.MASAKARI_JUNGLE,
             Items.MAX_VITALITY_1,
             Sections.MASAKARI_JUNGLE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x02),
         ),
-        ItemLocData("Get the Drum", Regions.MASAKARI_JUNGLE, Items.FUNGA_DRUM, rule=Has(Items.HUNDRED_YEAR_OLD_KEY)),
+        ChestLocData(
+            "Get the Drum",
+            Regions.MASAKARI_JUNGLE,
+            Items.FUNGA_DRUM,
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3D, 0x80),
+        ),
         *[
             ItemLocData(
                 f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY, Sections.MASAKARI_JUNGLE
@@ -1275,14 +1309,15 @@ class LocationHandler:
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
         ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
-        ItemLocData(
+        ChestLocData(
             Locations.MASAKARI_JUNGLE_PANTS,
             Regions.MASAKARI_JUNGLE,
             Items.FLASH_PANTS,
             Sections.MASAKARI_JUNGLE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Chest",
             Regions.MASAKARI_JUNGLE,
             Items.LARGE_LUNCH_BOX,
@@ -1300,6 +1335,7 @@ class LocationHandler:
                     | Has(Items.JEWEL_OF_WATER)
                 )
             ),
+            at=Bitmask(0x09BE3E, 0x04),
         ),
         ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
         # Old Tree Hill
@@ -1311,11 +1347,12 @@ class LocationHandler:
             at=Bitmask(0x09BE3E, 0x08),
         ),
         ItemLocData("Old Tree", Regions.OLD_TREE_HILL, Items.KNOWLEDGE_FRUIT),
-        ItemLocData(
+        ChestLocData(
             "Navy Evil Pig Bag",
             Regions.OLD_TREE_HILL,
             Items.NAVY_EVIL_PIG_BAG,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE3E, 0x10),
         ),
         # Clock Tower
         ItemLocData(Locations.MIXER, Regions.CLOCK_TOWER, Items.BANANA_JUICE, rule=Has(Items.BANANAS)),
@@ -1341,19 +1378,17 @@ class LocationHandler:
             "Hungry but not for Cheese 1",
             Regions.HIDDEN_VILLAGE,
             Items.CHEESE,
-            Section(0x13, 0x02),
-            x=33,
-            y=292,
+            Sections.HIDDEN_VILLAGE,
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
+            event=Events.IM_SO_HUNGRY,
         ),
         ItemLocData(
             "Hungry but not for Cheese 2",
             Regions.HIDDEN_VILLAGE,
             Items.CHEESE,
-            Section(0x13, 0x02),
-            x=33,
-            y=292,
+            Sections.HIDDEN_VILLAGE,
             rule=Has(Items.LUNCH_BOX) | Has(Items.LARGE_LUNCH_BOX),
+            event=Events.IM_SO_HUNGRY,
         ),
         # Trick Village
         ChestLocData(
@@ -1363,70 +1398,71 @@ class LocationHandler:
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BE41, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             Locations.VITALITY_INCREASE,
             Regions.TRICK_VILLAGE,
             Items.MAX_VITALITY_1,
             Sections.TRICK_VILLAGE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE41, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 1",
             Regions.TRICK_VILLAGE,
             Items.ONE_UP,
             Sections.TRICK_VILLAGE,
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.MILLION_YEAR_OLD_KEY),
-            x=1518,
-            y=65390,
             at=Bitmask(0x09BE42, 0x02),
         ),
-        ItemLocData(
+        ChestLocData(
             "1Up 2",
             Regions.TRICK_VILLAGE,
             Items.ONE_UP,
             Sections.TRICK_VILLAGE,
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.MILLION_YEAR_OLD_KEY),
-            x=1518,
-            y=65390,
             at=Bitmask(0x09BE42, 0x02),
         ),
         ItemLocData(
-            "On Top of Water", Regions.TRICK_VILLAGE, Items.SEASHELL_NECKLACE, rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            "On Top of Water",
+            Regions.TRICK_VILLAGE,
+            Items.SEASHELL_NECKLACE,
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE42, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "Left 1,000 Wing",
             Regions.TRICK_VILLAGE,
             Items.CHARITY_WINGS,
-            Section(0x0A, 0x03),
-            x=713,
-            y=65294,
+            Sections.TRICK_VILLAGE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE41, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "Right 1,000 Wing",
             Regions.TRICK_VILLAGE,
             Items.CHARITY_WINGS,
-            Section(0x0A, 0x03),
-            x=939,
-            y=65194,
+            Sections.TRICK_VILLAGE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE41, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "Rock Bottom",
             Regions.TRICK_VILLAGE,
             Items.LARGE_LUNCH_BOX,
-            Section(0x0A, 0x03),
+            Sections.TRICK_VILLAGE,
             rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BE42, 0x01),
         ),
-        ItemLocData(
+        ChestLocData(
             "Yellow Pig Bag",
             Regions.TRICK_VILLAGE,
             Items.YELLOW_EVIL_PIG_BAG,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
             & (HasCleared(Events.WHATS_UNDERWATER) | HasCleared(Events.TRICK_VILLAGE)),
+            at=Bitmask(0x09BE42, 0x04),
         ),
         ItemLocData("Math Bead 1", Regions.TRICK_VILLAGE, Items.MATH_BEAD_1, rule=HasCleared(Events.WHATS_UNDERWATER)),
         ItemLocData(
@@ -1518,36 +1554,36 @@ class LocationHandler:
             & Has(Items.GOLDEN_FRUIT),
         ),
         # Underground Maze Entrance
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Cheese",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1440,
-            y=64386,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "Needlegator Teeth",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.NEEDLEGATOR_TEETH,
             Sections.UNDERGROUND_MAZE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "Medecine",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.COLD_MEDECINE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Cheese",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1083,
-            y=65128,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x02),
         ),
         ChestLocData(
             "Million Year Old AP Crystal",
@@ -1565,145 +1601,118 @@ class LocationHandler:
         #   Sections.UNDERGROUND_MAZE,
         #   rule=Has(Locations.AP_500_000)
         # ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Cheese 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1149,
-            y=64562,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Cheese 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=1149,
-            y=64562,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Lunch",
             Regions.UNDERGROUND_MAZE,
             Items.LUNCH_BOX,
             Sections.UNDERGROUND_MAZE,
-            x=1202,
-            y=64551,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Claw",
             Regions.UNDERGROUND_MAZE,
             Items.KOKKA_CLAW,
             Sections.UNDERGROUND_MAZE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3D, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "Butamashi Thorn",
             Regions.UNDERGROUND_MAZE,
             Items.BUTAMUSHI_THORN,
             Sections.UNDERGROUND_MAZE,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x04),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Wing 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=816,
-            y=65091,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Wing 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=816,
-            y=65091,
             rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC) & Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x80),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Cheese 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=630,
-            y=64934,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "1,000 Year Old Cheese 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=630,
-            y=64934,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x40),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Wing 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=549,
-            y=64739,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "10,000 Year Old Wing 2",
             Regions.UNDERGROUND_MAZE,
             Items.CHARITY_WINGS,
             Sections.UNDERGROUND_MAZE,
-            x=549,
-            y=64739,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x20),
         ),
-        ItemLocData(
+        ChestLocData(
             "100 Year Old Lunch",
             Regions.UNDERGROUND_MAZE,
             Items.LUNCH_BOX,
             Sections.UNDERGROUND_MAZE,
-            x=472,
-            y=64707,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x08),
         ),
-        ItemLocData(
+        ChestLocData(
             "Biting Plant Flower",
             Regions.UNDERGROUND_MAZE,
             Items.BITING_PLANT_FLOWER,
             Sections.UNDERGROUND_MAZE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x10),
         ),
-        ItemLocData(
+        ChestLocData(
             "Near the Small Strange Room 1",
             Regions.UNDERGROUND_MAZE,
             Items.CHEESE,
             Sections.UNDERGROUND_MAZE,
-            x=240,
-            y=64380,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            at=Bitmask(0x09BD3C, 0x02),
         ),
-        # TODO: The two commented locations here are not always provided
-        # ItemLocData(
-        #     "Near the Small Strange Room 2",
-        #     Regions.UNDERGROUND_MAZE,
-        #     Items.CHEESE,
-        #     Sections.UNDERGROUND_MAZE,
-        #     x=240,
-        #     y=64380,
-        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        # ),
-        # ItemLocData(
-        #     "Near the Small Strange Room 3",
-        #     Regions.UNDERGROUND_MAZE,
-        #     Items.CHEESE,
-        #     Sections.UNDERGROUND_MAZE,
-        #     x=240,
-        #     y=64380,
-        #     rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-        # ),
         ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
         # The Mermaid's Singing Rock
         # TODO: Find where this is called in game (reverse)
@@ -1731,31 +1740,51 @@ class LocationHandler:
             "Flying Wing Leftmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
-            Section(0x06, 0x00),
-            x=1612,
-            y=64956,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBD, 0x10),
         ),
         ItemLocData(
             "Flying Wing Rightmost",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
-            Section(0x06, 0x00),
-            x=2280,
-            y=65028,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBD, 0x40),
         ),
         ItemLocData(
-            "In the House", Regions.THE_MERMAIDS_SINGING_ROCK, Items.CHARITY_WINGS, Section(0x06, 0x00), x=3158, y=65328
+            "In the House",
+            Regions.THE_MERMAIDS_SINGING_ROCK,
+            Items.CHARITY_WINGS,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBD, 0x02),
         ),
         ItemLocData(
             "In the back House",
             Regions.THE_MERMAIDS_SINGING_ROCK,
             Items.CHARITY_WINGS,
-            Section(0x06, 0x00),
-            x=3260,
-            y=65303,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBE, 0x01),
         ),
-        ItemLocData("Lunch Box", Regions.THE_MERMAIDS_SINGING_ROCK, Items.LUNCH_BOX, Section(0x06, 0x00)),
-        *take_out_event_locations,
+        ItemLocData(
+            "Lunch Box",
+            Regions.THE_MERMAIDS_SINGING_ROCK,
+            Items.LUNCH_BOX,
+            Sections.MOTOCROSS,
+            at=Bitmask(0x09BDBC, 0x20),
+        ),
+        ItemLocData(
+            "Take Out 1",
+            Regions.HIDDEN_VILLAGE,
+            Items.CHEESE,
+            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+            event=Events.TAKE_OUT,
+        ),
+        ItemLocData(
+            "Take Out 2",
+            Regions.HIDDEN_VILLAGE,
+            Items.CHEESE,
+            rule=Has(Items.YANS_LUNCH_BOX) & HasStarted(Events.TAKE_OUT),
+            event=Events.TAKE_OUT,
+        ),
     ]
 
     for event in EventHandler.event_table:
@@ -1785,43 +1814,13 @@ class LocationHandler:
         if location.at is not None:
             with_bitmask.append(location)
 
-    yan_positions = [
-        # (Section(0x00, 0x02), 3060, 64861), # Forest of all Beginnings
-        (Section(0x01, 0x04), 3540, 64580),  # Charity Square
-        (Section(0x03, 0x05), 3184, 63708),  # Stormy Mountain
-        (Section(0x04, 0x0C), 428, 65416),  # Haunted Mansion
-        (Section(0x0A, 0x04), 1101, 65280),  # Masakari Jungle
-        # (Section(0x13, 0x02), 94, 153) # Hidden Village
-    ]
-
-    # Create a list of location checks based on Yan possible positions which all originates from the Take Out event location
-    yan_locations: list[ItemLocData] = [
-        location.with_section(position[0]).with_coordinates(position[1], position[2])
-        for position, location in zip(yan_positions, take_out_event_locations)
-    ]
-
     @staticmethod
-    def filter_and_sort(
-        item: ItemData, section: Section, camera_horizontal: int, camera_vertical: int
-    ) -> list[ItemLocData]:
+    def filter_and_sort(item: ItemData, section: Section) -> list[ItemLocData]:
         item_ids: list[int] = [item.id]
         if item.is_pants():
             item_ids: list[int] = [ItemHandler.by_name[item_name].id for item_name in PANTS]
 
         filtered_locations = LocationHandler.filter(LocationHandler.location_table, item_ids, section)
-        if len(filtered_locations) <= 0 and item.name == Items.CHEESE:
-            filtered_locations = LocationHandler.filter(LocationHandler.yan_locations, item_ids, section)
-
-        # Remove locations that are too far away
-        filtered_locations = [
-            location
-            for location in filtered_locations
-            if location.get_distance(camera_horizontal, camera_vertical) <= MAX_DISTANCE_THRESHOLD
-        ]
-
-        filtered_locations = sorted(
-            filtered_locations, key=lambda location: location.get_distance(camera_horizontal, camera_vertical)
-        )
 
         return filtered_locations
 
