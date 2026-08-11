@@ -236,7 +236,8 @@ class TombaGame:
         if not await self.has_game_in_progress():
             return
 
-        # TODO: Read memory region, localy set flags and write results: 2 calls instead of len(list) * 2
+        # Cache the states region
+        await self.playstation.create_cache(0x09BCEC, 0x700)
 
         checks = []
         for location in LocationHandler.with_bitmask:
@@ -257,6 +258,9 @@ class TombaGame:
                 else:
                     if location.id not in self.ctx.checked_locations:
                         await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
+
+        # Remove all cache left
+        self.playstation.destroy_cache()
 
     async def update_events(self):
         await self.events_handler.update_events()

@@ -215,8 +215,16 @@ class TombaContext(CommonContext):
                         for handler in self.periodic_handlers:
                             current_time = time.perf_counter() * 1000
                             if current_time - handler.last_run >= handler.interval_ms:
+                                handler_start = time.perf_counter()
+
                                 await handler.callback(*handler.args, **handler.kwargs)
                                 handler.last_run = current_time
+
+                                handler_duration = (time.perf_counter() - handler_start) * 1000
+                                handler.last_run = current_time
+
+                                if handler_duration > 50.0:
+                                    pass  # logger.debug(f"[SLOW WARNING] Handler {handler.callback.__name__} took {handler_duration:.2f}ms")
 
                         await self.process_items_received()
 

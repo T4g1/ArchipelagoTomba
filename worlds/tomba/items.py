@@ -339,7 +339,11 @@ class ItemHandler:
 
         for item in ItemHandler.item_table:
             if item.behavior is ItemBehavior.RANDOMIZED and item.name not in disabled_items:
-                for _ in range(item.amount):
+                amount = item.amount
+                if item.name == Items.CHICK:
+                    amount = world.options.chick_amount.value
+
+                for _ in range(amount):
                     itempool.append(world.create_item(item.name))
 
         number_of_items = len(itempool)

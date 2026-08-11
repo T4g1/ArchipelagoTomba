@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import PerGameCommonOptions, Toggle, DefaultOnToggle, Choice
+from Options import PerGameCommonOptions, Toggle, DefaultOnToggle, Choice, Range
 
 
 class Emulator(Choice):
@@ -64,6 +64,19 @@ class ClearedLocation(DefaultOnToggle):
     display_name = "Cleared event rewards"
 
 
+class ChickAmount(Range):
+    """Allows to control how many chick will be available
+    This is usefull to prevent being stuck in the first area early.
+    You only require 4 of those so a higher number means you're more likely
+    to be able to pass the count check early"""
+
+    range_start = 4
+    range_end = 50
+    default = 4
+
+    display_name = "Chick amount"
+
+
 @dataclass
 class TombaOptions(PerGameCommonOptions):
     emulator: Emulator
@@ -72,3 +85,4 @@ class TombaOptions(PerGameCommonOptions):
     optional_randomized: OptionalItemsRandomized
     bonus_chests_randomized: BonusChestsRandomized
     cleared_event_rewards: ClearedLocation
+    chick_amount: ChickAmount
