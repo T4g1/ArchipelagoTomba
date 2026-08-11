@@ -68,7 +68,8 @@ class ChickAmount(Range):
     """Allows to control how many chick will be available
     This is usefull to prevent being stuck in the first area early.
     You only require 4 of those so a higher number means you're more likely
-    to be able to pass the count check early"""
+    to be able to pass the count check early.
+    Note: This is not used if chick are not randomized"""
 
     range_start = 4
     range_end = 50
@@ -77,11 +78,31 @@ class ChickAmount(Range):
     display_name = "Chick amount"
 
 
+class ChickRandomized(DefaultOnToggle):
+    """
+    Toggle wether or not the Chick should be randomized.
+    Enabling this means you can get blocked and have to wait until all the Chick are found in the multiworld
+    """
+
+    display_name = "Chick randomized ?"
+
+
+class FuriousTornadoRandomized(DefaultOnToggle):
+    """
+    Toggle wether or not the Furious Tornado should be randomized.
+    Enabling this means you can get blocked and have to wait until the tornado is found in the multiworld
+    """
+
+    display_name = "Furious Tornado randomized ?"
+
+
 @dataclass
 class TombaOptions(PerGameCommonOptions):
     emulator: Emulator
     bell_warp: BellWarp
     keep_blackjack: KeepBlackjack
+    chick_randomized: ChickRandomized
+    furious_tornado_randomized: FuriousTornadoRandomized
     optional_randomized: OptionalItemsRandomized
     bonus_chests_randomized: BonusChestsRandomized
     cleared_event_rewards: ClearedLocation

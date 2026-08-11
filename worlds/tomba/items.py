@@ -87,7 +87,7 @@ class ItemHandler:
         ItemData(0x01, IC.filler, Items.FROG, behavior=ItemBehavior.ORIGINAL),
         # ItemData(0x02, IC.filler, Items.LOST_DWARF),
         ItemData(0x03, IC.progression, Items.BANANAS, True, 2),
-        ItemData(0x04, IC.progression, Items.FURIOUS_TORNADO, behavior=ItemBehavior.LOCKED),
+        ItemData(0x04, IC.progression, Items.FURIOUS_TORNADO),
         ItemData(0x05, IC.filler, Items.HUNDRED_YEAR_OLD_BELL),
         ItemData(0x06, IC.progression, Items.HUNDRED_YEAR_OLD_KEY),
         ItemData(0x07, IC.filler, Items.CHARITY_WINGS, True),
@@ -332,6 +332,16 @@ class ItemHandler:
                 Items.THOUSAND_YEAR_OLD_BELL,
                 Items.TEN_THOUSAND_YEAR_OLD_BELL,
                 Items.MILLION_YEAR_OLD_BELL,
+            ]
+
+        if not world.options.furious_tornado_randomized:
+            disabled_items += [
+                Items.FURIOUS_TORNADO,
+            ]
+
+        if not world.options.chick_randomized:
+            disabled_items += [
+                Items.CHICK,
             ]
 
         if not world.options.optional_randomized:

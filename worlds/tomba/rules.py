@@ -103,7 +103,11 @@ def set_all_events_rules(world: TombaWorld) -> None:
 def set_rule(world: TombaWorld, location_name: str, rule: Rule[Any]):
     # Apply specific settings to rules
     if location_name == Cleared(Events.INSIDE_THE_KOKKA_EGGS):
-        rule = Has(Items.CHICK, world.options.chick_amount.value)
+        amount = world.options.chick_amount.value
+        if not world.options.chick_randomized:
+            amount = 4
+
+        rule = Has(Items.CHICK, amount)
 
     world.set_rule(world.get_location(location_name), rule)
 

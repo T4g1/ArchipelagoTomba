@@ -22,6 +22,14 @@ class InventoryHandler(AbstractHandler):
 
     inventory_stack_size: int = 0
 
+    # Used to list all items Tomba! has received from external means
+    given_items: list[ItemData] = []
+
+    async def give_item(self, item: ItemData):
+        self.given_items.append(item)
+
+        await self.update_given_items()
+
     async def is_accessible(self):
         return (await self.tomba.playstation.async_read_memory(Addresses.INVENTORY_ACCESSIBLE))[0] != 0x00
 
@@ -34,6 +42,15 @@ class InventoryHandler(AbstractHandler):
 
             self.inventory_stack_size = new_stack_size
             await self.on_inventory_updated()
+
+        await self.update_given_items()
+
+    async def update_given_items(self):
+        """Handle given items"""
+        if len(self.given_items) > 0:
+            item = self.given_items[0]
+            if await self.receive_item(item):
+                self.given_items.pop(0)
 
     async def on_inventory_updated(self):
         # Assume its the start of a new game if not checked locations

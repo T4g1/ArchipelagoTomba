@@ -51,7 +51,12 @@ class EventHandler:
             0x02, Events.CLEAR_THE_FOG, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.FURIOUS_TORNADO)
         ),
         EventData(0x03, Events.TAKE_ME_HOME, Regions.OL_POND, started_rule=Rules.CAN_BREAK_STUFF),
-        EventData(0x04, Events.MOTOCROSS_COURSE, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.FUEL_BAR)),
+        EventData(
+            0x04,
+            Events.MOTOCROSS_COURSE,
+            Regions.VILLAGE_OF_ALL_BEGINNINGS,
+            cleared_rule=CanReachRegion(Regions.THE_MERMAIDS_SINGING_ROCK),
+        ),
         EventData(
             0x05,
             Events.WHO_ARE_YOU,

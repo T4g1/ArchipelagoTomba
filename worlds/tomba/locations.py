@@ -178,7 +178,7 @@ class LocationHandler:
         ),
         ItemLocData("Peach Flower Gas", Regions.VILLAGE_OF_ALL_BEGINNINGS, Items.BABY_PIG),
         ItemLocData(
-            "Kokka Egg in the Village",
+            Locations.KOKKA_EGG_1,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.VILLAGE_OF_ALL_BEGINNING,
@@ -215,21 +215,21 @@ class LocationHandler:
             at=Bitmask(0x09BCFE, 0x80),
         ),
         ItemLocData(
-            "Kokka Egg near the door",
+            Locations.KOKKA_EGG_2,
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
             at=Bitmask(0x09BCFF, 0x08),
         ),
         ItemLocData(
-            "Kokka Egg on top of Ol' Pond Hut",
+            Locations.KOKKA_EGG_3,
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_2,
             at=Bitmask(0x09BCFF, 0x10),
         ),
         ItemLocData(
-            "Kokka Egg near the Top",
+            Locations.KOKKA_EGG_4,
             Regions.FOREST_OF_ALL_BEGINNINGS,
             Items.CHICK,
             Sections.FOREST_OF_ALL_BEGINNING_PART_2,
@@ -1851,9 +1851,23 @@ def create_regular_locations(world: TombaWorld) -> None:
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 
-    # Force furious tornado to be on Mailbox
-    MAILBOX = world.get_location(get_name(Locations.MAILBOX, Regions.VILLAGE_OF_ALL_BEGINNINGS))
-    MAILBOX.place_locked_item(ItemHandler.create_item(world, Items.FURIOUS_TORNADO))
+    if not world.options.furious_tornado_randomized:
+        # Force furious tornado to be on Mailbox
+        MAILBOX = world.get_location(get_name(Locations.MAILBOX, Regions.VILLAGE_OF_ALL_BEGINNINGS))
+        MAILBOX.place_locked_item(ItemHandler.create_item(world, Items.FURIOUS_TORNADO))
+
+    if not world.options.chick_randomized:
+        CHICK_1 = world.get_location(get_name(Locations.KOKKA_EGG_1, Regions.VILLAGE_OF_ALL_BEGINNINGS))
+        CHICK_1.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
+
+        CHICK_2 = world.get_location(get_name(Locations.KOKKA_EGG_2, Regions.FOREST_OF_ALL_BEGINNINGS))
+        CHICK_2.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
+
+        CHICK_3 = world.get_location(get_name(Locations.KOKKA_EGG_3, Regions.FOREST_OF_ALL_BEGINNINGS))
+        CHICK_3.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
+
+        CHICK_4 = world.get_location(get_name(Locations.KOKKA_EGG_4, Regions.FOREST_OF_ALL_BEGINNINGS))
+        CHICK_4.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
 
     # Force baron to be on the original location
     BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
