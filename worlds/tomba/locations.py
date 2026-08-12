@@ -273,7 +273,7 @@ class LocationHandler:
                 | Has(Items.PSYCHIC_FISH)
                 | (Has(Items.BLUE_POWDER) & Rules.CAN_REACH_MUSHROOM_FOREST)
             ),
-            at=Bitmask(0x09BD02, 0x20),
+            at=Bitmask(0x09BD02, 0x40),
         ),
         # Forest of 100 Flowers
         *[
@@ -1257,7 +1257,7 @@ class LocationHandler:
             at=Bitmask(0x09BD7C, 0x08),
         ),
         ItemLocData(
-            "Painting of a Big Key",
+            Locations.PAINTING_OF_A_BIG_KEY,
             Regions.HAUNTED_MANSION,
             Items.BIG_KEY,
             rule=Has(Items.LARGE_KEY_PANEL_1)

@@ -97,6 +97,8 @@ class EventsHandler(AbstractHandler):
         await self.clear(Events.THE_HAUNTED_PIG_BAG)
         await self.clear(Events.BREAK_THE_MAGIC_EGG)
 
+        await self.ctx.check_handler.check(Locations.PAINTING_OF_A_BIG_KEY, Regions.HAUNTED_MANSION)
+
         await self.tomba.playstation.write_memory(Addresses.MAGIC_EGGS_BROKEN_COUNT, 0xFF.to_bytes())
 
     async def on_i_want_a_silver_medal(self):
