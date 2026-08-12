@@ -1361,7 +1361,7 @@ class LocationHandler:
         # Iron Castle
         ItemLocData("Need Power", Regions.IRON_CASTLE, Items.KEY_TO_OL_POND, rule=Has(Items.BOMB)),
         # Hidden Village
-        ItemLocData("Find my Son", Regions.HIDDEN_VILLAGE, Items.YANS_LUNCH_BOX),
+        ItemLocData(Locations.FIND_MY_SON, Regions.HIDDEN_VILLAGE, Items.YANS_LUNCH_BOX, event=Events.TAKE_OUT),
         ItemLocData(
             "Golden Butterfly", Regions.HIDDEN_VILLAGE, Items.GOLDEN_LEAF_BUTTERFLY, rule=Has(Items.LEAF_BUTTERFLY, 29)
         ),

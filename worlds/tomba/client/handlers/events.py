@@ -110,6 +110,7 @@ class EventsHandler(AbstractHandler):
     async def on_hide_and_go_seek(self):
         # Clear Take Out as it becomes softlocked when this one is cleared
         await self.clear(Events.TAKE_OUT)
+        await self.ctx.check_handler.check(Locations.FIND_MY_SON, Regions.HIDDEN_VILLAGE)
 
     async def on_look_and_see(self):
         """When this is cleared prior to grabbing the Telescope, that location becomes unreachable"""
