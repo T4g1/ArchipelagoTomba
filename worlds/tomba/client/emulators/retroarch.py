@@ -96,7 +96,6 @@ class RetroArch(Emulator):
         self.send(f"{command} {hex(address)} {size}\n")
         response = await self.async_recv()
         self.check_command_response(command, response)
-        response = response[:-1]
         splits = response.decode().split(" ", 2)
         try:
             response_addr = int(splits[1], 16)
