@@ -278,8 +278,8 @@ class ItemHandler:
     def get_random_filler_item(world: TombaWorld) -> ItemData:
         choices: dict[str, int] = {
             Items.ONE_UP: 5,
-            Items.CHARITY_WINGS: 35,
-            Items.HEALING_MUSHROOM: 60,
+            Items.CHARITY_WINGS: 50,
+            Items.HEALING_MUSHROOM: 50,
             Items.LUNCH_BOX: 20,
             Items.LARGE_LUNCH_BOX: 10,
             Items.HEAL: 5,
