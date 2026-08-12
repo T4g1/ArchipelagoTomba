@@ -322,6 +322,8 @@ class ItemHandler:
             Items.NORMAL_PANTS,
             Items.AP_CRYSTAL,
             Items.APPLE,
+            Items.CRY,
+            Items.LAUGH,
         ]
 
         # Apply options
