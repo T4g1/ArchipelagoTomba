@@ -77,6 +77,8 @@ class InventoryHandler(AbstractHandler):
         return (await self.tomba.playstation.async_read_memory(Addresses.INVENTORY_ITEM_AMOUNT + game_id))[0]
 
     async def set_item_amount(self, game_id: int, amount: int):
+        amount = max(0, min(amount, 255))
+
         await self.tomba.playstation.write_memory(Addresses.INVENTORY_ITEM_AMOUNT + game_id, amount.to_bytes())
 
     async def get_inventory(self) -> list[dict]:

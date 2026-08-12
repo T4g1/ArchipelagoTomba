@@ -46,11 +46,12 @@ class FoundHandler(AbstractHandler):
     def init_handlers(self):
         self.handlers = {Items.HEALING_MUSHROOM: Handler(self.on_healing_mushroom)}
 
-    async def on_healing_mushroom(self):
+    async def on_healing_mushroom(self) -> bool:
         """Random reward on those"""
         reward = ItemHandler.get_random_mushroom_filler_item()
         logger.info(f"Random pickup: {reward.name}")
         await self.tomba.inventory_handler.give_item(reward)
+        return True
 
     async def get_found_items_counter(self) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.FOUND_ITEMS_STACK_SIZE))[0]
