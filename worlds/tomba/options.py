@@ -16,6 +16,14 @@ class Emulator(Choice):
     default = 0
 
 
+class Deathlink(Toggle):
+    """
+    Toggle to synchronize death across the multi world
+    """
+
+    display_name = "Deathlink"
+
+
 class BellWarp(Toggle):
     """
     Allow sequence break using the bells.
@@ -31,6 +39,14 @@ class KeepBlackjack(Toggle):
     """
 
     display_name = "Keep Blackjack ?"
+
+
+class StatusAlteration(Toggle):
+    """
+    Toggle if the player can receive status alteration as a handicap
+    """
+
+    display_name = "Random status alteration ?"
 
 
 class OptionalItemsRandomized(DefaultOnToggle):
@@ -107,3 +123,5 @@ class TombaOptions(PerGameCommonOptions):
     bonus_chests_randomized: BonusChestsRandomized
     cleared_event_rewards: ClearedLocation
     chick_amount: ChickAmount
+    status_alteration: StatusAlteration
+    deathlink: Deathlink

@@ -1,8 +1,11 @@
+from asyncio import Lock
+
 from CommonClient import logger
 
 from . import AbstractHandler
 from ...constants import SFX, Addresses, Items
 from ...items import ItemHandler, ItemData
+from .player import TombaState
 
 INVENTORY_STACK_SIZE = 0xFF
 
@@ -24,6 +27,8 @@ class InventoryHandler(AbstractHandler):
 
     # Used to list all items Tomba! has received from external means
     given_items: list[ItemData] = []
+
+    lock: Lock = Lock()
 
     async def give_item(self, item: ItemData):
         self.given_items.append(item)
@@ -47,10 +52,11 @@ class InventoryHandler(AbstractHandler):
 
     async def update_given_items(self):
         """Handle given items"""
-        if len(self.given_items) > 0:
-            item = self.given_items[0]
-            if await self.receive_item(item):
-                self.given_items.pop(0)
+        async with self.lock:
+            if len(self.given_items) > 0:
+                item = self.given_items[0]
+                if await self.receive_item(item):
+                    self.given_items.pop(0)
 
     async def on_inventory_updated(self):
         # Assume its the start of a new game if not checked locations
@@ -110,9 +116,9 @@ class InventoryHandler(AbstractHandler):
         if not await self.tomba.is_playing():
             return False
 
-        # Pickup handling
+        # Special items handling
         if item.game_id >= 0xA0:
-            return await self.receive_pickup(item, player)
+            return await self.receive_special(item, player)
 
         inventory_counter = await self.get_inventory_counter()
 
@@ -186,12 +192,21 @@ class InventoryHandler(AbstractHandler):
     async def equip_weapon(self, weapon: int):
         await self.tomba.playstation.write_memory(Addresses.TOMBA_WEAPON, weapon.to_bytes())
 
-    async def receive_pickup(self, item: ItemData, player: int | None = None) -> bool:
+    async def receive_special(self, item: ItemData, player: int | None = None) -> bool:
         if item.name == Items.ONE_UP:
             await self.tomba.player_handler.add_life()
 
         elif item.name == Items.MAX_VITALITY_1:
             await self.tomba.player_handler.add_vitality()
+
+        elif item.name == Items.HEAL:
+            await self.tomba.player_handler.heal()
+
+        elif item.name == Items.LAUGH:
+            await self.tomba.player_handler.set_status(TombaState.LAUGHING)
+
+        elif item.name == Items.CRY:
+            await self.tomba.player_handler.set_status(TombaState.CRYING)
 
         await self.notify_acquired(item, player)
 

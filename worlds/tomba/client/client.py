@@ -58,6 +58,8 @@ class TombaContext(CommonContext):
 
     should_reset_auth: bool
 
+    deathlink_pending: bool
+
     def __init__(
         self,
         server_address: str | None = None,
@@ -77,6 +79,7 @@ class TombaContext(CommonContext):
         self.check_handler = CheckHandler(self, self.tomba)
 
         self.won = False
+        self.deathlink_pending = False
 
         self.periodic_handlers: list[Handler] = [
             Handler(self.tomba.keep_alive, interval_ms=KEEP_ALIVE_INTERVAL),
@@ -86,6 +89,7 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_inventory, interval_ms=750),
             Handler(self.tomba.update_locations, interval_ms=2000),
             Handler(self.tomba.update_popups, interval_ms=500),
+            Handler(self.tomba.update_deathlink, interval_ms=750),
         ]
 
     async def check_locations(self, locations: list[int]) -> None:
@@ -127,6 +131,10 @@ class TombaContext(CommonContext):
 
         await super(TombaContext, self).get_username()
         await self.send_connect()
+
+    def on_deathlink(self, data: dict):
+        self.deathlink_pending = True
+        super().on_deathlink(data)
 
     def on_package(self, cmd: str, args: dict):
         callback = self.package_handlers.get(cmd, self.on_unhandled_package)

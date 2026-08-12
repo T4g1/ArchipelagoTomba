@@ -54,6 +54,7 @@ class TombaWorld(World):
             "bonus_chests_randomized",
             "cleared_event_rewards",
             "chick_amount",
+            "deathlink",
         )
 
         slot_data["world_version"] = self.world_version.as_simple_string()

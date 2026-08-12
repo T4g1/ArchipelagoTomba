@@ -231,6 +231,11 @@ class Items(str):
     YANS_LUNCH_BOX = "Yan's Lunch Box"
     YELLOW_EVIL_PIG_BAG = "Yellow Evil Pig Bag"
 
+    # Others
+    HEAL = "Heal"
+    CRY = "Cry"
+    LAUGH = "Laugh"
+
     # Pickups
     ONE_UP = "1Up"
     MAX_VITALITY_1 = "Max Vitality +1"
@@ -411,7 +416,9 @@ class Addresses(IntEnum):
     HUD_VISIBILITY = 0x0B0770
     HUD_VISIBILITY_TIMER = 0x0B0774
 
-    PV_CURRENT = 0x09BCD8
+    PV_CURRENT_DISPLAY = 0x09BCD8
+    PV_CURRENT_REAL = 0x0A5430
+    PV_CURRENT_COPY = 0x0A5432
     PV_MAX = 0x09BCD9
     PV_MAX_SURPLUS = 0x09C3E8
 
@@ -465,12 +472,6 @@ class Addresses(IntEnum):
     MAGIC_EGGS_BROKEN_COUNT = 0x09C263
 
     GOLDEN_BOWL_STATUS = 0x09C3E7
-
-
-class TombaState(IntEnum):
-    NORMAL = 0x00
-    LAUGHING = 0x01
-    CRYING = 0x02
 
 
 class MenuState(IntEnum):
@@ -544,3 +545,4 @@ class CustomCommand(IntEnum):
 
     POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
+    KILL_TOMBA = 0x04  # Bit 3 W = 1: Calls the registered method (currently: kill tomba)

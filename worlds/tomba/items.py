@@ -244,6 +244,9 @@ class ItemHandler:
         ItemData(0x9E, IC.progression, Items.SEAWEED),
         ItemData(0x9F, IC.progression, Items.MINERS_HAT),
         # Tomba! does not handle items above 0x9F
+        ItemData(0xFA, IC.filler, Items.CRY, True),
+        ItemData(0xFA, IC.filler, Items.LAUGH, True),
+        ItemData(0xFB, IC.filler, Items.HEAL, True),
         ItemData(0xFC, IC.filler, Items.AP_CRYSTAL, True),
         ItemData(0xFD, IC.filler, Items.APPLE, True),
         ItemData(0xFE, IC.filler, Items.ONE_UP, True, 27),
@@ -262,52 +265,48 @@ class ItemHandler:
         name_to_id[item.name] = item.id
 
     @staticmethod
-    def get_random_mushroom_filler_item(random: Random = Random()) -> ItemData:
-        random_fillers: list[ItemData] = [
-            ItemHandler.by_name[name]
-            for name in [
-                Items.HEALING_MUSHROOM,
-                Items.LUNCH_BOX,
-            ]
-        ]
-
-        return random.choices(
-            random_fillers,
-            weights=[
-                8,
-                1,
-            ],
-            k=1,
-        )[0]
+    def get_random_mushroom_filler_item(random: Random | None = None) -> ItemData:
+        return ItemHandler._get_random_filler_item(
+            {
+                Items.HEALING_MUSHROOM: 8,
+                Items.LUNCH_BOX: 1,
+            },
+            random,
+        )
 
     @staticmethod
-    def get_random_filler_item(random: Random = Random()) -> ItemData:
-        random_fillers: list[ItemData] = [
-            ItemHandler.by_name[name]
-            for name in [
-                Items.ONE_UP,
-                Items.CHARITY_WINGS,
-                Items.HEALING_MUSHROOM,
-                Items.LUNCH_BOX,
-                Items.LARGE_LUNCH_BOX,
-            ]
-        ]
+    def get_random_filler_item(world: TombaWorld) -> ItemData:
+        choices: dict[str, int] = {
+            Items.ONE_UP: 5,
+            Items.CHARITY_WINGS: 35,
+            Items.HEALING_MUSHROOM: 60,
+            Items.LUNCH_BOX: 20,
+            Items.LARGE_LUNCH_BOX: 10,
+            Items.HEAL: 5,
+        }
 
-        return random.choices(
-            random_fillers,
-            weights=[
-                1,
-                2,
-                3,
-                2,
-                1,
-            ],
+        if world.options.status_alteration:
+            choices[Items.LAUGH] = 5
+            choices[Items.CRY] = 5
+
+        return ItemHandler._get_random_filler_item(choices, world.random)
+
+    @staticmethod
+    def _get_random_filler_item(choices: dict[str, int], random: Random | None = None) -> ItemData:
+        if random is None:
+            random = Random()
+
+        item_name = random.choices(
+            list(choices.keys()),
+            weights=list(choices.values()),
             k=1,
         )[0]
+
+        return ItemHandler.by_name[item_name]
 
     @staticmethod
     def get_random_filler_item_name(world: TombaWorld) -> str:
-        return ItemHandler.get_random_filler_item(world.random).name
+        return ItemHandler.get_random_filler_item(world).name
 
     @staticmethod
     def create_item(world: TombaWorld, name: str) -> TombaItem:
