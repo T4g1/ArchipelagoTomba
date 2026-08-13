@@ -271,6 +271,9 @@ class TombaGame:
     async def update_popups(self):
         await self.popup_handler.update_popups()
 
+    async def update_deathlink(self):
+        await self.player_handler.update_deathlink()
+
     async def keep_alive(self):
         """Raise error if the emulator is no longer working"""
         await self.playstation.keep_alive()

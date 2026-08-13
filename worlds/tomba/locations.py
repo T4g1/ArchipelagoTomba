@@ -189,7 +189,7 @@ class LocationHandler:
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.HUNDRED_YEAR_OLD_BELL,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BCFE, 0x80),
+            at=Bitmask(0x09BCFC, 0x02),
         ),
         # Forest of all Beginnings
         ItemLocData(
@@ -273,7 +273,7 @@ class LocationHandler:
                 | Has(Items.PSYCHIC_FISH)
                 | (Has(Items.BLUE_POWDER) & Rules.CAN_REACH_MUSHROOM_FOREST)
             ),
-            at=Bitmask(0x09BD02, 0x20),
+            at=Bitmask(0x09BD02, 0x40),
         ),
         # Forest of 100 Flowers
         *[
@@ -1257,7 +1257,7 @@ class LocationHandler:
             at=Bitmask(0x09BD7C, 0x08),
         ),
         ItemLocData(
-            "Painting of a Big Key",
+            Locations.PAINTING_OF_A_BIG_KEY,
             Regions.HAUNTED_MANSION,
             Items.BIG_KEY,
             rule=Has(Items.LARGE_KEY_PANEL_1)
@@ -1361,7 +1361,7 @@ class LocationHandler:
         # Iron Castle
         ItemLocData("Need Power", Regions.IRON_CASTLE, Items.KEY_TO_OL_POND, rule=Has(Items.BOMB)),
         # Hidden Village
-        ItemLocData("Find my Son", Regions.HIDDEN_VILLAGE, Items.YANS_LUNCH_BOX),
+        ItemLocData(Locations.FIND_MY_SON, Regions.HIDDEN_VILLAGE, Items.YANS_LUNCH_BOX, event=Events.TAKE_OUT),
         ItemLocData(
             "Golden Butterfly", Regions.HIDDEN_VILLAGE, Items.GOLDEN_LEAF_BUTTERFLY, rule=Has(Items.LEAF_BUTTERFLY, 29)
         ),

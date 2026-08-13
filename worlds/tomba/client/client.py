@@ -58,6 +58,8 @@ class TombaContext(CommonContext):
 
     should_reset_auth: bool
 
+    deathlink_pending: bool
+
     def __init__(
         self,
         server_address: str | None = None,
@@ -65,9 +67,7 @@ class TombaContext(CommonContext):
     ) -> None:
         super().__init__(server_address, password)
 
-        self.package_handlers = {
-            "Connected": self.on_connected,
-        }
+        self.package_handlers = {"Connected": self.on_connected}
 
         self.tomba = TombaGame(self)
         self.should_reset_auth = False
@@ -77,6 +77,7 @@ class TombaContext(CommonContext):
         self.check_handler = CheckHandler(self, self.tomba)
 
         self.won = False
+        self.deathlink_pending = False
 
         self.periodic_handlers: list[Handler] = [
             Handler(self.tomba.keep_alive, interval_ms=KEEP_ALIVE_INTERVAL),
@@ -86,6 +87,7 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_inventory, interval_ms=750),
             Handler(self.tomba.update_locations, interval_ms=2000),
             Handler(self.tomba.update_popups, interval_ms=500),
+            Handler(self.tomba.update_deathlink, interval_ms=750),
         ]
 
     async def check_locations(self, locations: list[int]) -> None:
@@ -128,6 +130,10 @@ class TombaContext(CommonContext):
         await super(TombaContext, self).get_username()
         await self.send_connect()
 
+    def on_deathlink(self, data: dict):
+        self.deathlink_pending = True
+        super().on_deathlink(data)
+
     def on_package(self, cmd: str, args: dict):
         callback = self.package_handlers.get(cmd, self.on_unhandled_package)
         callback(cmd, args)
@@ -141,6 +147,7 @@ class TombaContext(CommonContext):
         if self.slot is not None:
             self.game = self.slot_info[self.slot].game
         self.slot_data = args.get("slot_data", {})
+
         generated_version = tuplize_version(self.slot_data.get("world_version", "2.0.0"))
         client_version = TombaWorld.world_version
         if generated_version.major != client_version.major:
@@ -211,6 +218,9 @@ class TombaContext(CommonContext):
                         if self.should_reset_auth:
                             self.should_reset_auth = False
                             raise ServerAuthException("Resetting due to wrong archipelago server")
+
+                        if "Deathlink" not in self.tags and self.slot_data["deathlink"]:
+                            await self.update_death_link(True)
 
                         for handler in self.periodic_handlers:
                             current_time = time.perf_counter() * 1000

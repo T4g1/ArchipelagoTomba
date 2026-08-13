@@ -97,6 +97,8 @@ class EventsHandler(AbstractHandler):
         await self.clear(Events.THE_HAUNTED_PIG_BAG)
         await self.clear(Events.BREAK_THE_MAGIC_EGG)
 
+        await self.ctx.check_handler.check(Locations.PAINTING_OF_A_BIG_KEY, Regions.HAUNTED_MANSION)
+
         await self.tomba.playstation.write_memory(Addresses.MAGIC_EGGS_BROKEN_COUNT, 0xFF.to_bytes())
 
     async def on_i_want_a_silver_medal(self):
@@ -110,6 +112,7 @@ class EventsHandler(AbstractHandler):
     async def on_hide_and_go_seek(self):
         # Clear Take Out as it becomes softlocked when this one is cleared
         await self.clear(Events.TAKE_OUT)
+        await self.ctx.check_handler.check(Locations.FIND_MY_SON, Regions.HIDDEN_VILLAGE)
 
     async def on_look_and_see(self):
         """When this is cleared prior to grabbing the Telescope, that location becomes unreachable"""
