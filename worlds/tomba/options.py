@@ -49,6 +49,14 @@ class StatusAlteration(Toggle):
     display_name = "Random status alteration ?"
 
 
+class GodMode(Toggle):
+    """
+    Toggle this if you want to never run out of lifes
+    """
+
+    display_name = "No Game Over"
+
+
 class OptionalItemsRandomized(DefaultOnToggle):
     """
     Toggle if the optional items like Pipe and Broken Vase,
@@ -125,3 +133,4 @@ class TombaOptions(PerGameCommonOptions):
     chick_amount: ChickAmount
     status_alteration: StatusAlteration
     deathlink: Deathlink
+    god_mode: GodMode

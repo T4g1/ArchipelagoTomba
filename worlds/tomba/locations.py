@@ -189,7 +189,7 @@ class LocationHandler:
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             Items.HUNDRED_YEAR_OLD_BELL,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BCFE, 0x80),
+            at=Bitmask(0x09BCFC, 0x02),
         ),
         # Forest of all Beginnings
         ItemLocData(
