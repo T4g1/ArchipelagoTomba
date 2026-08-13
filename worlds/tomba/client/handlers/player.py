@@ -14,6 +14,7 @@ class PlayerHandler(AbstractHandler):
     """Handles player methods"""
 
     lives: int = 0
+    dying: bool = False
 
     async def update_deathlink(self):
         """Periodically checks if the player is dead"""
@@ -22,15 +23,22 @@ class PlayerHandler(AbstractHandler):
 
         current_lives = (await self.tomba.playstation.async_read_memory(Addresses.LIVES))[0]
 
-        # Send deathlinks
         if current_lives < self.lives:
-            self.lives = current_lives
-            await self.ctx.send_death("The evil pigs won")
+            # If dying is true: It means a deathlink triggered this life loss
+            if self.dying:
+                self.dying = False
+            else:
+                # Send deathlinks
+                await self.ctx.send_death("The evil pigs won")
 
         # Receive deathlink
         if self.ctx.deathlink_pending:
             await self.tomba.set_command(CustomCommand.KILL_TOMBA)
             self.ctx.deathlink_pending = False
+
+            self.dying = True
+
+        self.lives = current_lives
 
     async def add_life(self):
         lifes = (await self.tomba.playstation.async_read_memory(Addresses.LIVES))[0]

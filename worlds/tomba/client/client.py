@@ -67,9 +67,7 @@ class TombaContext(CommonContext):
     ) -> None:
         super().__init__(server_address, password)
 
-        self.package_handlers = {
-            "Connected": self.on_connected,
-        }
+        self.package_handlers = {"Connected": self.on_connected}
 
         self.tomba = TombaGame(self)
         self.should_reset_auth = False
@@ -149,6 +147,7 @@ class TombaContext(CommonContext):
         if self.slot is not None:
             self.game = self.slot_info[self.slot].game
         self.slot_data = args.get("slot_data", {})
+
         generated_version = tuplize_version(self.slot_data.get("world_version", "2.0.0"))
         client_version = TombaWorld.world_version
         if generated_version.major != client_version.major:
@@ -219,6 +218,9 @@ class TombaContext(CommonContext):
                         if self.should_reset_auth:
                             self.should_reset_auth = False
                             raise ServerAuthException("Resetting due to wrong archipelago server")
+
+                        if "Deathlink" not in self.tags and self.slot_data["deathlink"]:
+                            await self.update_death_link(True)
 
                         for handler in self.periodic_handlers:
                             current_time = time.perf_counter() * 1000
