@@ -193,7 +193,7 @@ class TombaContext(CommonContext):
 
     async def on_event_cleared(self, event: EventData):
         location = LocationHandler.by_name[Cleared(event.name)]
-        logger.info(f"Sending location check to server for {event}")
+        logger.debug(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
 
     async def send_victory(self):

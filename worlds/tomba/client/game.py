@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 from CommonClient import logger
 
-from ..constants import GameState, HudState, MenuState, CustomCommand, Addresses, GameState1, GameState3, Regions
+from ..constants import GameState, HudState, MenuState, EventStatus, Addresses, GameState1, GameState3, Regions
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
@@ -20,6 +20,7 @@ from .emulators.retroarch import RetroArch
 from .emulators.bizhawk import BizHawk
 from ..sections import Sections, Section
 from ..locations import LocationHandler
+from ..events import EventData
 from .patcher import Patcher
 
 
@@ -96,10 +97,17 @@ class TombaGame:
     async def play_sfx(self, sfx_id: int):
         await self.playstation.write_memory(Addresses.PLAY_SFX, sfx_id.to_bytes())
 
-    async def show_message(self, code: int):
-        logger.debug(f"Display message: {code:04x}")
-        await self.playstation.write_memory(Addresses.MESSAGE, code.to_bytes(2))
-        await self.set_command(CustomCommand.SHOW_MESSAGE)
+    async def show_event(self, event: EventData, status: EventStatus):
+        # TODO: Need to figure how to map those from other areas if needed
+        # await self.playstation.write_memory(Addresses.PARAM_A0, event.id.to_bytes(1))
+        # await self.playstation.write_memory(Addresses.PARAM_A1, event.id.to_bytes(1))
+        # await self.set_command(CustomCommand.SHOW_EVENT)
+
+        # Temporary solution: Use popup instead
+        status_message = "Started"
+        if status == EventStatus.CLEARED:
+            status_message = "Cleared"
+        await self.popup_handler.print(f"'{event.name}' {status_message}")
 
     async def get_command(self, command_mask=0xFF) -> int:
         command = (await self.playstation.async_read_memory(Addresses.CUSTOM_COMMAND))[0]
