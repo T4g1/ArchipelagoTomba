@@ -25,8 +25,7 @@ class PlayerHandler(AbstractHandler):
             # If dying is true: It means a deathlink triggered this life loss
             if self.dying:
                 self.dying = False
-            elif self.ctx.slot_data["deathlink"]:
-                # Send deathlinks
+            elif self.ctx.is_deathlink_enabled():
                 await self.ctx.send_death("The evil pigs won")
 
             # Receive deathlink

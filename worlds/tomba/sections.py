@@ -90,6 +90,8 @@ class Sections(Section):
 
     TEN_THOUSAND_YEAR_OLD_MANS_ROOM = Section(0x0A, 0x08)
 
+    BOSS_FOREST_PIG = Section(0x0E, 0x04)
+
     Y_CROSSING = Section(0x12, 0x01)
 
     HIDDEN_VILLAGE = Section(0x13, 0x02)

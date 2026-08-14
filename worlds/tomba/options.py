@@ -27,7 +27,6 @@ class Deathlink(Toggle):
 class BellWarp(Toggle):
     """
     Allow sequence break using the bells.
-    Warning: Expect glitch to happens with this
     """
 
     display_name = "Bell Warp"

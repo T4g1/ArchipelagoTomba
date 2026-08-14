@@ -6,7 +6,6 @@ from . import Handler, AbstractHandler
 from ...constants import Events, EventStatus, Items, Addresses, Regions, Locations
 from ...sections import Section, Sections
 from ...items import ItemHandler
-from ...events import EventHandler
 from ...bitutils import Bitmask
 
 warp_masks: dict[Section, Bitmask] = {
@@ -86,6 +85,7 @@ class WarpHandler(AbstractHandler):
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
             Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
+            Sections.BOSS_FOREST_PIG: Handler(self.on_boss_forest_pig_entry),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -105,6 +105,10 @@ class WarpHandler(AbstractHandler):
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
 
+    async def on_boss_forest_pig_entry(self, coming_from: Section):
+        """This is bugged unless Clear the Fog is cleared"""
+        await self.tomba.events_handler.clear(Events.CLEAR_THE_FOG)
+
     async def on_forest_of_100_flowers_entry(self, coming_from: Section):
         if not await self.is_purified(Regions.FOREST_OF_100_FLOWERS):
             return
@@ -117,12 +121,10 @@ class WarpHandler(AbstractHandler):
 
     async def on_haunted_mansion_irregular_entry(self, coming_from: Section):
         # Haunted Mansion will not load correctly if this is not cleared
-        event = EventHandler.by_name[Events.A_DRINK_FOR_GROWNUPS]
-        await self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+        await self.tomba.events_handler.clear(Events.A_DRINK_FOR_GROWNUPS)
 
         # Prevent softlock when accessing Baccus Lake
-        event = EventHandler.by_name[Events.ROAD_TO_BACCUS_LAKE]
-        await self.tomba.events_handler.set_event_state(event, EventStatus.CLEARED)
+        await self.tomba.events_handler.clear(Events.ROAD_TO_BACCUS_LAKE)
 
     async def on_masakari_river(self, coming_from: Section):
         if await self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
