@@ -78,6 +78,7 @@ class TombaContext(CommonContext):
 
         self.won = False
         self.deathlink_pending = False
+        self.deathlink_status = False
 
         self.periodic_handlers: list[Handler] = [
             Handler(self.tomba.keep_alive, interval_ms=KEEP_ALIVE_INTERVAL),
@@ -148,6 +149,9 @@ class TombaContext(CommonContext):
             self.game = self.slot_info[self.slot].game
         self.slot_data = args.get("slot_data", {})
 
+        if self.slot_data["deathlink"]:
+            self.deathlink_status = True
+
         generated_version = tuplize_version(self.slot_data.get("world_version", "2.0.0"))
         client_version = TombaWorld.world_version
         if generated_version.major != client_version.major:
@@ -199,6 +203,9 @@ class TombaContext(CommonContext):
             await self.send_msgs(message)
             self.won = True
 
+    def is_deathlink_enabled(self) -> bool:
+        return "DeathLink" in self.tags
+
     async def game_loop(self) -> None:
         # yield to allow UI to start
         await asyncio.sleep(0)
@@ -219,8 +226,8 @@ class TombaContext(CommonContext):
                             self.should_reset_auth = False
                             raise ServerAuthException("Resetting due to wrong archipelago server")
 
-                        if "Deathlink" not in self.tags and self.slot_data["deathlink"]:
-                            await self.update_death_link(True)
+                        if self.deathlink_status != self.is_deathlink_enabled():
+                            await self.update_death_link(self.deathlink_status)
 
                         for handler in self.periodic_handlers:
                             current_time = time.perf_counter() * 1000

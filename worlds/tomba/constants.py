@@ -493,6 +493,7 @@ class GameState(Enum):
     CUTSCENE = 4
     OPTIONS = 5
     TITLE = 6
+    LOADING = 7
 
 
 class HudState(IntEnum):
@@ -502,13 +503,25 @@ class HudState(IntEnum):
     VISIBLE = 0x01
 
 
-class Screens(IntEnum):
+class GameState1(IntEnum):
     """Possible screen displayed in game"""
 
     TITLE_SCREEN = 0x04
     GAME_SCREEN = 0x01
     TRAILER_SCREEN = 0x03
     OPTION_SCREEN = 0x02
+
+
+class GameState3(IntEnum):
+    """Third status of the current screen"""
+
+    TITLE_OR_GAME_OVER = 0x00
+    PLAYING = 0x01
+    PLAYING_NO_HUD = 0x02
+    IN_MENU = 0x03
+    PLAYING_TOP_DOWN_A = 0x04
+    PLAYING_TOP_DOWN_B = 0x06
+    LOADING = 0x07
 
 
 class SFX(IntEnum):

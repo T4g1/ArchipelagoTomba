@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 from CommonClient import logger
 
-from ..constants import GameState, HudState, MenuState, CustomCommand, Addresses, Screens, Regions
+from ..constants import GameState, HudState, MenuState, CustomCommand, Addresses, GameState1, GameState3, Regions
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
@@ -50,7 +50,6 @@ class TombaGame:
         self.should_reset_auth = False
 
         self.status = GameState.UNKNOWN
-        self.screen: Screens = Screens.TITLE_SCREEN
         self.section: Section = Sections.NONE
 
         self.playstation: Emulator
@@ -140,14 +139,23 @@ class TombaGame:
     async def get_menu_state(self):
         return (await self.playstation.async_read_memory(Addresses.MENU_STATE))[0]
 
-    async def get_screen_state(self) -> Screens:
-        screen_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_1))[0]
+    async def get_game_state_1(self) -> GameState1:
+        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_1))[0]
 
         try:
-            return Screens(screen_raw)
+            return GameState1(state_raw)
         except Exception:
-            logger.debug(f"Unsuported screen state: {screen_raw}")
-            return Screens.TITLE_SCREEN
+            logger.debug(f"Unsuported state 1: {state_raw}")
+            return GameState1.TITLE_SCREEN
+
+    async def get_game_state_3(self) -> GameState3:
+        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_3))[0]
+
+        try:
+            return GameState3(state_raw)
+        except Exception:
+            logger.debug(f"Unsuported state 3: {state_raw}")
+            return GameState3.LOADING
 
     async def is_hud_visible(self):
         hud_visibility = (await self.playstation.async_read_memory(Addresses.HUD_VISIBILITY))[0]
@@ -199,11 +207,14 @@ class TombaGame:
 
     async def get_status(self) -> GameState:
         """Called when needed in order to always have the most updated status"""
-        screen = await self.get_screen_state()
+        state_1 = await self.get_game_state_1()
         status = GameState.UNKNOWN
 
-        if screen == Screens.GAME_SCREEN:
-            if await self.get_menu_state() == MenuState.OPEN:
+        if state_1 == GameState1.GAME_SCREEN:
+            state_3 = await self.get_game_state_3()
+            if state_3 == GameState3.LOADING:
+                status = GameState.LOADING
+            elif await self.get_menu_state() == MenuState.OPEN:
                 status = GameState.IN_MENU
             elif await self.is_hud_visible():
                 status = GameState.PLAYING
@@ -211,9 +222,9 @@ class TombaGame:
                 status = GameState.NO_HUD
             else:
                 status = GameState.CUTSCENE
-        elif screen == Screens.OPTION_SCREEN:
+        elif state_1 == GameState1.OPTION_SCREEN:
             status = GameState.OPTIONS
-        elif screen == Screens.TRAILER_SCREEN or screen == Screens.TITLE_SCREEN:
+        elif state_1 == GameState1.TRAILER_SCREEN or state_1 == GameState1.TITLE_SCREEN:
             status = GameState.TITLE
 
         return status

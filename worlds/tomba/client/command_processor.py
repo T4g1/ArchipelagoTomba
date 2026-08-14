@@ -21,6 +21,11 @@ from .debug.entity import EntityHandler
 class TombaCommandProcessor(ClientCommandProcessor):
     ctx: TombaContext
 
+    async def _cmd_deathlink(self):
+        """Toggle deathlink on/off"""
+        if isinstance(self.ctx, TombaContext):
+            self.ctx.deathlink_status = not self.ctx.deathlink_status
+
     async def _cmd_ap(self):
         """Adds 50,000 AP"""
         if isinstance(self.ctx, TombaContext):

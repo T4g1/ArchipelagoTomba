@@ -156,6 +156,10 @@ class PopupHandler(AbstractHandler):
         if self.wfm is None:
             self.wfm = WFMPopup()
 
+        # Check the game is running
+        if not await self.tomba.is_playing():
+            return False
+
         psx = self.tomba.playstation
         if not await self.wfm.is_loaded(psx) and not await self.wfm.load(psx):
             return False
