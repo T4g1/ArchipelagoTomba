@@ -771,6 +771,7 @@ class LocationHandler:
             Items.FUNKY_PARASOL,
             rule=Has(Items.CHARLES_PANTS)
             & (Rules.CAN_BIG_JUMP | Rules.CAN_GRAPPLE | Rules.HAS_ANY_JEWEL | HasCleared(Events.PHOENIX_MOUNTAIN)),
+            event=Events.CHARLES_PANTS,
         ),
         ChestLocData(
             Locations.STORMY_MOUNTAIN_PANTS,
