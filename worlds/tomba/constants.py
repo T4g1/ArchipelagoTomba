@@ -25,6 +25,7 @@ class Locations(str):
     CHARLES_PANTS = "Charle's Pant"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
+    FILL_THE_BUCKET = "Fill the Bucket"
     FIND_MY_SON = "Find my Son"
     FIRE_STARTER = "Fire Starter"
     GOLDEN_FRUIT = "More Cheese"

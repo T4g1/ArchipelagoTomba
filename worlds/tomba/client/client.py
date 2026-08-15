@@ -86,7 +86,7 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_section, interval_ms=2000),
             Handler(self.tomba.update_events, interval_ms=250),
             Handler(self.tomba.update_inventory, interval_ms=750),
-            Handler(self.tomba.update_locations, interval_ms=2000),
+            Handler(self.check_handler.update_locations, interval_ms=2000),
             Handler(self.tomba.update_popups, interval_ms=500),
             Handler(self.tomba.update_deathlink, interval_ms=750),
         ]

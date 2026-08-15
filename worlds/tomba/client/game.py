@@ -19,7 +19,6 @@ from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
 from .emulators.retroarch import RetroArch
 from .emulators.bizhawk import BizHawk
 from ..sections import Sections, Section
-from ..locations import LocationHandler
 from ..events import EventData
 from .patcher import Patcher
 
@@ -249,37 +248,6 @@ class TombaGame:
 
             await self.warp_hanlder.handle_leaving(self.section, to=new_section)
             await self.warp_hanlder.handle(self.section, coming_from=old_section)
-
-    async def update_locations(self):
-        """Process all locations and reset game objects if needed"""
-        if not await self.has_game_in_progress():
-            return
-
-        # Cache the states region
-        await self.playstation.create_cache(0x09BCEC, 0x700)
-
-        checks = []
-        for location in LocationHandler.with_bitmask:
-            assert location.at is not None
-
-            # Check locations that were checked in game
-            if location.id in self.ctx.missing_locations:
-                if await self.playstation.get_flag(location.at.address, location.at.mask):
-                    checks.append(location.id)
-
-            await self.ctx.check_locations(checks)
-
-            # Align checked location and game state
-            if not self.section.equals(location.section):
-                if location.at.on_cheked:
-                    if location.id in self.ctx.checked_locations:
-                        await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
-                else:
-                    if location.id not in self.ctx.checked_locations:
-                        await self.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
-
-        # Remove all cache left
-        self.playstation.destroy_cache()
 
     async def update_events(self):
         await self.events_handler.update_events()

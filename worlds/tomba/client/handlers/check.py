@@ -1,10 +1,15 @@
+from collections.abc import Hashable
+
 from . import Handler, AbstractHandler
 from ...constants import Locations, Regions, Events
 from ...locations import LocationHandler, get_name
+from ...bitutils import Bitmask
 
 
 class CheckHandler(AbstractHandler):
     """Handles location checks"""
+
+    ram_update_handlers: dict[Hashable, Handler]
 
     def is_checked(self, location_name: str, region_name: str):
         """Indicate if the given location has been checked already or not"""
@@ -20,11 +25,61 @@ class CheckHandler(AbstractHandler):
         assert location is not None
         return location
 
+    async def update_locations(self):
+        """Process all locations and reset game objects if needed"""
+        if not await self.tomba.has_game_in_progress():
+            return
+
+        psx = self.tomba.playstation
+
+        # Cache the states region
+        await psx.create_cache(0x09BCEC, 0x700)
+
+        checks = []
+        for location in LocationHandler.with_bitmask:
+            assert location.at is not None
+
+            # Check locations that were checked in game
+            if location.id in self.ctx.missing_locations:
+                if await psx.get_flag(location.at.address, location.at.mask):
+                    checks.append(location.id)
+
+            await self.ctx.check_locations(checks)
+
+            # Align checked location and game state
+            if not self.tomba.section.equals(location.section):
+                if location.at.on_cheked:
+                    if location.id in self.ctx.checked_locations:
+                        await psx.set_flag(location.at.address, location.at.mask, location.at.target_value)
+                else:
+                    if location.id not in self.ctx.checked_locations:
+                        await psx.set_flag(location.at.address, location.at.mask, location.at.target_value)
+
+        # Check direct memory readings
+        for bitmask, handler in self.ram_update_handlers.items():
+            if not isinstance(bitmask, Bitmask):
+                continue
+
+            if await psx.get_flag(bitmask.address, bitmask.mask):
+                await handler.callback()
+
+        # Remove all cache left
+        psx.destroy_cache()
+
     def init_handlers(self):
         self.handlers = {
             get_name(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE): Handler(self.on_golden_fruit),
             get_name(Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS): Handler(self.on_campfire),
         }
+
+        self.ram_update_handlers = {Bitmask(0x09C1BD, 0xFF): Handler(self.on_campfire_extinguished)}
+
+    async def on_campfire_extinguished(self):
+        """This happens when the player use the bucket of water on top of the campfire
+        or pickup the cooked Yam after extinguishing the campfire
+        In that case, the bucket can no longer be equipped and hence, the bucket of water location
+        must be checked to prevent softlocking that location"""
+        await self.check(Locations.FILL_THE_BUCKET, Regions.WATCH_TOWER)
 
     async def on_campfire(self):
         """When this is checked, check if the Something Cookin event should be cleared too
