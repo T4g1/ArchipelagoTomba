@@ -92,6 +92,9 @@ class TombaContext(CommonContext):
         ]
 
     async def check_locations(self, locations: list[int]) -> None:
+        if len(locations) <= 0:
+            return
+
         logger.debug(f"Location checks: {locations}")
         await super().check_locations(locations)
 

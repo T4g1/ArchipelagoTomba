@@ -115,6 +115,16 @@ class TombaCommandProcessor(ClientCommandProcessor):
         if isinstance(self.ctx, TombaContext):
             await self.ctx.tomba.patcher._patch()
 
+    async def _cmd_replay(self):
+        """DEBUG: Replay every checked event and remove location with bitmask from the current game"""
+        if isinstance(self.ctx, TombaContext):
+            for id in self.ctx.checked_locations:
+                location = LocationHandler.by_id[id]
+                if location.name.endswith("Cleared"):
+                    await self.ctx.tomba.events_handler.clear(location.name[: -len(" Cleared")])
+                elif location.at is not None:
+                    await self.ctx.tomba.playstation.set_flag(location.at.address, location.at.mask)
+
     async def _cmd_disable(self, type: str):
         """DEBUG: Disable entity type"""
         if isinstance(self.ctx, TombaContext):
