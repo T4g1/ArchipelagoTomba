@@ -3,6 +3,14 @@ from enum import Enum, IntEnum
 GAME = "Tomba!"
 
 
+class ReleaseType(Enum):
+    PRODUCTION = "Production"
+    BETA = "Beta"
+    ALPHA = "Alpha"
+
+
+RELEASE_TYPE: ReleaseType = ReleaseType.PRODUCTION
+
 # See 8002959c for the check
 MAX_LIVES = 99
 
@@ -25,6 +33,7 @@ class Locations(str):
     CHARLES_PANTS = "Charle's Pant"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
+    FILL_THE_BUCKET = "Fill the Bucket"
     FIND_MY_SON = "Find my Son"
     FIRE_STARTER = "Fire Starter"
     GOLDEN_FRUIT = "More Cheese"
@@ -436,7 +445,8 @@ class Addresses(IntEnum):
 
     # Where we put the sound to be played
     PLAY_SFX = 0xB140
-    MESSAGE = 0xB142
+    PARAM_A0 = 0xB142
+    PARAM_A1 = 0xB143
 
     # Send command to the custom handler
     CUSTOM_COMMAND = 0xB141
@@ -561,3 +571,4 @@ class CustomCommand(IntEnum):
     POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
     KILL_TOMBA = 0x04  # Bit 3 W = 1: Calls the registered method (currently: kill tomba)
+    SHOW_EVENT = 0x08  # Bit 4 W = 1: Calls the registered method (show event status)

@@ -1,4 +1,5 @@
 import asyncio
+import os
 import sys
 import time
 import traceback
@@ -20,12 +21,18 @@ from ..locations import LocationHandler
 from ..helpers import Cleared
 from ..events import EventData
 from ..items import ItemHandler
-from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
 from ..client.handlers.found import FoundHandler
 from ..client.handlers.check import CheckHandler
 from .emulators.emulator import EmulatorException, KEEP_ALIVE_INTERVAL
 from ..client.game import TombaGame, TombaException
+
+if os.environ.get("TOMBA_DEV_MODE") == "1" or constants.RELEASE_TYPE != constants.ReleaseType.PRODUCTION:
+    from ..client.debug.command_processor import TombaCommandProcessor
+else:
+    from CommonClient import ClientCommandProcessor
+
+    TombaCommandProcessor = ClientCommandProcessor
 
 MIN_TICK_DURATION = 0.1
 
@@ -86,12 +93,15 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_section, interval_ms=2000),
             Handler(self.tomba.update_events, interval_ms=250),
             Handler(self.tomba.update_inventory, interval_ms=750),
-            Handler(self.tomba.update_locations, interval_ms=2000),
+            Handler(self.check_handler.update_locations, interval_ms=2000),
             Handler(self.tomba.update_popups, interval_ms=500),
             Handler(self.tomba.update_deathlink, interval_ms=750),
         ]
 
     async def check_locations(self, locations: list[int]) -> None:
+        if len(locations) <= 0:
+            return
+
         logger.debug(f"Location checks: {locations}")
         await super().check_locations(locations)
 
@@ -193,7 +203,7 @@ class TombaContext(CommonContext):
 
     async def on_event_cleared(self, event: EventData):
         location = LocationHandler.by_name[Cleared(event.name)]
-        logger.info(f"Sending location check to server for {event}")
+        logger.debug(f"Sending location check to server for {event}")
         await self.check_locations([location.id])
 
     async def send_victory(self):

@@ -18,8 +18,8 @@ class Bitmask:
     mask: int
 
     # What to do with it:
-    # True: set value if location is checked,
-    # False: set value if location is unchecked
+    # True: set value if mask is checked,
+    # False: set value if mask is unchecked
     on_checked: bool
 
     # False: Unset bit, True: Set bit
@@ -58,6 +58,9 @@ class Bitmask:
             return 1 << (7 - position)
 
         return 1 << position
+
+    def __hash__(self) -> int:
+        return hash((self.address, self.mask))
 
 
 def reverse(hex: str) -> str:

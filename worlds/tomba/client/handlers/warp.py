@@ -113,8 +113,6 @@ class WarpHandler(AbstractHandler):
         if not await self.is_purified(Regions.FOREST_OF_100_FLOWERS):
             return
 
-        logger.debug(f"Tiggerring Hidden Chest in {Regions.FOREST_OF_100_FLOWERS}")
-
         # Check two missable location from the chest hidden in the tree
         await self.ctx.check_handler.check(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1, Regions.FOREST_OF_100_FLOWERS)
         await self.ctx.check_handler.check(Locations.HIDDEN_CHEST_FOREST_100_FLOWER_2, Regions.FOREST_OF_100_FLOWERS)

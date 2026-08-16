@@ -365,7 +365,7 @@ class LocationHandler:
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
             at=Bitmask(0x09BD20, 0x01),
         ),
-        ItemLocData("Fill the Bucket", Regions.WATCH_TOWER, Items.BUCKET_OF_WATER, rule=Has(Items.BUCKET)),
+        ItemLocData(Locations.FILL_THE_BUCKET, Regions.WATCH_TOWER, Items.BUCKET_OF_WATER, rule=Has(Items.BUCKET)),
         ItemLocData(
             "Win the Race", Regions.WATCH_TOWER, Items.SILVER_POWDER, rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT)
         ),
@@ -378,7 +378,8 @@ class LocationHandler:
             # rule=Has(Items.HUNDRED_YEAR_OLD_KEY), # This chest does not require a key
             at=Bitmask(0x09BD23, 0x01),
         ),
-        ItemLocData("On top of the Pole", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
+        # This one can also be found by using the bucket of water in forest of 100 flowers
+        ItemLocData("Find a bucket", Regions.WOBBLY_WHARF, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
         # Dwarf Village
         # TODO: Find where this is called in game (reverse)
         # Not yet working. This Max Vit+1 is given by the lady after giving her the Baked Yam which clears the event Something's Cooking
@@ -662,7 +663,7 @@ class LocationHandler:
             & Rules.CAN_GRAPPLE
             & (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
-                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | (Rules.CAN_DASH & Rules.HAS_PANTS_LEVEL_2)
                 | Rules.HAS_ANY_FISH
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
@@ -678,7 +679,7 @@ class LocationHandler:
             & Rules.CAN_GRAPPLE
             & (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
-                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | (Rules.CAN_DASH & Rules.HAS_PANTS_LEVEL_2)
                 | Rules.HAS_ANY_FISH
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
@@ -692,20 +693,7 @@ class LocationHandler:
             Sections.STORMY_MOUNTAINS,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
             & Rules.CAN_GRAPPLE
-            & (HasCleared(Events.PHOENIX_MOUNTAIN) & Rules.CAN_BIG_JUMP)
-            | (
-                HasCleared(Events.A_HUNGRY_MONKEY)
-                & (
-                    Has(Items.FLASH_PANTS)
-                    | Has(Items.DASHING_PANTS)
-                    | Has(Items.JUMPING_PANTS)
-                    | Has(Items.JEWEL_OF_FIRE)
-                    | Has(Items.JEWEL_OF_WATER)
-                )
-                | Has(Items.JEWEL_OF_WIND)
-                | Rules.HAS_ANY_FISH
-                | Rules.HAS_BLUE_POWDER
-            ),
+            & ((HasCleared(Events.PHOENIX_MOUNTAIN) & Rules.CAN_BIG_JUMP) | Rules.CAN_BIGGEST_JUMP),
             at=Bitmask(0x09BD5C, 0x04),
         ),
         ChestLocData(
@@ -715,20 +703,7 @@ class LocationHandler:
             Sections.STORMY_MOUNTAINS,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
             & Rules.CAN_GRAPPLE
-            & (HasCleared(Events.PHOENIX_MOUNTAIN) & (Rules.CAN_BIG_JUMP | Rules.HAS_ANY_JEWEL | Rules.HAS_BLUE_POWDER))
-            | (
-                HasCleared(Events.A_HUNGRY_MONKEY)
-                & (
-                    Has(Items.FLASH_PANTS)
-                    | Has(Items.DASHING_PANTS)
-                    | Has(Items.JUMPING_PANTS)
-                    | Has(Items.JEWEL_OF_FIRE)
-                    | Has(Items.JEWEL_OF_WATER)
-                )
-                | Has(Items.JEWEL_OF_WIND)
-                | Rules.HAS_ANY_FISH
-                | Rules.HAS_BLUE_POWDER
-            ),
+            & ((HasCleared(Events.PHOENIX_MOUNTAIN) & Rules.CAN_BIG_JUMP) | Rules.CAN_BIGGEST_JUMP),
             at=Bitmask(0x09BD5C, 0x04),
         ),
         ItemLocData(
@@ -745,7 +720,7 @@ class LocationHandler:
             rule=Has(Items.FUNGA_DRUM)
             & (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
-                | (HasCleared(Events.A_HUNGRY_MONKEY) & (Has(Items.DASHING_PANTS) | Has(Items.FLASH_PANTS)))
+                | (Rules.CAN_DASH & Rules.HAS_PANTS_LEVEL_2)
                 | Rules.HAS_ANY_FISH
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
@@ -796,6 +771,7 @@ class LocationHandler:
             Items.FUNKY_PARASOL,
             rule=Has(Items.CHARLES_PANTS)
             & (Rules.CAN_BIG_JUMP | Rules.CAN_GRAPPLE | Rules.HAS_ANY_JEWEL | HasCleared(Events.PHOENIX_MOUNTAIN)),
+            event=Events.CHARLES_PANTS,
         ),
         ChestLocData(
             Locations.STORMY_MOUNTAIN_PANTS,
@@ -815,13 +791,7 @@ class LocationHandler:
                 HasCleared(Events.PHOENIX_MOUNTAIN)
                 & (
                     HasCleared(Events.A_HUNGRY_MONKEY)
-                    & (
-                        Has(Items.FLASH_PANTS)
-                        | Has(Items.DASHING_PANTS)
-                        | Has(Items.JUMPING_PANTS)
-                        | Has(Items.JEWEL_OF_FIRE)
-                        | Has(Items.JEWEL_OF_WATER)
-                    )
+                    & (Rules.HAS_PANTS_LEVEL_1 | Has(Items.JEWEL_OF_FIRE) | Has(Items.JEWEL_OF_WATER))
                     | Has(Items.JEWEL_OF_WIND)
                     | Rules.HAS_ANY_FISH
                     | Rules.HAS_BLUE_POWDER
@@ -839,13 +809,7 @@ class LocationHandler:
                 HasCleared(Events.PHOENIX_MOUNTAIN)
                 & (
                     HasCleared(Events.A_HUNGRY_MONKEY)
-                    & (
-                        Has(Items.FLASH_PANTS)
-                        | Has(Items.DASHING_PANTS)
-                        | Has(Items.JUMPING_PANTS)
-                        | Has(Items.JEWEL_OF_FIRE)
-                        | Has(Items.JEWEL_OF_WATER)
-                    )
+                    & (Rules.HAS_PANTS_LEVEL_1 | Has(Items.JEWEL_OF_FIRE) | Has(Items.JEWEL_OF_WATER))
                     | Has(Items.JEWEL_OF_WIND)
                     | Rules.HAS_ANY_FISH
                     | Rules.HAS_BLUE_POWDER

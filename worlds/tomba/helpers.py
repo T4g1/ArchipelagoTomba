@@ -21,6 +21,9 @@ def HasCleared(event_name: str):
 
 class Rules:
     CAN_REACH_MUSHROOM_FOREST = HasStarted(Events.TO_PHOENIX_MOUNTAIN)
+    HAS_PANTS_LEVEL_1 = Has(Items.FLASH_PANTS) | Has(Items.DASHING_PANTS) | Has(Items.JUMPING_PANTS)
+    HAS_PANTS_LEVEL_2 = Has(Items.FLASH_PANTS) | Has(Items.DASHING_PANTS)
+    HAS_PANTS_LEVEL_3 = Has(Items.FLASH_PANTS)
     HAS_ANY_FISH = Has(Items.SACRED_FISH) | Has(Items.PSYCHIC_FISH)
     HAS_ANY_JEWEL = Has(Items.JEWEL_OF_FIRE) | Has(Items.JEWEL_OF_WATER) | Has(Items.JEWEL_OF_WIND)
     HAS_BLUE_POWDER = Has(Items.BLUE_POWDER) & CAN_REACH_MUSHROOM_FOREST
@@ -37,11 +40,10 @@ class Rules:
     CAN_DASH = HasCleared(Events.A_HUNGRY_MONKEY) | Has(Items.SACRED_FISH)
     CAN_SWIM = HasCleared(Events.I_CANT_SWIM) | Has(Items.SACRED_FISH)
     CAN_DIVE = HasCleared(Events.WHATS_UNDERWATER)
-    CAN_BIG_JUMP = (
-        HasCleared(Events.A_HUNGRY_MONKEY)
-        | Has(Items.FLASH_PANTS)
-        | Has(Items.DASHING_PANTS)
-        | Has(Items.JUMPING_PANTS)
+    CAN_BIG_JUMP = HasCleared(Events.A_HUNGRY_MONKEY) | HAS_PANTS_LEVEL_1 | HAS_ANY_FISH | HAS_BLUE_POWDER
+    CAN_BIGGEST_JUMP = (
+        HasCleared(Events.A_HUNGRY_MONKEY) & (HAS_PANTS_LEVEL_1 | Has(Items.JEWEL_OF_FIRE) | Has(Items.JEWEL_OF_WATER))
+        | Has(Items.JEWEL_OF_WIND)
         | HAS_ANY_FISH
         | HAS_BLUE_POWDER
     )

@@ -147,7 +147,11 @@ class EventsHandler(AbstractHandler):
 
     async def set_event_state(self, event: EventData, status: EventStatus):
         self.externaly_triggered.append(event.name)
+        previous_status = await self.get_event_state(event.name)
         await self.tomba.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
+
+        if status != EventStatus.UNDISCOVERED and previous_status != status:
+            await self.tomba.show_event(event, status)
 
     async def update_events(self):
         old_states = self.event_states

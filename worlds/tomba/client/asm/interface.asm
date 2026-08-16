@@ -4,7 +4,10 @@ FUN_PLAY_SFX:0x8001FFE8
 FUN_PRINT_INFO_MESSAGE:0x80031124
 
 # Kills the player
-FUN_DEBUG_CALL:0x8001b0a4
+FUN_KILL_CALL:0x8001b0a4
+
+# Display the event text
+FUN_SET_EVENT_CALL:0x8001e118
 
 LAB_PLAY_SFX:
     # Save context
@@ -35,7 +38,7 @@ LAB_POP_STACK:
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x1
-    beq     a1,zero,LAB_DEBUG_MESSAGE
+    beq     a1,zero,LAB_SHOW_MESSAGE
     nop
 
     # Pop stack item
@@ -82,22 +85,19 @@ LAB_EMPTY_STACK:
     andi    a0,a0,0xfe
     sb      a0,0xB141(s0)       # Reset DAT_COMMAND
 
-LAB_DEBUG_MESSAGE:
+LAB_SHOW_MESSAGE:
     # Check command
     lui     a0,0x8001
     addiu   a0,a0,-0x4ebf
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x2
-    beq     a1,zero,LAB_DEBUG_METHOD
+    beq     a1,zero,LAB_KILL_METHOD
     nop
 
     # Load info message
-    lui     t0,0x8001       # Read DAT_MSG_1
-    addiu   t0,t0,-0x4ebe
-    lbu     a0,0x0(t0)      
-    addiu   t1,t0,0x01      # Read DAT_MSG_1
-    lbu     a1,0x0(t1)      
+    addiu   a0,zero,0x00
+    addiu   a1,zero,0x00
 
     # Display message
     jal     FUN_PRINT_INFO_MESSAGE
@@ -110,27 +110,54 @@ LAB_DEBUG_MESSAGE:
     nop
     sb      a0,0x0(s0)  # Reset DAT_COMMAND
 
-LAB_DEBUG_METHOD:
+LAB_KILL_METHOD:
     # Check command
     lui     a0,0x8001
     addiu   a0,a0,-0x4ebf
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x4
-    beq     a1,zero,LAB_RETURN
+    beq     a1,zero,LAB_EVENT_DISPLAY_METHOD
     nop
 
     # Debug call
     addiu   a0,zero,0x01
     addiu   a1,zero,0x01
     addiu   a2,zero,0x01
-    jal     FUN_DEBUG_CALL
+    jal     FUN_KILL_CALL
     nop
     lui     s0,0x8001
     addiu   s0,s0,-0x4ebf
     lbu     a0,0x0(s0)      # Read DAT_COMMAND
     nop
     andi    a0,a0,0xfb
+    nop
+    sb      a0,0x0(s0)  # Reset DAT_COMMAND
+
+LAB_EVENT_DISPLAY_METHOD:
+    # Check command
+    lui     a0,0x8001
+    addiu   a0,a0,0xB141
+    lbu     a0,0x0(a0)      # Read DAT_COMMAND
+    addiu   a1,zero,0x0
+    andi    a1,a0,0x8
+    beq     a1,zero,LAB_RETURN
+    nop
+
+    # Load info message
+    lui     t0,0x8001       # Read event ID
+    addiu   t0,t0,0xB142
+    lbu     a0,0x0(t0)      
+    addiu   t1,t0,0x01      # Read event state (0: start, 1: cleared)
+    lbu     a1,0x0(t1)      
+    addiu   a2,zero,0x00
+    jal     FUN_SET_EVENT_CALL
+    nop
+    lui     s0,0x8001
+    addiu   s0,s0,-0x4ebf
+    lbu     a0,0x0(s0)      # Read DAT_COMMAND
+    nop
+    andi    a0,a0,0xf7
     nop
     sb      a0,0x0(s0)  # Reset DAT_COMMAND
 
