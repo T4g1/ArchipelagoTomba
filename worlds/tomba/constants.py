@@ -3,6 +3,14 @@ from enum import Enum, IntEnum
 GAME = "Tomba!"
 
 
+class ReleaseType(Enum):
+    PRODUCTION = "Production"
+    BETA = "Beta"
+    ALPHA = "Alpha"
+
+
+RELEASE_TYPE: ReleaseType = ReleaseType.PRODUCTION
+
 # See 8002959c for the check
 MAX_LIVES = 99
 

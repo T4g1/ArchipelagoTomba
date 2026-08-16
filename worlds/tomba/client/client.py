@@ -1,4 +1,5 @@
 import asyncio
+import os
 import sys
 import time
 import traceback
@@ -20,12 +21,18 @@ from ..locations import LocationHandler
 from ..helpers import Cleared
 from ..events import EventData
 from ..items import ItemHandler
-from ..client.command_processor import TombaCommandProcessor
 from ..client.handlers import Handler
 from ..client.handlers.found import FoundHandler
 from ..client.handlers.check import CheckHandler
 from .emulators.emulator import EmulatorException, KEEP_ALIVE_INTERVAL
 from ..client.game import TombaGame, TombaException
+
+if os.environ.get("TOMBA_DEV_MODE") == "1" or constants.RELEASE_TYPE != constants.ReleaseType.PRODUCTION:
+    from ..client.debug.command_processor import TombaCommandProcessor
+else:
+    from CommonClient import ClientCommandProcessor
+
+    TombaCommandProcessor = ClientCommandProcessor
 
 MIN_TICK_DURATION = 0.1
 
