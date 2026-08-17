@@ -85,7 +85,14 @@ class WarpHandler(AbstractHandler):
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
             Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
-            Sections.BOSS_FOREST_PIG: Handler(self.on_boss_forest_pig_entry),
+            Sections.BOSS_FOREST_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_HAUNTED_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_JUNGLE_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_LAVA_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_MOUSE_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_REAL_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_STORM_PIG: Handler(self.on_boss_pig_entry),
+            Sections.BOSS_TRICK_PIG: Handler(self.on_boss_pig_entry),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -105,7 +112,7 @@ class WarpHandler(AbstractHandler):
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
 
-    async def on_boss_forest_pig_entry(self, coming_from: Section):
+    async def on_boss_pig_entry(self, coming_from: Section):
         """This is bugged unless Clear the Fog is cleared"""
         await self.tomba.events_handler.clear(Events.CLEAR_THE_FOG)
 

@@ -90,7 +90,14 @@ class Sections(Section):
 
     TEN_THOUSAND_YEAR_OLD_MANS_ROOM = Section(0x0A, 0x08)
 
+    BOSS_STORM_PIG = Section(0x0E, 0x00)
+    BOSS_MOUSE_PIG = Section(0x0E, 0x01)
+    BOSS_TRICK_PIG = Section(0x0E, 0x02)
+    BOSS_LAVA_PIG = Section(0x0E, 0x03)
     BOSS_FOREST_PIG = Section(0x0E, 0x04)
+    BOSS_JUNGLE_PIG = Section(0x0E, 0x05)
+    BOSS_HAUNTED_PIG = Section(0x0E, 0x06)
+    BOSS_REAL_PIG = Section(0x0E, 0x07)
 
     Y_CROSSING = Section(0x12, 0x01)
 
