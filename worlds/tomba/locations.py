@@ -652,7 +652,7 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
-            at=Bitmask(0x09BD5D, 0x10),
+            at=Bitmask(0x09BD5C, 0x08),
         ),
         ChestLocData(
             "1Up 1,000 Year Old 1",
