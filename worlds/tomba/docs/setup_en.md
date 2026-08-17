@@ -87,7 +87,16 @@ You can select the core you downloaded earlier and then, go on with the next ste
 
 #### BizHawk
 
+<<<<<<< Updated upstream
 Each time you start the emulator, you need to:
+=======
+First off, you need to configure the emulator to use the Octoshock core, to do so:
+1. Go to `Config -> Preferred Cores -> PSX`
+2. Make sure `Octoshock` is selected \
+   ![Screenshot of Preferred Cores settings](bizhawk-preferred-cores-en.png)
+
+Also, each time you start the emulator, you need to:
+>>>>>>> Stashed changes
 1. Open the LUA console: `Tools -> LUA console`
 2. Start the connector script: `Script -> Open Script...`
 3. Navigate to your Archipelago folder and load: `data\lua\connector_bizhawk_generic.lua`
