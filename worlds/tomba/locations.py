@@ -989,7 +989,7 @@ class LocationHandler:
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x02),
+            at=Bitmask(0x09BD61, 0x02),
         ),
         ChestLocData(
             "1,000 Year Charity Wing 2",
@@ -997,7 +997,7 @@ class LocationHandler:
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x02),
+            at=Bitmask(0x09BD61, 0x02),
         ),
         ChestLocData(
             "Million Year Large Lunch",
@@ -1066,7 +1066,7 @@ class LocationHandler:
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & HasCleared(Events.WHERES_THE_BABY_MOUSE)
             & HasCleared(Events.A_DRINK_FOR_GROWNUPS),
-            at=Bitmask(0x09BD62, 0x02),
+            at=Bitmask(0x09BD9C, 0x01),
         ),
         ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
         # Haunted Mansion
