@@ -9,7 +9,7 @@ class ReleaseType(Enum):
     ALPHA = "Alpha"
 
 
-RELEASE_TYPE: ReleaseType = ReleaseType.PRODUCTION
+RELEASE_TYPE: ReleaseType = ReleaseType.BETA
 
 # See 8002959c for the check
 MAX_LIVES = 99
