@@ -485,6 +485,14 @@ class Addresses(IntEnum):
 
     GOLDEN_BOWL_STATUS = 0x09C3E7
 
+    XP_RED_LEVEL = 0x09C100
+    XP_GREEN_LEVEL = 0x09C101
+    XP_BLUE_LEVEL = 0x09C102
+
+    XP_RED_BAR = 0x09C104
+    XP_GREEN_BAR = 0x09C105
+    XP_BLUE_BAR = 0x09C106
+
 
 class MenuState(IntEnum):
     """In game menu status"""
