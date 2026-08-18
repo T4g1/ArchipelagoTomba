@@ -51,6 +51,7 @@ class EventsHandler(AbstractHandler):
         """Uncheck Let's Ride the Raft
         If it's check at this point, the We Need Power event is softlocked"""
         await self.forget(Events.LETS_RIDE_THE_RAFT)
+        await self.clear(Events.I_NEED_A_BOMB)
 
     async def on_we_need_power(self):
         """Check if the Let's Ride The Raft has been cleared before

@@ -1263,7 +1263,13 @@ class LocationHandler:
             for index in range(1, 5)
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
-        ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
+        ItemLocData(
+            "Coconut Tree",
+            Regions.MASAKARI_JUNGLE,
+            Items.BOMB,
+            rule=HasStarted(Events.I_NEED_A_BOMB),
+            event=Events.I_NEED_A_BOMB,
+        ),
         ChestLocData(
             Locations.MASAKARI_JUNGLE_PANTS,
             Regions.MASAKARI_JUNGLE,
