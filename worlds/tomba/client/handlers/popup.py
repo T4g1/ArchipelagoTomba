@@ -7,16 +7,23 @@ from ..popup_mappings import CHARMAPS, DEFAULT_CHARMAP
 
 CHARACTER_WIDTH = 0x08
 
+WFM_POPUP_PTR = 0x1F800398
+WFM_EVENT_PTR = 0x1F80039C
+
 
 class WFMPopup:
     MAGIC_WORD = "WFM3"
-    WFM_POPUP_PTR = 0x1F800398
 
     loaded: bool = False
 
     address: int
     dialog_table_offset: int
     dialog_table: int
+
+    wfm_pointer: int
+
+    def __init__(self, wfm_pointer: int):
+        self.wfm_pointer = wfm_pointer
 
     async def _load_dialog_table(self, psx: Emulator):
         """Load dialog table addresses"""
@@ -28,7 +35,7 @@ class WFMPopup:
 
     async def load(self, psx: Emulator) -> bool:
         """Check the WFM table address and availability"""
-        raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
+        raw_address = await psx.read_memory_block(self.wfm_pointer, 4)
         self.address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
 
         if not await self.has_magic_word(psx):
@@ -55,7 +62,7 @@ class WFMPopup:
 
     async def has_correct_wfm(self, psx: Emulator) -> bool:
         """Check that we are still using that WFM"""
-        raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
+        raw_address = await psx.read_memory_block(self.wfm_pointer, 4)
         address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
 
         return address == self.address
@@ -157,13 +164,13 @@ class PopupHandler(AbstractHandler):
 
     def dirty(self):
         if self.wfm is None:
-            self.wfm = WFMPopup()
+            self.wfm = WFMPopup(WFM_POPUP_PTR)
 
         self.wfm.loaded = False
 
     async def _print(self, message: str) -> bool:
         if self.wfm is None:
-            self.wfm = WFMPopup()
+            self.wfm = WFMPopup(WFM_POPUP_PTR)
 
         # Check the game is running
         if not await self.tomba.is_playing():

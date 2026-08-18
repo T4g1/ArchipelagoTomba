@@ -4,7 +4,7 @@ from PIL import Image
 
 from ..emulators.emulator import CORE_TYPE, EmulatorStatus, Emulator
 from ..emulators.bizhawk import BizHawk
-from ..handlers.popup import WFMPopup
+from ..handlers.popup import WFMPopup, WFM_POPUP_PTR, WFM_EVENT_PTR
 
 HALF_WORD_SIZE = 2
 BYTE_SIZE = 1
@@ -29,18 +29,18 @@ dialog_clut: list[int] = [
 ]
 
 event_clut: list[int] = [
-    0x01FF,
-    0x8400,
-    0x7FFF,
-    0x3DEF,
-    0x2529,
-    0x56B5,
-    0x00F0,
-    0x0198,
-    0x6739,
-    0x0134,
-    0x01FF,
-    0x7C00,
+    0x01FF,  # Orange
+    0x0000,
+    0x7FFF,  # White
+    0x3DEF,  # Dark grey
+    0x2529,  # Grey
+    0x56B5,  # Grey
+    0x00F0,  # Dark orange
+    0x0198,  # Darkest orange
+    0x6739,  # Grey
+    0x0134,  # Darker orange
+    0x01FF,  # Orange
+    0x7C00,  # Blue
     0x7C00,
     0x7C00,
     0x7C00,
@@ -84,6 +84,13 @@ class WFM(WFMPopup):
 
     dialogs: list[Dialog] = []
     glyphs: list[Glyph] = []
+
+    clut: list[int]
+
+    def __init__(self, wfm_pointer: int, clut: list[int]):
+        super().__init__(wfm_pointer)
+
+        self.clut = clut
 
     def __str__(self):
         return (
@@ -136,14 +143,14 @@ class WFM(WFMPopup):
             pixel_1 = data & 0x0F
             pixel_2 = data >> 4
 
-            pixels.append(get_pixel(dialog_clut[pixel_1]))
-            pixels.append(get_pixel(dialog_clut[pixel_2]))
+            pixels.append(get_pixel(self.clut[pixel_1]))
+            pixels.append(get_pixel(self.clut[pixel_2]))
 
         if mode == 3:
             if width == 10:
                 width = 12
         elif mode != 2:
-            raise Exception(f"Unknown mode {mode}")
+            print(f"Unknown mode {mode}")
 
         glyph = Glyph(pixels, width, height)
 
@@ -160,7 +167,7 @@ class WFM(WFMPopup):
         data_address = self.dialog_table + dialog_offset
 
         if len(self.glyphs) <= 0:
-            await self.load_glyphs(psx, save=False)
+            await self.load_glyphs(psx, save=save)
 
         print(f"Loading dialog {id} (0x{id:02X}) at: 0x{data_address:X}")
 
@@ -224,6 +231,9 @@ class WFM(WFMPopup):
 
                 index += 1
 
+        if len(line.glyphs) > 0:
+            dialog.lines.append(line)
+
         if save and len(dialog.lines):
             height = glyph_height * len(dialog.lines)
             width = 0
@@ -271,8 +281,11 @@ def get_pixel(clut_value: int, inverted: bool = False) -> Pixel:
     return Pixel(red, green, blue, alpha)
 
 
-async def extract_wfm(psx: Emulator):
-    wfm = WFM()
+async def extract_wfm(psx: Emulator, is_dialog: bool=False):
+    wfm = WFM(WFM_EVENT_PTR, event_clut)
+    if is_dialog:
+        wfm = WFM(WFM_POPUP_PTR, dialog_clut)
+
     if not await wfm.load(psx):
         print("Unable to load WFM")
         return
