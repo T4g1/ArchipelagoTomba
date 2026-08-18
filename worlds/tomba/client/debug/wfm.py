@@ -279,6 +279,7 @@ async def extract_wfm(psx: Emulator):
 
     print(wfm)
 
+    await wfm.load_glyphs(psx, save=True)
     await wfm.load_dialogs(psx, save=True)
     # await wfm.load_glyph(psx, 0x39, save=True)
     # await wfm.load_dialog(psx, 0x54, save=True)
