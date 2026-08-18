@@ -3,7 +3,7 @@ from asyncio import Lock
 from CommonClient import logger
 
 from . import AbstractHandler
-from ...constants import SFX, Addresses, Items
+from ...constants import SFX, Addresses, Items, GameState
 from ...items import ItemHandler, ItemData
 from .player import TombaState
 
@@ -41,6 +41,10 @@ class InventoryHandler(AbstractHandler):
     async def update_inventory(self):
         """Monitor inventory changes"""
         new_stack_size = await self.get_inventory_counter()
+
+        if await self.tomba.get_status() is GameState.TITLE:
+            self.inventory_stack_size = -1
+            return
 
         if self.inventory_stack_size != new_stack_size:
             logger.debug(f"Inventory size changed from {self.inventory_stack_size} to {new_stack_size}")

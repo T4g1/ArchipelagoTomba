@@ -34,7 +34,6 @@ class TombaGame:
     patcher: Patcher
     playstation: Emulator
     section: Section
-    checked_locations: set[int]
 
     inventory_handler: InventoryHandler
     pickup_handler: PickupHandler
@@ -152,7 +151,6 @@ class TombaGame:
         try:
             return GameState1(state_raw)
         except Exception:
-            logger.debug(f"Unsuported state 1: {state_raw}")
             return GameState1.TITLE_SCREEN
 
     async def get_game_state_3(self) -> GameState3:
@@ -161,7 +159,6 @@ class TombaGame:
         try:
             return GameState3(state_raw)
         except Exception:
-            logger.debug(f"Unsuported state 3: {state_raw}")
             return GameState3.LOADING
 
     async def is_hud_visible(self):

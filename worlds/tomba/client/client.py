@@ -67,6 +67,8 @@ class TombaContext(CommonContext):
 
     deathlink_pending: bool
 
+    sent_checks: list[int] = []
+
     def __init__(
         self,
         server_address: str | None = None,
@@ -98,9 +100,15 @@ class TombaContext(CommonContext):
             Handler(self.tomba.update_deathlink, interval_ms=750),
         ]
 
+        self.sent_checks = []
+
     async def check_locations(self, locations: list[int]) -> None:
+        locations = [location for location in locations if location not in self.sent_checks]
+
         if len(locations) <= 0:
             return
+
+        self.sent_checks.extend(locations)
 
         logger.debug(f"Location checks: {locations}")
         await super().check_locations(locations)
