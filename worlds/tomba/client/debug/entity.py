@@ -298,11 +298,7 @@ class EventCharacter(Entity):
         data[0x1E] = 0x00
         data[0x2E] = 0x01
 
-        if not self.is_cleared:
-            data[0xD2] = 0x00
-        else:
-            data[0xD2] = 0x27
-            data = write_int(data, 0xCE, TypeSize.HALF_WORD, 0x8002)
+        data[0xD2] = 0x00
 
         data[0x1C] = 0x88
 
@@ -313,11 +309,6 @@ class EventCharacter(Entity):
         data = write_int(data, 0xA0, TypeSize.WORD, self.handler_address)
 
         data = write_int(data, 0xBC, TypeSize.BYTE, self.glyph_id, byteorder="big")
-        # data = write_int(data, 0xBE, TypeSize.BYTE, 0x14, byteorder="big")
-
-        # Texture
-        # data = write_int(data, 0x6C, TypeSize.WORD, 0xE6E0CEE0)
-        # data = write_int(data, 0x70, TypeSize.WORD, 0xE6F0CEF0)
 
         data = write_int(data, 0xC2, TypeSize.HALF_WORD, 0x2F00, byteorder="big")
         data = write_int(data, 0xC8, TypeSize.HALF_WORD, 0xFFD8)
@@ -338,7 +329,7 @@ class EntityHandler:
 
     LETTER_WIDTH = 0x14
     WHITESPACE_WIDTH = 0x10
-    WHITESPACE_HEIGHT = 0x20
+    LETTER_HEIGHT = 0x20
 
     MAX_EVENT_MESSAGE_SIZE = 32
     MAX_EVENT_MESSAGE_LINE_SIZE = 17
@@ -444,7 +435,7 @@ class EntityHandler:
                 target_x += EntityHandler.LETTER_WIDTH
                 index += 1
 
-            target_y += EntityHandler.WHITESPACE_HEIGHT
+            target_y += EntityHandler.LETTER_HEIGHT
 
 
 async def main():

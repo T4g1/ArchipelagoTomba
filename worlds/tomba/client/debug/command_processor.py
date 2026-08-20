@@ -160,7 +160,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
                 for location in locations:
                     print(f"    {json.dumps(location)},")
 
-    async def _cmd_event(self, message: str = "Open Source"):
+    async def _cmd_event(self, message: str = "123456789ABCDEFG Top cool"):
         """Spawn event text"""
         if isinstance(self.ctx, TombaContext):
-            await EntityHandler.spawn_event_text(self.ctx.tomba.playstation, message, is_cleared=False)
+            await EntityHandler.spawn_event_text(self.ctx.tomba.playstation, message, is_cleared=True)
