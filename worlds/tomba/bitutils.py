@@ -10,6 +10,32 @@ class BitmaskAction(int):
     UNSET_CHECKED = 2
 
 
+class TypeSize(int):
+    WORD = 4
+    HALF_WORD = 2
+    BYTE = 1
+
+
+def read_int(
+    data: bytearray, start: int, size: int, byteorder: Literal["little", "big"] = "little", signed: bool = False
+) -> int:
+    return int.from_bytes(data[start : start + size], byteorder=byteorder, signed=signed)
+
+
+def write_int(
+    data: bytearray,
+    start: int,
+    size: int,
+    value: int,
+    byteorder: Literal["little", "big"] = "little",
+    signed: bool = False,
+) -> bytearray:
+    value = min(value, (1 << (8 * size)) - 1)
+
+    data[start : start + size] = value.to_bytes(size, byteorder=byteorder, signed=signed)
+    return data
+
+
 @dataclass
 class Bitmask:
     """Maps a specific bit in RAM"""

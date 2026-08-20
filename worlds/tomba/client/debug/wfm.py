@@ -5,9 +5,7 @@ from PIL import Image
 from ..emulators.emulator import CORE_TYPE, EmulatorStatus, Emulator
 from ..emulators.bizhawk import BizHawk
 from ..handlers.popup import WFMPopup, WFM_POPUP_PTR, WFM_EVENT_PTR
-
-HALF_WORD_SIZE = 2
-BYTE_SIZE = 1
+from ...bitutils import TypeSize
 
 dialog_clut: list[int] = [
     0x8000,
@@ -117,18 +115,18 @@ class WFM(WFMPopup):
 
     async def load_glyph(self, psx: Emulator, id: int, save: bool = False) -> Glyph:
         glyph_table_address = self.address + self.WFM_HEADER_SIZE
-        glyph_offset = await psx.read_int(glyph_table_address + id * HALF_WORD_SIZE, 2)
+        glyph_offset = await psx.read_int(glyph_table_address + id * TypeSize.HALF_WORD, 2)
         glyph_data_address = self.address + glyph_offset
 
         print(f"Loading glyph {id} (0x{id:02X}) at: 0x{glyph_data_address:X}")
 
-        mode = await psx.read_int(glyph_data_address, size=HALF_WORD_SIZE)
+        mode = await psx.read_int(glyph_data_address, size=TypeSize.HALF_WORD)
 
         # In byte
-        height = await psx.read_int(glyph_data_address + 2, size=HALF_WORD_SIZE)
-        width = await psx.read_int(glyph_data_address + 4, size=HALF_WORD_SIZE)
+        height = await psx.read_int(glyph_data_address + 2, size=TypeSize.HALF_WORD)
+        width = await psx.read_int(glyph_data_address + 4, size=TypeSize.HALF_WORD)
 
-        _ = await psx.read_int(glyph_data_address + 6, size=HALF_WORD_SIZE)
+        _ = await psx.read_int(glyph_data_address + 6, size=TypeSize.HALF_WORD)
 
         print(f"Mode: {mode}")
         print(f"Width: {width}")
@@ -138,7 +136,7 @@ class WFM(WFMPopup):
 
         raw = await psx.read_memory_block(glyph_data_address + 8, size=width * height)
         for i in range(width * height // 2):
-            data = int.from_bytes(raw[i : i + BYTE_SIZE], byteorder="little")
+            data = int.from_bytes(raw[i : i + TypeSize.BYTE], byteorder="little")
 
             pixel_1 = data & 0x0F
             pixel_2 = data >> 4
@@ -163,7 +161,7 @@ class WFM(WFMPopup):
         return glyph
 
     async def load_dialog(self, psx: Emulator, id: int, save: bool = False) -> Dialog:
-        dialog_offset = await psx.read_int(self.dialog_table + id * HALF_WORD_SIZE, size=HALF_WORD_SIZE)
+        dialog_offset = await psx.read_int(self.dialog_table + id * TypeSize.HALF_WORD, size=TypeSize.HALF_WORD)
         data_address = self.dialog_table + dialog_offset
 
         if len(self.glyphs) <= 0:
@@ -180,7 +178,7 @@ class WFM(WFMPopup):
             line = Line([])
 
             while not finished:
-                data = await psx.read_int(data_address + (index * HALF_WORD_SIZE), size=HALF_WORD_SIZE)
+                data = await psx.read_int(data_address + (index * TypeSize.HALF_WORD), size=TypeSize.HALF_WORD)
                 if data == 0xFFFF or data == 0xFFFE:
                     finished = True
                     break
@@ -281,7 +279,7 @@ def get_pixel(clut_value: int, inverted: bool = False) -> Pixel:
     return Pixel(red, green, blue, alpha)
 
 
-async def extract_wfm(psx: Emulator, is_dialog: bool=False):
+async def extract_wfm(psx: Emulator, is_dialog: bool = False):
     wfm = WFM(WFM_EVENT_PTR, event_clut)
     if is_dialog:
         wfm = WFM(WFM_POPUP_PTR, dialog_clut)

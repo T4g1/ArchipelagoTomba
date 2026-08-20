@@ -100,16 +100,6 @@ class TombaCommandProcessor(ClientCommandProcessor):
             await self.ctx.tomba.popup_handler.print(test_string.lower())
             await self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")
 
-    async def _cmd_entity(self):
-        """List loaded entities informations"""
-        if isinstance(self.ctx, TombaContext):
-            entities = await EntityHandler.load_entities(self.ctx.tomba.playstation)
-            for entity in entities:
-                if entity.occupied <= 0x00:
-                    continue
-
-                logger.info(entity)
-
     async def _cmd_patch(self):
         """Force re-patch"""
         if isinstance(self.ctx, TombaContext):
@@ -169,3 +159,8 @@ class TombaCommandProcessor(ClientCommandProcessor):
 
                 for location in locations:
                     print(f"    {json.dumps(location)},")
+
+    async def _cmd_event(self, message: str = "Open Source"):
+        """Spawn event text"""
+        if isinstance(self.ctx, TombaContext):
+            await EntityHandler.spawn_event_text(self.ctx.tomba.playstation, message, is_cleared=False)
