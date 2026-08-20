@@ -118,7 +118,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
     async def _cmd_disable(self, type: str):
         """Disable entity type"""
         if isinstance(self.ctx, TombaContext):
-            await EntityHandler.disable(self.ctx.tomba.playstation, int(type, 16))
+            await EntityHandler.disable(self.ctx.tomba.playstation, 0x7D16)
 
     async def _cmd_poptracker(self, type: str):
         """Export data for Poptracker"""

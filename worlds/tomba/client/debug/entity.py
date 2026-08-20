@@ -347,16 +347,10 @@ class EntityHandler:
         return entities
 
     @staticmethod
-    async def disable(
-        psx: Emulator,
-        type: int,
-        address: int = GAME_ENTITY_ADDRESS,
-        count: int = GAME_ENTITY_COUNT,
-        disabled: list[int] = [],
-    ):
+    async def disable(psx: Emulator, type: int, address: int = EVENT_CHAR_ADDRESS, count: int = EVENT_CHAR_COUNT):
         entities = await EntityHandler.load_entities(psx, address, count)
         for entity in entities:
-            if entity.type in disabled:
+            if entity.type == type:
                 await psx.write_memory(entity.address, 0x00.to_bytes())
 
     @staticmethod
@@ -391,6 +385,8 @@ class EntityHandler:
         handler_address = handler_base_address + handler_address_offset
 
         lines = textwrap.wrap(message, width=EntityHandler.MAX_EVENT_MESSAGE_LINE_SIZE)
+
+        cleared_trigger = False
 
         index = 0
         target_y = -32
@@ -427,6 +423,10 @@ class EntityHandler:
 
                 data = entity.to_bytearray()
 
+                if not cleared_trigger and is_cleared:
+                    data = write_int(data, 0xCE, TypeSize.HALF_WORD, 0x8000)
+                    cleared_trigger = True
+
                 print(f"Event address at: 0x{entity_address:04X}")
                 print(f"Event data: {data.hex().upper()}")
 
@@ -459,6 +459,13 @@ async def main():
         except (BlockingIOError, TimeoutError, ConnectionResetError):
             await asyncio.sleep(1.0)
             pass
+
+    entities = await EntityHandler.load_entities(emulator, GAME_ENTITY_ADDRESS, GAME_ENTITY_COUNT)
+    for entity in entities:
+        if entity.occupied <= 0x00:
+            continue
+
+        print(entity)
 
     entities = await EntityHandler.load_entities(emulator, EVENT_CHAR_ADDRESS, EVENT_CHAR_COUNT)
     for entity in entities:
