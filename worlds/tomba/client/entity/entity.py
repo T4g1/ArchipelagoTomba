@@ -4,6 +4,9 @@ from ...bitutils import TypeSize, read_int, write_int
 GAME_ENTITY_ADDRESS = 0x0A5970
 GAME_ENTITY_COUNT = 200
 
+OBJECT_SLOTS_ADDRESS = 0x0A55C0
+OBJECT_SLOTS_COUNT = 0x2D
+
 
 class Entity:
     SIZE = 0xD4
@@ -120,6 +123,7 @@ class Entity:
         value += f"Param 2: {hex(self.param_2)}, "
         value += f"Status: {hex(self.status)}, "
         value += f"Type: {hex(self.type)}, "
+        value += f"TTL: 0x{self.addr_bc:04X}, "
         value += f"Flags: {self.flags.hex()}, "
         value += f"BC: 0x{self.addr_bc:04X}, "
         value += f"Position: {hex(self.position_x)}, {hex(self.position_y)}, "
@@ -159,11 +163,13 @@ class Entity:
 
 class EntityHandler:
     @staticmethod
-    async def load_entities(psx: Emulator, address: int, count: int, type: int | None = None) -> list[Entity]:
+    async def load_entities(
+        psx: Emulator, address: int, count: int, type: int | None = None, size: int = Entity.SIZE
+    ) -> list[Entity]:
         entities = []
         for _ in range(count):
-            address = address + Entity.SIZE
-            entity_raw = await psx.read_memory_block(address, Entity.SIZE)
+            address = address + size
+            entity_raw = await psx.read_memory_block(address, size)
             entity = Entity(address)
             entity.load(entity_raw)
 

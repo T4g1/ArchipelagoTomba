@@ -89,12 +89,8 @@ You can go back to the main menu and select `Load Core`. Select the core you dow
 
 First off, you need to configure the emulator to use the Octoshock core, to do so:
 1. Go to `Config -> Preferred Cores -> PSX`
-<<<<<<< HEAD
 2. Make sure `Octoshock` is selected \
    ![Screenshot of Preferred Cores settings](bizhawk-preferred-cores-en.png)
-=======
-2. Make sure `Octoshock` is selected
->>>>>>> d48594dd ([add] Extract dialogs)
 
 Also, each time you start the emulator, you need to:
 1. Open the LUA console: `Tools -> LUA console`

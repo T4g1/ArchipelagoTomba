@@ -19,7 +19,10 @@ class TypeSize(int):
 def read_int(
     data: bytearray, start: int, size: int, byteorder: Literal["little", "big"] = "little", signed: bool = False
 ) -> int:
-    return int.from_bytes(data[start : start + size], byteorder=byteorder, signed=signed)
+    try:
+        return int.from_bytes(data[start : start + size], byteorder=byteorder, signed=signed)
+    except Exception:
+        return 0x00
 
 
 def write_int(

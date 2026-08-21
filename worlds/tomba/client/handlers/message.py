@@ -158,6 +158,10 @@ class MessageHandler(AbstractHandler):
 
     async def update_event(self):
         """Display event message if possible"""
+        # Check the game is running
+        if not await self.tomba.is_playing():
+            return False
+
         async with self.lock:
             if len(self.event_message_queue) <= 0:
                 return
