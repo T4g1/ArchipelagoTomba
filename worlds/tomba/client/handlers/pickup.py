@@ -24,7 +24,13 @@ class PickupHandler(AbstractHandler):
             Items.JEWEL_OF_FIRE: Handler(self.on_jewel_of_fire),
             Items.JEWEL_OF_WATER: Handler(self.on_jewel_of_water),
             Items.JEWEL_OF_WIND: Handler(self.on_jewel_of_wind),
+            Items.BOMB: Handler(self.on_bomb),
         }
+
+    async def on_bomb(self):
+        """Start break the rusty door if not already started"""
+        if await self.tomba.events_handler.get_event_state(Events.BREAK_THE_RUSTY_DOOR) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.BREAK_THE_RUSTY_DOOR)
 
     async def on_jewel_of_fire(self):
         """Raise red XP to the max"""

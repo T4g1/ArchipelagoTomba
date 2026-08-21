@@ -93,6 +93,7 @@ class WarpHandler(AbstractHandler):
             Sections.BOSS_REAL_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_STORM_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_TRICK_PIG: Handler(self.on_boss_pig_entry),
+            Sections.Y_CROSSING: Handler(self.on_y_crossing),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -111,6 +112,13 @@ class WarpHandler(AbstractHandler):
             if await self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
+
+    async def on_y_crossing(self, coming_from: Section):
+        """Start Food for Fuel
+        Otherwise, player could start it and give wine directly
+        while being in the lumberjack factory
+        which softlock as correct animation is not loaded"""
+        await self.tomba.events_handler.start(Events.FOOD_FOR_FUEL)
 
     async def on_boss_pig_entry(self, coming_from: Section):
         """This is bugged unless Clear the Fog is cleared"""
