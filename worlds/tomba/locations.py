@@ -652,7 +652,7 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
-            at=Bitmask(0x09BD5D, 0x10),
+            at=Bitmask(0x09BD5C, 0x08),
         ),
         ChestLocData(
             "1Up 1,000 Year Old 1",
@@ -989,7 +989,7 @@ class LocationHandler:
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x02),
+            at=Bitmask(0x09BD61, 0x02),
         ),
         ChestLocData(
             "1,000 Year Charity Wing 2",
@@ -997,7 +997,7 @@ class LocationHandler:
             Items.CHARITY_WINGS,
             Sections.LAVA_CAVES,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x02),
+            at=Bitmask(0x09BD61, 0x02),
         ),
         ChestLocData(
             "Million Year Large Lunch",
@@ -1066,7 +1066,7 @@ class LocationHandler:
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
             & HasCleared(Events.WHERES_THE_BABY_MOUSE)
             & HasCleared(Events.A_DRINK_FOR_GROWNUPS),
-            at=Bitmask(0x09BD62, 0x02),
+            at=Bitmask(0x09BD9C, 0x01),
         ),
         ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
         # Haunted Mansion
@@ -1263,7 +1263,13 @@ class LocationHandler:
             for index in range(1, 5)
         ],
         ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
-        ItemLocData("Coconut Tree", Regions.MASAKARI_JUNGLE, Items.BOMB, rule=HasStarted(Events.I_NEED_A_BOMB)),
+        ItemLocData(
+            "Coconut Tree",
+            Regions.MASAKARI_JUNGLE,
+            Items.BOMB,
+            rule=HasStarted(Events.I_NEED_A_BOMB),
+            event=Events.I_NEED_A_BOMB,
+        ),
         ChestLocData(
             Locations.MASAKARI_JUNGLE_PANTS,
             Regions.MASAKARI_JUNGLE,

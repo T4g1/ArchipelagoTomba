@@ -10,6 +10,12 @@ class TombaState(IntEnum):
     CRYING = 0x02
 
 
+class XPType(IntEnum):
+    FIRE = 0
+    WATER = 1
+    WIND = 2
+
+
 class PlayerHandler(AbstractHandler):
     """Handles player methods"""
 
@@ -78,3 +84,17 @@ class PlayerHandler(AbstractHandler):
     async def set_status(self, status: TombaState):
         """Change Tomba! status"""
         await self.tomba.playstation.write_memory(Addresses.TOMBA_STATE, status.to_bytes())
+
+    async def set_max_xp(self, type: XPType):
+        """Set level to 10 and max bar progression"""
+        level_address = Addresses.XP_RED_LEVEL
+        bar_address = Addresses.XP_RED_BAR
+        if type is XPType.WATER:
+            level_address = Addresses.XP_BLUE_LEVEL
+            bar_address = Addresses.XP_BLUE_BAR
+        elif type is XPType.WIND:
+            level_address = Addresses.XP_GREEN_LEVEL
+            bar_address = Addresses.XP_GREEN_BAR
+
+        await self.tomba.playstation.write_memory(level_address, 0x09.to_bytes())
+        await self.tomba.playstation.write_memory(bar_address, 0x3C.to_bytes())

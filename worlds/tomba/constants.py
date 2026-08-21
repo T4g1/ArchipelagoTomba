@@ -9,7 +9,7 @@ class ReleaseType(Enum):
     ALPHA = "Alpha"
 
 
-RELEASE_TYPE: ReleaseType = ReleaseType.PRODUCTION
+RELEASE_TYPE: ReleaseType = ReleaseType.BETA
 
 # See 8002959c for the check
 MAX_LIVES = 99
@@ -484,6 +484,14 @@ class Addresses(IntEnum):
     MAGIC_EGGS_BROKEN_COUNT = 0x09C263
 
     GOLDEN_BOWL_STATUS = 0x09C3E7
+
+    XP_RED_LEVEL = 0x09C100
+    XP_GREEN_LEVEL = 0x09C101
+    XP_BLUE_LEVEL = 0x09C102
+
+    XP_RED_BAR = 0x09C104
+    XP_GREEN_BAR = 0x09C105
+    XP_BLUE_BAR = 0x09C106
 
 
 class MenuState(IntEnum):

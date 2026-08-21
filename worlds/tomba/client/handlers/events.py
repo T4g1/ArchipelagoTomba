@@ -30,7 +30,12 @@ class EventsHandler(AbstractHandler):
             Events.WE_NEED_POWER: Handler(self.on_we_need_power),
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
+            Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
         }
+
+    async def on_mermaid_necklace(self):
+        """Make sure Mighty Fish Food event is not cleared"""
+        await self.tomba.events_handler.forget(Events.MIGHTY_FISH_FOOD)
 
     async def on_somethings_cookin(self):
         """When this is cleared and the campfire location is not
@@ -46,6 +51,7 @@ class EventsHandler(AbstractHandler):
         """Uncheck Let's Ride the Raft
         If it's check at this point, the We Need Power event is softlocked"""
         await self.forget(Events.LETS_RIDE_THE_RAFT)
+        await self.clear(Events.I_NEED_A_BOMB)
 
     async def on_we_need_power(self):
         """Check if the Let's Ride The Raft has been cleared before

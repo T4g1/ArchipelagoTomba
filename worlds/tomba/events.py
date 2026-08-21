@@ -383,7 +383,9 @@ class EventHandler:
             Events.FOOD_FOR_FUEL,
             Regions.LUMBERJACK_FACTORY,
             started_rule=HasCleared(Events.WE_NEED_POWER),
-            cleared_rule=Has(Items.WINE) & CanReachRegion(Regions.LUMBERJACK_FACTORY),
+            cleared_rule=HasCleared(Events.THE_CIVILIZATION_MACHINE)
+            & Has(Items.WINE)
+            & CanReachRegion(Regions.LUMBERJACK_FACTORY),
         ),
         EventData(
             0x69,

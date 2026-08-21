@@ -1,6 +1,7 @@
 from . import Handler, AbstractHandler
 from ...constants import Items, Events, Locations, Regions, EventStatus
 from ...items import ItemHandler
+from .player import XPType
 
 
 class PickupHandler(AbstractHandler):
@@ -20,7 +21,28 @@ class PickupHandler(AbstractHandler):
             Items.RAFT: Handler(self.on_raft),
             Items.BUNK_FLOWER: Handler(self.on_bunk_flower),
             Items.CHICK: Handler(self.on_chick),
+            Items.JEWEL_OF_FIRE: Handler(self.on_jewel_of_fire),
+            Items.JEWEL_OF_WATER: Handler(self.on_jewel_of_water),
+            Items.JEWEL_OF_WIND: Handler(self.on_jewel_of_wind),
+            Items.BOMB: Handler(self.on_bomb),
         }
+
+    async def on_bomb(self):
+        """Start break the rusty door if not already started"""
+        if await self.tomba.events_handler.get_event_state(Events.BREAK_THE_RUSTY_DOOR) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.BREAK_THE_RUSTY_DOOR)
+
+    async def on_jewel_of_fire(self):
+        """Raise red XP to the max"""
+        await self.tomba.player_handler.set_max_xp(XPType.FIRE)
+
+    async def on_jewel_of_water(self):
+        """Raise blue XP to the max"""
+        await self.tomba.player_handler.set_max_xp(XPType.WATER)
+
+    async def on_jewel_of_wind(self):
+        """Raise green XP to the max"""
+        await self.tomba.player_handler.set_max_xp(XPType.WIND)
 
     async def on_chick(self):
         """Player can't have more than 4 Chick at all time to avoid softlock"""
