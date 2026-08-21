@@ -41,7 +41,11 @@ class WFMPopup:
         return True
 
     async def is_loaded(self, psx: Emulator) -> bool:
-        if not await self.has_magic_word(psx) or not await self.has_correct_wfm(psx):
+        if (
+            not await self.has_magic_word(psx)
+            or not await self.has_correct_wfm(psx)
+            or not await self.has_correct_dialog_table(psx)
+        ):
             return False
 
         if not hasattr(self, "dialog_table"):
@@ -67,6 +71,11 @@ class WFMPopup:
             return wfm_popup.decode("utf-8") == self.MAGIC_WORD
         except UnicodeDecodeError:
             return False
+
+    async def has_correct_dialog_table(self, psx: Emulator) -> bool:
+        """Check that we are still using that WFM"""
+        raw_dialog_table_offset = await psx.read_memory_block(self.address + 8, 2)
+        return self.dialog_table_offset == int.from_bytes(raw_dialog_table_offset, byteorder="little")
 
     async def get_dialog_entry(self, psx: Emulator, dialog_index: int):
         """Compute the address of a particular dialog in the dialog table"""
@@ -161,7 +170,7 @@ class PopupHandler(AbstractHandler):
             return False
 
         psx = self.tomba.playstation
-        if not await self.wfm.is_loaded(psx) and not await self.wfm.load(psx):
+        if not await self.wfm.load(psx):
             return False
 
         if not await self.has_free_slot():
