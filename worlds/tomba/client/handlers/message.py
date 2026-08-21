@@ -1,9 +1,10 @@
 from asyncio import Lock
 
 from . import AbstractHandler
-from ...constants import CustomCommand
+from ...constants import CustomCommand, Music, SFX
 from ..emulators.emulator import Emulator
 from ..popup_mappings import CHARMAPS, DEFAULT_CHARMAP
+from ..entity.event_entity import display_cube_message
 
 CHARACTER_WIDTH = 0x08
 
@@ -122,12 +123,15 @@ class WFMPopup:
         await psx.write_memory(address + index + 2, 0xFFFE.to_bytes(2, byteorder="little"))
 
 
-class PopupHandler(AbstractHandler):
-    """Handle popup message in the bottom of the screen"""
+class MessageHandler(AbstractHandler):
+    """Handle message displays like popup in the bottom of the screen
+    or cube event messages
+    Handle two separate message queue: one for each message type"""
 
     wfm: WFMPopup | None = None
 
-    message_queue: list[str] = []
+    wfm_message_queue: list[str] = []
+    event_message_queue: list[tuple[str, bool]] = []
 
     POPUP_SLOT_1_STATUS = 0x0A39C2
     POPUP_SLOT_2_STATUS = 0x0A39BA
@@ -135,15 +139,38 @@ class PopupHandler(AbstractHandler):
 
     lock: Lock = Lock()
 
-    async def update_popups(self):
+    async def update_messages(self):
+        await self.update_wfm()
+        await self.update_event()
+
+    async def update_wfm(self):
+        """Display popup notification if possible"""
         async with self.lock:
-            if len(self.message_queue) <= 0:
+            if len(self.wfm_message_queue) <= 0:
                 return
 
-            message = self.message_queue[0]
+            message = self.wfm_message_queue[0]
             if await self._print(message):
                 try:
-                    self.message_queue.pop(0)
+                    self.wfm_message_queue.pop(0)
+                except Exception:
+                    pass
+
+    async def update_event(self):
+        """Display event message if possible"""
+        async with self.lock:
+            if len(self.event_message_queue) <= 0:
+                return
+
+            message, is_cleared = self.event_message_queue[0]
+            if await display_cube_message(self.tomba.playstation, message, is_cleared):
+                if is_cleared:
+                    await self.tomba.set_music(Music.EVENT_CLEARED)
+                else:
+                    await self.tomba.play_sfx(SFX.EVENT_STARTED)
+
+                try:
+                    self.event_message_queue.pop(0)
                 except Exception:
                     pass
 
@@ -153,20 +180,20 @@ class PopupHandler(AbstractHandler):
         status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
         return status == bytes.fromhex("FFFF")
 
+    async def has_event_cube_display(self) -> bool:
+        """Check if any other event is being displayed"""
+        status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
+        return status == bytes.fromhex("FFFF")
+
+    async def print_event(self, message: str, is_cleared: bool):
+        self.event_message_queue.append((message, is_cleared))
+
+        await self.update_event()
+
     async def print(self, message: str):
-        self.message_queue.append(message)
+        self.wfm_message_queue.append(message)
 
-        await self.update_popups()
-
-    def debug(self):
-        self.message_queue.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        self.message_queue.append("abcdefghijklmnopqrstuvwxyz")
-
-    def dirty(self):
-        if self.wfm is None:
-            self.wfm = WFMPopup(WFM_POPUP_PTR)
-
-        self.wfm.loaded = False
+        await self.update_wfm()
 
     async def _print(self, message: str) -> bool:
         if self.wfm is None:

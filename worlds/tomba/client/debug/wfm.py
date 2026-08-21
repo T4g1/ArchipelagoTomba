@@ -4,7 +4,7 @@ from PIL import Image
 
 from ..emulators.emulator import CORE_TYPE, EmulatorStatus, Emulator
 from ..emulators.bizhawk import BizHawk
-from ..handlers.popup import WFMPopup, WFM_POPUP_PTR, WFM_EVENT_PTR
+from ..handlers.message import WFMPopup, WFM_POPUP_PTR, WFM_EVENT_PTR
 from ...bitutils import TypeSize
 
 dialog_clut: list[int] = [

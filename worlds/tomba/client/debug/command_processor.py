@@ -15,6 +15,7 @@ from ...events import EventHandler
 from ...locations import LocationHandler, ItemLocData
 from ...helpers import codify
 from ..handlers.warp import warp_masks
+from ..entity.event_entity import display_cube_message
 from .entity import EntityHandler
 
 
@@ -96,9 +97,9 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """Debug popup message"""
         if isinstance(self.ctx, TombaContext):
             test_string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            await self.ctx.tomba.popup_handler.print(test_string.upper())
-            await self.ctx.tomba.popup_handler.print(test_string.lower())
-            await self.ctx.tomba.popup_handler.print("0123456789*+!?. ,'/")
+            await self.ctx.tomba.message_handler.print(test_string.upper())
+            await self.ctx.tomba.message_handler.print(test_string.lower())
+            await self.ctx.tomba.message_handler.print("0123456789*+!?. ,'/")
 
     async def _cmd_patch(self):
         """Force re-patch"""
@@ -160,7 +161,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
                 for location in locations:
                     print(f"    {json.dumps(location)},")
 
-    async def _cmd_event(self, message: str = "123456789ABCDEFG Top cool"):
+    async def _cmd_event(self, message: str = "!!! DUMMY CUBE !!!"):
         """Spawn event text"""
         if isinstance(self.ctx, TombaContext):
-            await EntityHandler.spawn_event_text(self.ctx.tomba.playstation, message, is_cleared=True)
+            await display_cube_message(self.ctx.tomba.playstation, message, is_cleared=True)
