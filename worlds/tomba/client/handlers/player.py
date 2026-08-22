@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 from . import AbstractHandler
-from ...constants import Addresses, CustomCommand
+from ...constants import Addresses, CustomCommand, Music
 
 
 class TombaState(IntEnum):
@@ -37,6 +37,7 @@ class PlayerHandler(AbstractHandler):
             # Receive deathlink
             if self.ctx.deathlink_pending:
                 await self.tomba.set_command(CustomCommand.KILL_TOMBA)
+                await self.tomba.set_music(Music.DYING)
                 self.ctx.deathlink_pending = False
 
                 self.dying = True

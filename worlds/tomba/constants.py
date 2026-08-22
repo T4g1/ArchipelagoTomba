@@ -552,6 +552,11 @@ class SFX(IntEnum):
     FART = 0x32
 
 
+class Music(IntEnum):
+    EVENT_CLEARED = 0x02
+    DYING = 0x03
+
+
 class EventControlState(IntEnum):
     NOT_DONE = 0x00
     DONE = 0x01
@@ -579,4 +584,4 @@ class CustomCommand(IntEnum):
     POP_STACK = 0x01  # Bit 0 R/W = 1: Clear stack, stack is being cleared
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
     KILL_TOMBA = 0x04  # Bit 3 W = 1: Calls the registered method (currently: kill tomba)
-    SHOW_EVENT = 0x08  # Bit 4 W = 1: Calls the registered method (show event status)
+    SET_MUSIC = 0x08  # Bit 4 W = 1: Calls the registered method (show event status)

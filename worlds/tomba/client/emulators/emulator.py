@@ -1,5 +1,6 @@
 from enum import Enum
 from socket import socket as SocketType
+from typing_extensions import Literal
 
 
 class EmulatorException(Exception):
@@ -119,3 +120,7 @@ class Emulator:
 
         if value != original_value:
             await self.write_memory(address, value.to_bytes())
+
+    async def read_int(self, address: int, size: int = 4, byteorder: Literal["little", "big"] = "little") -> int:
+        raw = await self.read_memory_block(address, size)
+        return int.from_bytes(raw, byteorder=byteorder)

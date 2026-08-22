@@ -7,13 +7,23 @@ if TYPE_CHECKING:
 
 from CommonClient import logger
 
-from ..constants import GameState, HudState, MenuState, EventStatus, Addresses, GameState1, GameState3, Regions
+from ..constants import (
+    GameState,
+    HudState,
+    MenuState,
+    EventStatus,
+    Addresses,
+    GameState1,
+    GameState3,
+    Regions,
+    CustomCommand,
+)
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
 from .handlers.events import EventsHandler
 from .handlers.door import DoorHandler
-from .handlers.popup import PopupHandler
+from .handlers.message import MessageHandler
 from .handlers.player import PlayerHandler
 from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
 from .emulators.retroarch import RetroArch
@@ -58,7 +68,7 @@ class TombaGame:
         self.warp_hanlder = WarpHandler(self.ctx, self)
         self.events_handler = EventsHandler(self.ctx, self)
         self.doors_handler = DoorHandler(self.ctx, self)
-        self.popup_handler = PopupHandler(self.ctx, self)
+        self.message_handler = MessageHandler(self.ctx, self)
         self.player_handler = PlayerHandler(self.ctx, self)
 
     async def wait_for_emulator_connection(self):
@@ -95,17 +105,13 @@ class TombaGame:
     async def play_sfx(self, sfx_id: int):
         await self.playstation.write_memory(Addresses.PLAY_SFX, sfx_id.to_bytes())
 
-    async def show_event(self, event: EventData, status: EventStatus):
-        # TODO: Need to figure how to map those from other areas if needed
-        # await self.playstation.write_memory(Addresses.PARAM_A0, event.id.to_bytes(1))
-        # await self.playstation.write_memory(Addresses.PARAM_A1, event.id.to_bytes(1))
-        # await self.set_command(CustomCommand.SHOW_EVENT)
+    async def set_music(self, music_id: int):
+        await self.playstation.write_memory(Addresses.PARAM_A0, music_id.to_bytes())
+        await self.set_command(CustomCommand.SET_MUSIC)
 
-        # Temporary solution: Use popup instead
-        status_message = "Started"
-        if status == EventStatus.CLEARED:
-            status_message = "Cleared"
-        await self.popup_handler.print(f"'{event.name}' {status_message}")
+    async def show_event(self, event: EventData, status: EventStatus):
+        is_cleared = status == EventStatus.CLEARED
+        await self.message_handler.print_event(event.name, is_cleared)
 
     async def get_command(self, command_mask=0xFF) -> int:
         command = (await self.playstation.async_read_memory(Addresses.CUSTOM_COMMAND))[0]
@@ -252,8 +258,8 @@ class TombaGame:
     async def update_inventory(self):
         await self.inventory_handler.update_inventory()
 
-    async def update_popups(self):
-        await self.popup_handler.update_popups()
+    async def update_messages(self):
+        await self.message_handler.update_messages()
 
     async def update_deathlink(self):
         await self.player_handler.update_deathlink()

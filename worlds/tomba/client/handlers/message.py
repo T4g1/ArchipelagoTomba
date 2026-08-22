@@ -1,22 +1,30 @@
 from asyncio import Lock
 
 from . import AbstractHandler
-from ...constants import CustomCommand
+from ...constants import CustomCommand, Music, SFX
 from ..emulators.emulator import Emulator
 from ..popup_mappings import CHARMAPS, DEFAULT_CHARMAP
+from ..entity.event_entity import display_cube_message
 
 CHARACTER_WIDTH = 0x08
+
+WFM_POPUP_PTR = 0x1F800398
+WFM_EVENT_PTR = 0x1F80039C
 
 
 class WFMPopup:
     MAGIC_WORD = "WFM3"
-    WFM_POPUP_PTR = 0x1F800398
 
     loaded: bool = False
 
     address: int
     dialog_table_offset: int
     dialog_table: int
+
+    wfm_pointer: int
+
+    def __init__(self, wfm_pointer: int):
+        self.wfm_pointer = wfm_pointer
 
     async def _load_dialog_table(self, psx: Emulator):
         """Load dialog table addresses"""
@@ -28,7 +36,7 @@ class WFMPopup:
 
     async def load(self, psx: Emulator) -> bool:
         """Check the WFM table address and availability"""
-        raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
+        raw_address = await psx.read_memory_block(self.wfm_pointer, 4)
         self.address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
 
         if not await self.has_magic_word(psx):
@@ -55,7 +63,7 @@ class WFMPopup:
 
     async def has_correct_wfm(self, psx: Emulator) -> bool:
         """Check that we are still using that WFM"""
-        raw_address = await psx.read_memory_block(self.WFM_POPUP_PTR, 4)
+        raw_address = await psx.read_memory_block(self.wfm_pointer, 4)
         address = int.from_bytes(raw_address, byteorder="little") & 0x0FFFFFFF
 
         return address == self.address
@@ -115,12 +123,15 @@ class WFMPopup:
         await psx.write_memory(address + index + 2, 0xFFFE.to_bytes(2, byteorder="little"))
 
 
-class PopupHandler(AbstractHandler):
-    """Handle popup message in the bottom of the screen"""
+class MessageHandler(AbstractHandler):
+    """Handle message displays like popup in the bottom of the screen
+    or cube event messages
+    Handle two separate message queue: one for each message type"""
 
     wfm: WFMPopup | None = None
 
-    message_queue: list[str] = []
+    wfm_message_queue: list[str] = []
+    event_message_queue: list[tuple[str, bool]] = []
 
     POPUP_SLOT_1_STATUS = 0x0A39C2
     POPUP_SLOT_2_STATUS = 0x0A39BA
@@ -128,15 +139,42 @@ class PopupHandler(AbstractHandler):
 
     lock: Lock = Lock()
 
-    async def update_popups(self):
+    async def update_messages(self):
+        await self.update_wfm()
+        await self.update_event()
+
+    async def update_wfm(self):
+        """Display popup notification if possible"""
         async with self.lock:
-            if len(self.message_queue) <= 0:
+            if len(self.wfm_message_queue) <= 0:
                 return
 
-            message = self.message_queue[0]
+            message = self.wfm_message_queue[0]
             if await self._print(message):
                 try:
-                    self.message_queue.pop(0)
+                    self.wfm_message_queue.pop(0)
+                except Exception:
+                    pass
+
+    async def update_event(self):
+        """Display event message if possible"""
+        # Check the game is running
+        if not await self.tomba.is_playing():
+            return False
+
+        async with self.lock:
+            if len(self.event_message_queue) <= 0:
+                return
+
+            message, is_cleared = self.event_message_queue[0]
+            if await display_cube_message(self.tomba.playstation, message, is_cleared):
+                if is_cleared:
+                    await self.tomba.set_music(Music.EVENT_CLEARED)
+                else:
+                    await self.tomba.play_sfx(SFX.EVENT_STARTED)
+
+                try:
+                    self.event_message_queue.pop(0)
                 except Exception:
                     pass
 
@@ -146,24 +184,24 @@ class PopupHandler(AbstractHandler):
         status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
         return status == bytes.fromhex("FFFF")
 
+    async def has_event_cube_display(self) -> bool:
+        """Check if any other event is being displayed"""
+        status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
+        return status == bytes.fromhex("FFFF")
+
+    async def print_event(self, message: str, is_cleared: bool):
+        self.event_message_queue.append((message, is_cleared))
+
+        await self.update_event()
+
     async def print(self, message: str):
-        self.message_queue.append(message)
+        self.wfm_message_queue.append(message)
 
-        await self.update_popups()
-
-    def debug(self):
-        self.message_queue.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        self.message_queue.append("abcdefghijklmnopqrstuvwxyz")
-
-    def dirty(self):
-        if self.wfm is None:
-            self.wfm = WFMPopup()
-
-        self.wfm.loaded = False
+        await self.update_wfm()
 
     async def _print(self, message: str) -> bool:
         if self.wfm is None:
-            self.wfm = WFMPopup()
+            self.wfm = WFMPopup(WFM_POPUP_PTR)
 
         # Check the game is running
         if not await self.tomba.is_playing():
