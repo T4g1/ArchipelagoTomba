@@ -59,9 +59,11 @@ class TombaGame:
         self.should_reset_auth = False
 
         self.status = GameState.UNKNOWN
-        self.section: Section = Sections.NONE
+        self.section: Section = Section(0xFF, 0xFF)
 
         self.playstation: Emulator
+
+        self.should_update_entrances = False
 
         self.inventory_handler = InventoryHandler(self.ctx, self)
         self.pickup_handler = PickupHandler(self.ctx, self)
@@ -249,8 +251,13 @@ class TombaGame:
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
 
+            self.should_update_entrances = True
+
             await self.warp_hanlder.handle_leaving(self.section, to=new_section)
             await self.warp_hanlder.handle(self.section, coming_from=old_section)
+
+        if self.should_update_entrances and self.is_playing():
+            pass
 
     async def update_events(self):
         await self.events_handler.update_events()

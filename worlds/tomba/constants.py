@@ -66,6 +66,7 @@ class Regions(str):
     CENTRAL_PARK = "Central Park"
     CHARITY_SQUARE = "Charity Square"
     CLOCK_TOWER = "Clock Tower"
+    DWARF_ELDER_HUT = "Dwarf Elder's Hut"
     DWARF_JAIL = "Dwarf Jail"
     DWARF_VILLAGE = "Dwarf Village"
     FOREST_OF_100_FLOWERS = "Forest Of 100 Flowers"
