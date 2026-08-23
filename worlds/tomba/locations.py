@@ -1532,7 +1532,7 @@ class LocationHandler:
             at=Bitmask(0x09BD3D, 0x40),
         ),
         ChestLocData(
-            "Medecine",
+            "Medicine",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
             Items.COLD_MEDECINE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
