@@ -5,6 +5,7 @@ from rule_builder.rules import Has, Rule, CanReachRegion
 
 from .helpers import HasStarted, HasCleared, Rules
 from .constants import Regions, Events, Items, Locations
+from .sections import Sections
 
 
 @dataclass
@@ -177,7 +178,7 @@ class EventHandler:
             0x22,
             Events.LAVA_CAVES,
             Regions.LAVA_CAVES,
-            cleared_rule=Has(Items.GREEN_EVIL_PIG_BAG) & CanReachRegion(Regions.HAUNTED_MANSION),
+            cleared_rule=Has(Items.GREEN_EVIL_PIG_BAG) & CanReachRegion(Sections.LAUGHING_ROOM.name),
         ),
         EventData(
             0x23,
@@ -208,7 +209,7 @@ class EventHandler:
             cleared_rule=Has(Items.RISE_AND_SHINE_POWDER) & Has(Items.TEAR_JAR),
         ),
         EventData(0x29, Events.SMILE, Regions.STORMY_MOUNTAIN),
-        EventData(0x2A, Events.CRY_BABY, Regions.HAUNTED_MANSION),
+        EventData(0x2A, Events.CRY_BABY, Sections.HAUNTED_MANSION_WEST.name),
         EventData(
             0x2B, Events.CANT_STOP_CRYING, Regions.BACCUS_VILLAGE, started_rule=HasCleared(Events.WHERES_THE_BABY_MOUSE)
         ),
@@ -235,7 +236,9 @@ class EventHandler:
             Regions.BACCUS_VILLAGE,
             cleared_rule=HasStarted(Events.A_DRINK_FOR_GROWNUPS) & HasCleared(Events.WHERES_THE_BABY_MOUSE),
         ),
-        EventData(0x33, Events.A_SMALL_KEY_HOLE, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.SMALL_KEY)),
+        EventData(
+            0x33, Events.A_SMALL_KEY_HOLE, Sections.HAUNTED_MANSION_NORTH.name, cleared_rule=Has(Items.SMALL_KEY)
+        ),
         # EventData(0x34, Events., Regions.), # Unused
         EventData(
             0x35, Events.THE_MOUSE_PIG_BAG, Regions.BACCUS_VILLAGE, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
@@ -243,22 +246,27 @@ class EventHandler:
         EventData(
             0x36,
             Events.THE_HAUNTED_MANSION,
-            Regions.HAUNTED_MANSION,
+            Sections.HAUNTED_MANSION_SOUTH.name,
             cleared_rule=Has(Items.PINK_EVIL_PIG_BAG) & HasCleared(Events.LAVA_CAVES),
         ),
         EventData(0x37, Events.A_LARGE_KEY_HOLE, Regions.STORMY_MOUNTAIN, cleared_rule=Has(Items.BIG_KEY)),
         EventData(
             0x38,
             Events.PAINTING_OF_A_BIG_KEY,
-            Regions.HAUNTED_MANSION,
+            Sections.THIEFS_ROOM_THREE.name,
             cleared_rule=Has(Items.LARGE_KEY_PANEL_1)
             & Has(Items.LARGE_KEY_PANEL_2)
             & Has(Items.LARGE_KEY_PANEL_3)
             & Has(Items.LARGE_KEY_PANEL_4)
             & Has(Items.LARGE_KEY_PANEL_5),
         ),
-        EventData(0x39, Events.BREAK_THE_MAGIC_EGG, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.SMALL_KEY)),
-        EventData(0x3A, Events.RED_HIDDEN_POWERS, Regions.HAUNTED_MANSION),
+        EventData(
+            0x39,
+            Events.BREAK_THE_MAGIC_EGG,
+            Sections.THOUSAND_YEAR_OLD_MANS_ROOM.name,
+            cleared_rule=Has(Items.SMALL_KEY),
+        ),
+        EventData(0x3A, Events.RED_HIDDEN_POWERS, Sections.SUN_TORCH_STAND.name),
         # EventData(0x3B, Events., Regions.), # Unused
         # EventData(0x3C, Events., Regions.), # Unused
         # EventData(0x3D, Events., Regions.), # Unused
@@ -317,7 +325,7 @@ class EventHandler:
         EventData(
             0x51,
             Events.THE_BOSS_TREASURE,
-            Regions.HAUNTED_MANSION,
+            Sections.THIEFS_ROOM_ONE.name,
             started_rule=HasCleared(Events.THE_HAUNTED_MANSION) & HasCleared(Events.WHAT_THE_THIEF_FORGOT),
             cleared_rule=Has(Items.SMALL_KEY) & Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
@@ -417,7 +425,7 @@ class EventHandler:
             Events.THE_MERMAIDS_NECKLACE,
             Regions.TRICK_VILLAGE,
             started_rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            cleared_rule=Has(Items.SEASHELL_NECKLACE) & CanReachRegion(Regions.HAUNTED_MANSION),
+            cleared_rule=Has(Items.SEASHELL_NECKLACE) & CanReachRegion(Sections.HIDING_ROOM.name),
         ),
         EventData(
             0x71,
@@ -459,7 +467,7 @@ class EventHandler:
         EventData(
             0x77,
             Events.MIGHTY_FISH_FOOD,
-            Regions.HAUNTED_MANSION,
+            Sections.HIDING_ROOM.name,
             started_rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),
             cleared_rule=Has(Items.MIGHTY_FISH_FOOD)
             & (
@@ -499,7 +507,7 @@ class EventHandler:
             started_rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             cleared_rule=Has(Items.YELLOW_EVIL_PIG_BAG) & CanReachRegion(Regions.CLOCK_TOWER_ENTRANCE),
         ),
-        EventData(0x7D, Events.THE_THIEFS_DOOR, Regions.UNDERGROUND_MAZE_ENTRANCE, cleared_rule=Has(Items.THIEFS_WIRE)),
+        EventData(0x7D, Events.THE_THIEFS_DOOR, Sections.UNDERGROUND_MAZE.name, cleared_rule=Has(Items.THIEFS_WIRE)),
         EventData(
             0x7E,
             Events.THE_10_MATH_BEADS,
@@ -539,8 +547,8 @@ class EventHandler:
         EventData(
             0x80,
             Events.UNBREAKABLE_WIRE,
-            Regions.UNDERGROUND_MAZE,
-            cleared_rule=CanReachRegion(Regions.HAUNTED_MANSION),
+            Regions.UNDERGROUND_MAZE_INNER,
+            cleared_rule=CanReachRegion(Sections.TRIBULATION_ROOM.name),
         ),
         EventData(
             0x81,
@@ -571,9 +579,9 @@ class EventHandler:
         EventData(
             0x90,
             Events.MILLION_YEAR_OLD_WISH,
-            Regions.UNDERGROUND_MAZE,
-            started_rule=CanReachRegion(Regions.MILLION_YEAR_OLD_MANS_ROOM),
-            cleared_rule=Has(Items.RED_EVIL_PIG_BAG)  # TODO: This one probably needs more conditions
+            Sections.MILLION_YEAR_OLD_MANS_ROOM.name,
+            started_rule=CanReachRegion(Sections.MILLION_YEAR_OLD_MANS_ROOM.name),
+            cleared_rule=Has(Items.RED_EVIL_PIG_BAG)
             & Has(Items.BLUE_EVIL_PIG_BAG)
             & Has(Items.NAVY_EVIL_PIG_BAG)
             & Has(Items.PINK_EVIL_PIG_BAG)
@@ -584,11 +592,11 @@ class EventHandler:
         EventData(
             0x91,
             Events.DIG_LIKE_A_MOLE,
-            Regions.UNDERGROUND_MAZE_ENTRANCE,
+            Sections.UNDERGROUND_MAZE.name,
             started_rule=HasCleared(Events.WE_NEED_POWER),
             cleared_rule=HasCleared(Events.SOURCE_OF_EVIL_MAGIC),
         ),
-        EventData(0x92, Events.THE_BLUE_FORTUNE_TELLER, Regions.UNDERGROUND_MAZE),
+        EventData(0x92, Events.THE_BLUE_FORTUNE_TELLER, Regions.UNDERGROUND_MAZE_INNER),
         # EventData(0x93, Events., Regions.), # Unused
         # EventData(0x94, Events., Regions.), # Unused
         # EventData(0x95, Events., Regions.), # Unused
@@ -606,7 +614,7 @@ class EventHandler:
         EventData(
             0x99,
             Events.WHATS_UNDERWATER,
-            Regions.HAUNTED_MANSION,
+            Sections.HIDING_ROOM.name,
             started_rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),
         ),
         # EventData(0x9A, Events., Regions.), # Unused
@@ -634,7 +642,7 @@ class EventHandler:
             started_rule=HasCleared(Events.MILLION_YEAR_OLD_WISH),
             cleared_rule=CanReachRegion(Regions.DWARF_VILLAGE)
             & CanReachRegion(Regions.BACCUS_VILLAGE)
-            & CanReachRegion(Regions.HAUNTED_MANSION)
+            & CanReachRegion(Sections.KEYHOLE_ROOM.name)
             & CanReachRegion(Regions.Y_CROSSING)
             & CanReachRegion(Regions.LUMBERJACK_FACTORY)
             & CanReachRegion(Regions.IRON_CASTLE_ENTRANCE),
@@ -706,7 +714,10 @@ class EventHandler:
         EventData(0xAC, Events.THE_FIRE_PIG_BAG, Regions.LAVA_CAVES, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)),
         EventData(0xAD, Events.CHARLES_PANTS, Regions.STORMY_MOUNTAIN, cleared_rule=Has(Items.CHARLES_PANTS)),
         EventData(
-            0xAE, Events.THE_HAUNTED_PIG_BAG, Regions.HAUNTED_MANSION, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
+            0xAE,
+            Events.THE_HAUNTED_PIG_BAG,
+            Sections.HAUNTED_MANSION_SOUTH.name,
+            cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
         EventData(0xAF, Events.THE_WORLDS_GREATEST_SMILE, Regions.MUSHROOM_FOREST),
         EventData(0xB0, Events.THE_WORLDS_GREATEST_POUT, Regions.MUSHROOM_FOREST),
@@ -721,7 +732,7 @@ class EventHandler:
         EventData(
             0xB3,
             Events.WHERED_THE_LIGHTS_GO,
-            Regions.DWARF_JAIL,
+            Sections.UNDERGROUND_PRISON.name,
             started_rule=HasStarted(Events.TO_PHOENIX_MOUNTAIN),
             cleared_rule=Has(Items.TORCH),
         ),

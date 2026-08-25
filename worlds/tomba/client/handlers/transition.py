@@ -42,11 +42,11 @@ class Entrance:
 
     def __str__(self) -> str:
         return (
-            f"Entrance 0x{self.address:08X} to {self.section} " + 
-            f"at spawn 0x{self.spawn:02X} with {self.animation:02X} method " + 
-            f"(anim params: {self.animation_parameters:08X})"
+            f"Entrance 0x{self.address:08X} to {self.section} "
+            + f"at spawn 0x{self.spawn:02X} with {self.animation:02X} method "
+            + f"(anim params: {self.animation_parameters:08X})"
         )
-    
+
     @staticmethod
     async def compute_entrances_array(psx: Emulator, section: Section) -> int:
         """Give the address of a given entrance
@@ -67,12 +67,9 @@ class TransitionHandler(AbstractHandler):
 
     async def update_transitions(self, section: Section):
         """Re-writes all transitions to align on the randomized entrances"""
-        logger.info(self.ctx.slot_data.get("entrance_pairings", []))
 
         pairings: dict[str, dict[int, tuple[int, int, int]]] = self.ctx.slot_data.get("entrance_pairings", [])
         entrances_array = await Entrance.compute_entrances_array(self.tomba.playstation, section)
-
-        section_key = f"{section.area_id}-{section.section_id}"
 
         for entrance_id, target in pairings.get(section.network_key(), {}).items():
             target_area = target[0]
@@ -86,3 +83,7 @@ class TransitionHandler(AbstractHandler):
             data[2] = target_spawn
 
             await self.tomba.playstation.write_memory(entrance_address + 5, data)
+
+            logger.info(
+                f"Update transition 0x{int(entrance_id):02X} to 0x{target_area:02X}-0x{target_section:02X} at 0x{target_spawn:02X}"
+            )

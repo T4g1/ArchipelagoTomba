@@ -260,6 +260,7 @@ class TombaGame:
 
         if self.should_update_entrances and await self.has_game_in_progress():
             await self.transition_handler.update_transitions(new_section)
+            self.should_update_entrances = False
 
     async def update_events(self):
         await self.events_handler.update_events()

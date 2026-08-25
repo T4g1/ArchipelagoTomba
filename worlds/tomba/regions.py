@@ -77,17 +77,17 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
             [
                 # Entry("Starting Pillar", 0x00),
                 Entry("Garage Door", 0x01),
-                Entry("Mansion Door", 0x02),
+                # Entry("Mansion Door", 0x02),
                 Entry("Witch Door", 0x03),
             ],
             [
+                Exit("Garage Entrance", 0x01, Sections.GARAGE, Rules.CAN_BREAK_STUFF),
                 Exit(
                     "Mizuno's Entrance",
                     0x02,
                     Sections.WITCH_HUT,
                     lambda state: state.can_reach_location(Started(Events.THE_CUTE_WITCH), player),
                 ),
-                Exit("Garage Entrance", 0x00, Sections.GARAGE, Rules.CAN_BREAK_STUFF),
             ],
         ),
         Sections.FOREST_OF_ALL_BEGINNING_PART_1: Transitions(
@@ -280,9 +280,25 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Bottom Left Entrance", 0x05),
             ],
             [
-                Exit("Million Year Old Man", 0x00, Sections.MILLION_YEAR_OLD_MANS_ROOM),
-                Exit("Upper Left", 0x01, Sections.THE_STRANGE_SMALL_ROOM),
-                Exit("Bottom Left", 0x02, Sections.FOREST_OF_ALL_BEGINNING_PART_1),
+                Exit(
+                    "Million Year Old Man",
+                    0x00,
+                    Sections.MILLION_YEAR_OLD_MANS_ROOM,
+                    lambda state: state.has(Items.MILLION_YEAR_OLD_BELL, player)
+                    or state.can_reach_location(Cleared(Events.UNBREAKABLE_WIRE), player),
+                ),
+                Exit(
+                    "Upper Left",
+                    0x01,
+                    Sections.THE_STRANGE_SMALL_ROOM,
+                    lambda state: state.can_reach_location(Cleared(Events.THE_THIEFS_DOOR), player),
+                ),
+                Exit(
+                    "Bottom Left",
+                    0x02,
+                    Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+                    lambda state: state.can_reach_location(Cleared(Events.THE_THIEFS_DOOR), player),
+                ),
                 Exit("Bottom Right", 0x03, Sections.WATCH_TOWER),
                 Exit("Upper Right", 0x04, Sections.CIVILIZATION_ROOM),
             ],
@@ -306,7 +322,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         Sections.STORMY_MOUNTAINS_PART_1: Transitions(
             [
                 Entry("Left Entrance", 0x01),
-                Entry("Middle Entrance", 0x02),
+                # Entry("Middle Entrance", 0x02),
                 Entry("Right Entrance", 0x03),
                 Entry("Pipe Entrance", 0x04),
             ],
@@ -347,8 +363,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                     "Top",
                     0x02,
                     Sections.HIDDEN_VILLAGE,
-                    lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player)
-                    and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
+                    lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
+                    # and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
                 ),
             ],
         ),
@@ -453,8 +469,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                     Sections.HIDING_ROOM,
                     lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
                 ),
-                # Exit("Sun Torch Stand", 0x0A, 
-                # Sections.SUN_TORCH_STAND, 
+                # Exit("Sun Torch Stand", 0x0A,
+                # Sections.SUN_TORCH_STAND,
                 # lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player)),
             ],
         ),
@@ -676,7 +692,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         Sections.MUSHROOM_FOREST: Transitions(
             [
                 Entry("Watch Tower Entrance", 0x01),
-                Entry("Leaf Slider Entrance", 0x02),
+                # Entry("Leaf Slider Entrance", 0x02),
                 Entry("Stormy Mountain Entrance", 0x03),
                 Entry("Lake Entrance", 0x04),
                 Entry("Haunted Mansion", 0x05),
@@ -753,12 +769,17 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.MASAKARI_JUNGLE: Transitions(
             [
-                Entry("Left Entrance", 0x01),
+                # Entry("Left Entrance", 0x01),
                 Entry("Civilization Entrance", 0x02),
                 Entry("River Entrance", 0x03),
             ],
             [
-                Exit("Civilization", 0x00, Sections.Y_CROSSING, Has(Items.MINERS_HAT)),
+                Exit(
+                    "Civilization",
+                    0x00,
+                    Sections.Y_CROSSING,
+                    # Has(Items.MINERS_HAT)
+                ),
                 Exit(
                     "River",
                     0x01,
@@ -768,7 +789,11 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
             ],
         ),
         Sections.MASAKARI_RIVER: Transitions(
-            [],
+            [
+                Entry("Jungle Entrance", 0x01),
+                Entry("Old Tree Hill Entrance", 0x02),
+                Entry("Trick Entrance", 0x03),
+            ],
             [
                 Exit(
                     "Jungle",
@@ -804,12 +829,13 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
             [
                 Entry("Pond Entrance", 0x01),
                 Entry("Chimney Entrance", 0x02),
-                Entry("Under Hut Entrance", 0x03),
+                # Entry("Under Hut Entrance", 0x03),
+                Entry("River Entrance", 0x04),
             ],
             [
                 Exit("Ol' Pond", 0x00, Sections.OL_POND),
                 Exit("10,000 Year Old Man's Room", 0x01, Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM),
-                # Exit("River Top", 0x02, Sections.MASAKARI_RIVER),
+                Exit("River Top", 0x02, Sections.MASAKARI_RIVER),
                 # Exit("River Botoom", 0x03, Sections.MASAKARI_RIVER),
             ],
         ),
@@ -877,10 +903,13 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
             ],
         ),
         Sections.IRON_CASTLE_ENTRANCE: Transitions(
-            [],
+            [
+                Entry("Bottom Entrance", 0x00),
+                Entry("Top Entrance", 0x01),
+            ],
             [
                 Exit("Down", 0x00, Sections.Y_CROSSING),
-                Exit("Up", 0x01, Sections.IRON_CASTLE_MAIN_ROOM),
+                Exit("Top", 0x01, Sections.IRON_CASTLE_MAIN_ROOM),
             ],
         ),
         Sections.IRON_CASTLE_MAIN_ROOM: Transitions(
@@ -959,7 +988,12 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Ladder Entrance", 0x02),
             ],
             [
-                Exit("Ladder", 0x00, Sections.LAVA_CAVES, Has(Cleared(Events.LAVA_CAVES))),
+                Exit(
+                    "Ladder",
+                    0x00,
+                    Sections.LAVA_CAVES,
+                    # Has(Cleared(Events.LAVA_CAVES))
+                ),
             ],
         ),
     }
@@ -983,6 +1017,12 @@ def get_entrance_info(player: int, entrance: str) -> tuple[Section, int]:
 def connect_regions(world: TombaWorld) -> None:
     for section, transitions in get_randomizable_transitions(world.player).items():
         source = world.get_region(section.name)
+
+        if len(transitions.entries) != len(transitions.exits):
+            raise Exception(
+                f"Number of entries ({len(transitions.entries)}) and exits ({len(transitions.exits)}) differs for {source}"
+            )
+
         for entry in transitions.entries:
             source.create_er_target(get_entrance_name(section, entry.name))
 
@@ -1075,47 +1115,38 @@ def connect_regions(world: TombaWorld) -> None:
         Sections.MASAKARI_JUNGLE.name,
         lambda state: state.can_reach_location(Cleared(Events.THE_MASTER_OF_THE_SKIES), world.player),
     )
-
     connect(
         world,
-        Regions.UNDERGROUND_MAZE_ENTRANCE,
-        Regions.UNDERGROUND_MAZE,
+        Sections.UNDERGROUND_MAZE.name,
+        Regions.UNDERGROUND_MAZE_INNER,
         Has(Items.THIEFS_WIRE),
     )
-    connect(world, Regions.UNDERGROUND_MAZE_ENTRANCE, Regions.FOREST_OF_ALL_BEGINNINGS)
-    connect(
-        world,
-        Regions.UNDERGROUND_MAZE,
-        Regions.MILLION_YEAR_OLD_MANS_ROOM,
-        lambda state: state.has(Items.MILLION_YEAR_OLD_BELL, world.player)
-        or state.can_reach_location(Cleared(Events.UNBREAKABLE_WIRE), world.player),
-    )
 
     connect(
         world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.FOREST_OF_ALL_BEGINNINGS,
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.HUNDREDS_YEAR_OLD_MANS_HUT.name,
         Has(Items.HUNDRED_YEAR_OLD_BELL),
         suffix=" with Bell",
     )
     connect(
         world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.HAUNTED_MANSION,
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.THOUSAND_YEAR_OLD_MANS_ROOM.name,
         Has(Items.THOUSAND_YEAR_OLD_BELL),
         suffix=" with Bell",
     )
     connect(
         world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.TRICK_VILLAGE,
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM.name,
         Has(Items.TEN_THOUSAND_YEAR_OLD_BELL),
         suffix=" with Bell",
     )
     connect(
         world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.UNDERGROUND_MAZE,
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.MILLION_YEAR_OLD_MANS_ROOM.name,
         Has(Items.MILLION_YEAR_OLD_BELL),
         suffix=" with Bell",
     )

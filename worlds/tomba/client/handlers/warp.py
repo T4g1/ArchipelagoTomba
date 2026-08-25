@@ -42,10 +42,13 @@ purified_mask: dict[str, int] = {
     Regions.FOREST_OF_100_FLOWERS: 0x01,
     Regions.STORMY_MOUNTAIN: 0x02,
     Regions.LAVA_CAVES: 0x04,
-    Regions.HAUNTED_MANSION: 0x08,
     Regions.BACCUS_VILLAGE: 0x10,
     Regions.MASAKARI_JUNGLE: 0x20,
     Regions.TRICK_VILLAGE: 0x40,
+    Sections.HAUNTED_MANSION_NORTH.name: 0x08,
+    Sections.HAUNTED_MANSION_WEST.name: 0x08,
+    Sections.HAUNTED_MANSION_SOUTH.name: 0x08,
+    Sections.HAUNTED_MANSION_EAST.name: 0x08,
 }
 
 
