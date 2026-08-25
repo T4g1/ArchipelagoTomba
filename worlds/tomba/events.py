@@ -55,7 +55,7 @@ class EventHandler:
             0x04,
             Events.MOTOCROSS_COURSE,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            cleared_rule=CanReachRegion(Regions.THE_MERMAIDS_SINGING_ROCK),
+            cleared_rule=CanReachRegion(Regions.GARAGE),
         ),
         EventData(
             0x05,
@@ -287,15 +287,18 @@ class EventHandler:
         EventData(
             0x49,
             Events.WE_NEED_POWER,
-            Regions.CLOCK_TOWER,
-            started_rule=CanReachRegion(Regions.CLOCK_TOWER) & HasCleared(Events.I_CANT_SWIM),
-            cleared_rule=Has(Items.BOMB) & CanReachRegion(Regions.IRON_CASTLE),
+            Regions.CLOCK_TOWER_ENGINE_ROOM,
+            started_rule=CanReachRegion(Regions.CLOCK_TOWER_ENGINE_ROOM) & HasCleared(Events.A_REFRESHING_DRINK),
+            cleared_rule=Has(Items.BOMB) & CanReachRegion(Regions.IRON_CASTLE_ENTRANCE),
         ),
         # EventData(0x4A, Events., Regions.), # Unused
         # EventData(0x4B, Events., Regions.), # Unused
         # EventData(0x4C, Events., Regions.), # Unused
         EventData(
-            0x4D, Events.THE_CIVILIZATION_MACHINE, Regions.IRON_CASTLE, started_rule=HasCleared(Events.WE_NEED_POWER)
+            0x4D,
+            Events.THE_CIVILIZATION_MACHINE,
+            Regions.IRON_CASTLE_ENTRANCE,
+            started_rule=HasCleared(Events.WE_NEED_POWER),
         ),
         EventData(0x4E, Events.FIND_CHARLES, Regions.MASAKARI_JUNGLE, cleared_rule=Has(Items.MINERS_HAT)),
         EventData(
@@ -372,7 +375,7 @@ class EventHandler:
         EventData(
             0x66,
             Events.BREAK_THE_RUSTY_DOOR,
-            Regions.IRON_CASTLE,
+            Regions.IRON_CASTLE_ENTRANCE,
             started_rule=HasStarted(Events.WE_NEED_POWER),
             cleared_rule=Has(Items.BOMB),
         ),
@@ -407,7 +410,7 @@ class EventHandler:
             0x6F,
             Events.BACCUS_VILLAGE,
             Regions.BACCUS_VILLAGE,
-            cleared_rule=Has(Items.ORANGE_EVIL_PIG_BAG) & CanReachRegion(Regions.CLOCK_TOWER),
+            cleared_rule=Has(Items.ORANGE_EVIL_PIG_BAG) & CanReachRegion(Regions.CLOCK_TOWER_ENTRANCE),
         ),
         EventData(
             0x70,
@@ -426,8 +429,7 @@ class EventHandler:
         EventData(
             0x72,
             Events.WHAT_THE_WITCH_LOST,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            started_rule=HasStarted(Events.THE_CUTE_WITCH),
+            Regions.WITCHS_HUT,
             cleared_rule=Has(Items.THREE_CRYSTAL_BALLS) & Has(Items.DIRTY_MIRROR),
         ),
         EventData(
@@ -440,8 +442,7 @@ class EventHandler:
         EventData(
             0x74,
             Events.POWER_UP_FOR_TOOLS,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            started_rule=HasStarted(Events.THE_CUTE_WITCH),
+            Regions.WITCHS_HUT,
             cleared_rule=Has(Items.GRAPPLE)
             & Has(Items.BLACKJACK)
             & Has(Items.THREE_CRYSTAL_BALLS)
@@ -470,8 +471,7 @@ class EventHandler:
         EventData(
             0x78,
             Events.LETS_MAKE_CANDY,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            started_rule=HasStarted(Events.THE_CUTE_WITCH),
+            Regions.WITCHS_HUT,
             cleared_rule=Has(Items.BITING_PLANT_FLOWER)
             & Has(Items.BUTAMUSHI_THORN)
             & Has(Items.KOKKA_CLAW)
@@ -497,7 +497,7 @@ class EventHandler:
             Events.TRICK_VILLAGE,
             Regions.TRICK_VILLAGE,
             started_rule=HasCleared(Events.WHATS_UNDERWATER) & Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
-            cleared_rule=Has(Items.YELLOW_EVIL_PIG_BAG) & CanReachRegion(Regions.CLOCK_TOWER),
+            cleared_rule=Has(Items.YELLOW_EVIL_PIG_BAG) & CanReachRegion(Regions.CLOCK_TOWER_ENTRANCE),
         ),
         EventData(0x7D, Events.THE_THIEFS_DOOR, Regions.UNDERGROUND_MAZE_ENTRANCE, cleared_rule=Has(Items.THIEFS_WIRE)),
         EventData(
@@ -595,7 +595,7 @@ class EventHandler:
         EventData(
             0x96,
             Events.LETS_RIDE_THE_RAFT,
-            Regions.IRON_CASTLE,
+            Regions.IRON_CASTLE_ENTRANCE,
             started_rule=HasCleared(Events.WE_NEED_POWER),
             cleared_rule=Has(Items.RAFT) & CanReachRegion(Regions.OLD_TREE_HILL),
         ),
@@ -637,7 +637,7 @@ class EventHandler:
             & CanReachRegion(Regions.HAUNTED_MANSION)
             & CanReachRegion(Regions.Y_CROSSING)
             & CanReachRegion(Regions.LUMBERJACK_FACTORY)
-            & CanReachRegion(Regions.IRON_CASTLE),
+            & CanReachRegion(Regions.IRON_CASTLE_ENTRANCE),
         ),
         # EventData(0x9E, Events., Regions.), # Unused
         EventData(
@@ -743,7 +743,7 @@ class EventHandler:
             Events.A_MAGIC_MIRROR,
             Regions.WATCH_TOWER,
             started_rule=Has(Items.DIRTY_MIRROR),
-            cleared_rule=Has(Items.THREE_CRYSTAL_BALLS) & HasStarted(Events.THE_CUTE_WITCH),
+            cleared_rule=Has(Items.THREE_CRYSTAL_BALLS) & CanReachRegion(Regions.WITCHS_HUT),
         ),
         EventData(
             0xB7,

@@ -48,6 +48,14 @@ class StatusAlteration(Toggle):
     display_name = "Random status alteration ?"
 
 
+class EntranceRandomization(Toggle):
+    """
+    Toggle if the door should be randomized too
+    """
+
+    display_name = "Entrance randomization enabled ?"
+
+
 class GodMode(Toggle):
     """
     Toggle this if you want to never run out of lifes
@@ -133,3 +141,4 @@ class TombaOptions(PerGameCommonOptions):
     status_alteration: StatusAlteration
     deathlink: Deathlink
     god_mode: GodMode
+    entrance_randomization: EntranceRandomization

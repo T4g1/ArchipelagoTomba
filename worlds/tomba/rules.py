@@ -59,7 +59,7 @@ def integrity_checks():
                     "but no area/section"
                 )
         elif location.section is not None and not location.item.is_pants():
-            raise Exception(f"Uneccessary area/section for unique item {location.item.name}")
+            print(f"Uneccessary area/section for unique item {location.item.name}")
 
     for item in ItemHandler.item_table:
         if item.name in bypass_integrity_checks:

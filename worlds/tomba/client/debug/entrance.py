@@ -3,49 +3,16 @@ import asyncio
 from . import bizhawk_connect
 from ..emulators.emulator import Emulator
 from ...sections import Sections, Section
-from ...bitutils import TypeSize, read_int, is_address
+from ..handlers.transition import Entrance
 
-AREAS_ARRAY_ADDRESS = 0x07C54C
-
-
-class Entrance:
-    SIZE = 0x08
-
-    address: int
-    raw: bytearray
-    unknown: int
-    animation: int
-    section: Section
-    spawn: int
-
-    def __init__(self, address: int, raw: bytearray):
-        self.address = address
-        self.load(raw)
-
-    def load(self, raw: bytearray):
-        self.raw = raw
-        self.unknown = read_int(raw, 0, TypeSize.WORD, byteorder="big")
-        self.animation = raw[4]
-        self.section = Sections.get(Section(raw[5], raw[6]))
-        self.spawn = raw[7]
-
-    def __str__(self) -> str:
-        return f"Entrance {self.address:08X} to {self.section} at spawn {self.spawn} with {self.animation:02X} method ({self.unknown:08X})"
+MAX_ENTRANCE_COUNT = 30
 
 
 async def extract_entrances(psx: Emulator, section: Section) -> list[Entrance]:
     entrances = []
-
-    sections_array = await psx.read_int(AREAS_ARRAY_ADDRESS + section.area_id * TypeSize.WORD)
-    if not is_address(sections_array):
-        raise AttributeError(f"sections array is not loaded: {sections_array:08X}")
-
-    entrances_array = await psx.read_int(sections_array + section.section_id * TypeSize.WORD)
-    if not is_address(entrances_array):
-        raise AttributeError(f"entrances array is not loaded: {entrances_array:08X}")
-
-    entrance_address = entrances_array
-    while True:
+    entrance_address = await Entrance.compute_entrances_array(psx, section)
+    count = 0
+    while count < MAX_ENTRANCE_COUNT:
         entrance_data = await psx.read_memory_block(entrance_address, Entrance.SIZE)
         entrance = Entrance(entrance_address, entrance_data)
 
@@ -61,6 +28,7 @@ async def extract_entrances(psx: Emulator, section: Section) -> list[Entrance]:
         entrances.append(entrance)
 
         entrance_address += Entrance.SIZE
+        count += 1
 
     return entrances
 
@@ -75,7 +43,7 @@ async def main():
             for i in range(len(entrances)):
                 entrance = entrances[i]
 
-                print(f"ID {i}: {entrance}")
+                print(f"* ID 0x{i:02X}: {entrance}")
         except AttributeError as exception:
             print(exception)
 
