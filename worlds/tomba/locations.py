@@ -1197,11 +1197,11 @@ class LocationHandler:
         ),
         ItemLocData("In the Chimney", Regions.HAUNTED_MANSION, Items.JEWEL_OF_FIRE),
         ItemLocData(
-            "Save the Old Man", 
-            Regions.HAUNTED_MANSION, 
+            "Save the Old Man",
+            Regions.HAUNTED_MANSION,
             Items.THOUSAND_YEAR_OLD_KEY,
             rule=HasCleared(Events.BREAK_THE_MAGIC_EGG),
-            event=Events.THE_1000_YEAR_OLD_MAN
+            event=Events.THE_1000_YEAR_OLD_MAN,
         ),
         ItemLocData(
             "Thief in the Chimney 1",

@@ -197,7 +197,7 @@ class Items(str):
     MOLASSES = "Molasses"
     MYSTERIOUS_MUSHROOM = "Mysterious Mushroom"
     NAVY_EVIL_PIG_BAG = "Navy Evil Pig Bag"
-    NEEDLEGATOR_TEETH = "Needlegathor Teeth"
+    NEEDLEGATOR_TEETH = "Needlegator Teeth"
     NORMAL_PANTS = "Normal Pants"
     ORANGE_EVIL_PIG_BAG = "Orange Evil Pig Bag"
     ORDINARY_MUSHROOM = "Ordinary Mushroom"
