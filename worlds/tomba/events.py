@@ -350,10 +350,10 @@ class EventHandler:
             started_rule=HasCleared(Events.A_MANS_BEST_FRIEND),
             cleared_rule=Has(Items.SEAWEED) & CanReachRegion(Regions.DWARF_VILLAGE),
         ),
+        # EventData(0x59, Events., Regions.), # Unused
         EventData(
-            0x59, Events.BLUE_HIDDEN_POWERS, Regions.TRICK_VILLAGE, started_rule=HasCleared(Events.WHATS_UNDERWATER)
+            0x5A, Events.BLUE_HIDDEN_POWERS, Regions.TRICK_VILLAGE, started_rule=HasCleared(Events.WHATS_UNDERWATER)
         ),
-        # EventData(0x5A, Events., Regions.), # Unused
         # EventData(0x5B, Events., Regions.), # Unused
         # EventData(0x5C, Events., Regions.), # Unused
         # EventData(0x5D, Events., Regions.), # Unused
