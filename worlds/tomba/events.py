@@ -546,7 +546,7 @@ class EventHandler:
             Events.TAKE_TWO_OF_THESE,
             Regions.VILLAGE_OF_ALL_BEGINNINGS,
             started_rule=HasCleared(Events.POWER_UP_FOR_TOOLS),
-            cleared_rule=Has(Items.COLD_MEDECINE),
+            cleared_rule=Has(Items.COLD_MEDICINE),
         ),
         EventData(0x85, Events.I_WANT_A_BRONZE_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK),
         EventData(0x86, Events.I_WANT_A_SILVER_MEDAL, Regions.THE_MERMAIDS_SINGING_ROCK),

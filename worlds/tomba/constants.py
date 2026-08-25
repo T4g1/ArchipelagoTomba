@@ -125,7 +125,7 @@ class Items(str):
     CHICK = "Chick"
     CHUCKLING_MUSHROOM = "Chuckling Mushroom"
     COCONUTS = "Coconuts"
-    COLD_MEDECINE = "Cold Medecine"
+    COLD_MEDICINE = "Cold Medicine"
     DASHING_PANTS = "Dashing Pants"
     DIRTY_MIRROR = "Dirty Mirror"
     ELECTRIC_EEL = "Electric Eel"

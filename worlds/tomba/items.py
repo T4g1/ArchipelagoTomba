@@ -236,7 +236,7 @@ class ItemHandler:
         ItemData(0x96, IC.filler, Items.STRONG_WIRE),
         ItemData(0x97, IC.filler, Items.TEN_THOUSAND_YEAR_OLD_BELL),
         ItemData(0x98, IC.filler, Items.MILLION_YEAR_OLD_BELL),
-        ItemData(0x99, IC.progression, Items.COLD_MEDECINE),
+        ItemData(0x99, IC.progression, Items.COLD_MEDICINE),
         ItemData(0x9A, IC.progression, Items.YANS_LUNCH_BOX),
         ItemData(0x9B, IC.progression, Items.KEY_TO_OL_POND),
         ItemData(0x9C, IC.progression, Items.HEALING_HERBS),

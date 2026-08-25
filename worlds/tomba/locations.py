@@ -140,7 +140,7 @@ class LocationHandler:
         # Regions.VILLAGE_OF_ALL_BEGINNINGS,
         # Items.MAX_VITALITY_1,
         # Section(0x12, 0x02),
-        # rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.COLD_MEDECINE),
+        # rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.COLD_MEDICINE),
         # ),
         ItemLocData(
             "What the Witch Lost",
@@ -1196,7 +1196,13 @@ class LocationHandler:
             at=Bitmask(0x09BD7D, 0x10),
         ),
         ItemLocData("In the Chimney", Regions.HAUNTED_MANSION, Items.JEWEL_OF_FIRE),
-        ItemLocData("Save the Old Man", Regions.HAUNTED_MANSION, Items.THOUSAND_YEAR_OLD_KEY),
+        ItemLocData(
+            "Save the Old Man", 
+            Regions.HAUNTED_MANSION, 
+            Items.THOUSAND_YEAR_OLD_KEY,
+            rule=HasCleared(Events.BREAK_THE_MAGIC_EGG),
+            event=Events.THE_1000_YEAR_OLD_MAN
+        ),
         ItemLocData(
             "Thief in the Chimney 1",
             Regions.HAUNTED_MANSION,
@@ -1532,9 +1538,9 @@ class LocationHandler:
             at=Bitmask(0x09BD3D, 0x40),
         ),
         ChestLocData(
-            "Medecine",
+            "Medicine",
             Regions.UNDERGROUND_MAZE_ENTRANCE,
-            Items.COLD_MEDECINE,
+            Items.COLD_MEDICINE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD3D, 0x80),
         ),
