@@ -259,8 +259,8 @@ class LocationHandler:
         # Ol' Pond
         ItemLocData("Drown", Regions.OL_POND, Items.BANANAS, Sections.OL_POND),
         ItemLocData("AP Box", Regions.OL_POND, Items.CHEESE, Sections.OL_POND),
-        ItemLocData("1Up 1", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND),
-        ItemLocData("1Up 2", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND),
+        ItemLocData("1Up 1", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND, event=Events.TAKE_ME_HOME),
+        ItemLocData("1Up 2", Regions.OL_POND, Items.ONE_UP, Sections.OL_POND, event=Events.TAKE_ME_HOME),
         ChestLocData(
             "10,000 Year Old Chest",
             Regions.OL_POND,
