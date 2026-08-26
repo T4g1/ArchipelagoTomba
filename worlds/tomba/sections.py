@@ -38,7 +38,7 @@ class Sections(Section):
 
     FOREST_OF_100_FLOWERS = Section(0x01, 0x00)
     RIGHT_ENTRANCE = Section(0x01, 0x01)
-    WOBBLY_WARF = Section(0x01, 0x02)
+    WOBBLY_WHARF = Section(0x01, 0x02)
     WATCH_TOWER = Section(0x01, 0x03)
     CHARITY_SQUARE = Section(0x01, 0x04)
 
@@ -72,7 +72,7 @@ class Sections(Section):
 
     FOREST_OF_100_FLOWERS_PURIFIED = Section(0x07, 0x00)
     RIGHT_ENTRANCE_PURIFIED = Section(0x07, 0x01)
-    WOBBLY_WARF_PURIFIED = Section(0x07, 0x02)
+    WOBBLY_WHARF_PURIFIED = Section(0x07, 0x02)
     WATCH_TOWER_PURIFIED = Section(0x07, 0x03)
     CHARITY_SQUARE_PURIFIED = Section(0x07, 0x04)
 
@@ -108,7 +108,7 @@ purified_sections: dict[Section, Section] = {
     # Dwarf Forest
     Sections.FOREST_OF_100_FLOWERS_PURIFIED: Sections.FOREST_OF_100_FLOWERS,
     Sections.RIGHT_ENTRANCE_PURIFIED: Sections.RIGHT_ENTRANCE,
-    Sections.WOBBLY_WARF_PURIFIED: Sections.WOBBLY_WARF,
+    Sections.WOBBLY_WHARF_PURIFIED: Sections.WOBBLY_WHARF,
     Sections.WATCH_TOWER_PURIFIED: Sections.WATCH_TOWER,
     Sections.CHARITY_SQUARE_PURIFIED: Sections.CHARITY_SQUARE,
     # Phoenix Mountain

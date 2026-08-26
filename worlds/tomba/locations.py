@@ -374,7 +374,7 @@ class LocationHandler:
             "100 Year Old Apples",
             Regions.WOBBLY_WHARF,
             Items.APPLE,
-            Sections.WOBBLY_WARF,
+            Sections.WOBBLY_WHARF,
             # rule=Has(Items.HUNDRED_YEAR_OLD_KEY), # This chest does not require a key
             at=Bitmask(0x09BD23, 0x01),
         ),

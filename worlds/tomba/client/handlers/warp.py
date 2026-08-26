@@ -15,7 +15,7 @@ warp_masks: dict[Section, Bitmask] = {
     Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x08),
     Sections.FOREST_OF_100_FLOWERS: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x01),
     Sections.DWARF_VILLAGE: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x02),
-    Sections.WOBBLY_WARF: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x04),
+    Sections.WOBBLY_WHARF: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x04),
     Sections.WATCH_TOWER: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x08),
     Sections.CHARITY_SQUARE: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x10),
     Sections.UNDERGROUND_MAZE: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x20),
@@ -75,7 +75,7 @@ class WarpHandler(AbstractHandler):
         # Handlers for when we leave a section
         self.leaving_handlers = {
             Sections.FOREST_OF_ALL_BEGINNING_PART_1: Handler(self.on_forest_of_all_beginning_left),
-            Sections.WOBBLY_WARF: Handler(self.on_wobbly_warf_left),
+            Sections.WOBBLY_WHARF: Handler(self.on_wobbly_wharf_left),
             Sections.HIDDEN_VILLAGE: Handler(self.on_hidden_village_left),
         }
 
@@ -94,7 +94,7 @@ class WarpHandler(AbstractHandler):
             Sections.BOSS_STORM_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_TRICK_PIG: Handler(self.on_boss_pig_entry),
             Sections.Y_CROSSING: Handler(self.on_y_crossing_entry),
-            Sections.WOBBLY_WARF: Handler(self.on_wobbly_wharf_entry),
+            Sections.WOBBLY_WHARF: Handler(self.on_wobbly_wharf_entry),
             Sections.WATCH_TOWER: Handler(self.on_watch_tower_entry),
         }
 
@@ -103,7 +103,7 @@ class WarpHandler(AbstractHandler):
         if not self.ctx.check_handler.is_checked(Locations.BITING_PLANT_FLOWER, Regions.FOREST_OF_ALL_BEGINNINGS):
             await self.tomba.playstation.set_flag(0x09BD00, 0x20, False)
 
-    async def on_wobbly_warf_left(self, to: Section):
+    async def on_wobbly_wharf_left(self, to: Section):
         # Put back the barrel if the event is not discovered
         if await self.tomba.events_handler.get_event_state(Events.WHERE_THE_BARREL_ROLLS) is EventStatus.UNDISCOVERED:
             await self.tomba.playstation.set_flag(0x09BD1C, 0x40, False)
