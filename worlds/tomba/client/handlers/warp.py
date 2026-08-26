@@ -83,7 +83,7 @@ class WarpHandler(AbstractHandler):
         self.handlers = {
             Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
-            Sections.MASAKARI_RIVER: Handler(self.on_masakari_river),
+            Sections.MASAKARI_RIVER: Handler(self.on_masakari_river_entry),
             Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
             Sections.BOSS_FOREST_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_HAUNTED_PIG: Handler(self.on_boss_pig_entry),
@@ -93,7 +93,9 @@ class WarpHandler(AbstractHandler):
             Sections.BOSS_REAL_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_STORM_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_TRICK_PIG: Handler(self.on_boss_pig_entry),
-            Sections.Y_CROSSING: Handler(self.on_y_crossing),
+            Sections.Y_CROSSING: Handler(self.on_y_crossing_entry),
+            Sections.WOBBLY_WARF: Handler(self.on_wobbly_wharf_entry),
+            Sections.WATCH_TOWER: Handler(self.on_watch_tower_entry),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -113,7 +115,24 @@ class WarpHandler(AbstractHandler):
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
 
-    async def on_y_crossing(self, coming_from: Section):
+    async def on_wobbly_wharf_entry(self, coming_from: Section):
+        await self.init_forest_of_100_flower_area()
+
+    async def on_watch_tower_entry(self, coming_from: Section):
+        await self.init_forest_of_100_flower_area()
+
+    async def init_forest_of_100_flower_area(self):
+        """Start Dwarf Language event and Save the Dwarfs"""
+        if await self.tomba.events_handler.get_event_state(Events.SAVE_THE_DWARVES) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.SAVE_THE_DWARVES)
+
+        if await self.tomba.events_handler.get_event_state(Events.BEGINNERS_DWARF_LANGUAGE) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.BEGINNERS_DWARF_LANGUAGE)
+
+            # Event giver state to make sure Dwarf Language is correctly started
+            await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
+
+    async def on_y_crossing_entry(self, coming_from: Section):
         """Start Food for Fuel
         Otherwise, player could start it and give wine directly
         while being in the lumberjack factory
@@ -139,7 +158,7 @@ class WarpHandler(AbstractHandler):
         # Prevent softlock when accessing Baccus Lake
         await self.tomba.events_handler.clear(Events.ROAD_TO_BACCUS_LAKE)
 
-    async def on_masakari_river(self, coming_from: Section):
+    async def on_masakari_river_entry(self, coming_from: Section):
         if await self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is not EventStatus.CLEARED:
             charity_wing = ItemHandler.by_name[Items.CHARITY_WINGS]
             await self.tomba.inventory_handler.give_item(charity_wing)
