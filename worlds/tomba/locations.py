@@ -1083,7 +1083,7 @@ class LocationHandler:
             Regions.HAUNTED_MANSION,
             Items.MAX_VITALITY_1,
             Sections.CIVILIZATION_ROOM,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) and HasCleared(Events.THE_HAUNTED_MANSION),
             at=Bitmask(0x09BD7E, 0x40),
         ),
         ItemLocData(
@@ -1307,7 +1307,7 @@ class LocationHandler:
         ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
         # Old Tree Hill
         ChestLocData(
-            "Million Year Old AP Crystal",
+            "Old Tree AP Crystal",
             Regions.OLD_TREE_HILL,
             Items.AP_CRYSTAL,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
@@ -1557,7 +1557,7 @@ class LocationHandler:
             Regions.UNDERGROUND_MAZE,
             Items.AP_CRYSTAL,
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD3C, 0x01),
+            at=Bitmask(0x09BD3D, 0x01),
         ),
         # Underground Maze
         # # TODO: Find where this is called in game (reverse)
