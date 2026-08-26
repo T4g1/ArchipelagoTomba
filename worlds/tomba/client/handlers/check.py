@@ -64,6 +64,7 @@ class CheckHandler(AbstractHandler):
         self.handlers = {
             get_name(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE): Handler(self.on_golden_fruit),
             get_name(Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS): Handler(self.on_campfire),
+            get_name(Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS): Handler(self.on_campfire),
         }
 
         self.ram_update_handlers = {Bitmask(0x09C1BD, 0xFF): Handler(self.on_campfire_extinguished)}

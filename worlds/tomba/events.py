@@ -456,7 +456,12 @@ class EventHandler:
             Events.MIGHTY_FISH_FOOD,
             Regions.HAUNTED_MANSION,
             started_rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),
-            cleared_rule=Has(Items.MIGHTY_FISH_FOOD),
+            cleared_rule=Has(Items.MIGHTY_FISH_FOOD)
+            & (
+                CanReachRegion(Regions.OL_POND)
+                | CanReachRegion(Regions.MASAKARI_JUNGLE)
+                | CanReachRegion(Regions.HAUNTED_MANSION)
+            ),
         ),
         EventData(
             0x78,

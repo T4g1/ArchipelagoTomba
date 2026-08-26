@@ -1083,7 +1083,7 @@ class LocationHandler:
             Regions.HAUNTED_MANSION,
             Items.MAX_VITALITY_1,
             Sections.CIVILIZATION_ROOM,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) and HasCleared(Events.THE_HAUNTED_MANSION),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & HasCleared(Events.THE_HAUNTED_MANSION),
             at=Bitmask(0x09BD7E, 0x40),
         ),
         ItemLocData(
@@ -1106,7 +1106,7 @@ class LocationHandler:
             at=Bitmask(0x09BD7C, 0x20),
         ),
         ItemLocData(
-            "What's Underwater ?",
+            Locations.WAHTS_UNDERWATER,
             Regions.HAUNTED_MANSION,
             Items.MIGHTY_FISH_FOOD,
             rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),

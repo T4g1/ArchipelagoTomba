@@ -57,6 +57,7 @@ class Locations(str):
     TELESCOPE = "Top of Watch Tower"
     VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
+    WAHTS_UNDERWATER = "What's Underwater ?"
 
 
 class Regions(str):

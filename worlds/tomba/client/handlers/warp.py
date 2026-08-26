@@ -137,7 +137,8 @@ class WarpHandler(AbstractHandler):
         Otherwise, player could start it and give wine directly
         while being in the lumberjack factory
         which softlock as correct animation is not loaded"""
-        await self.tomba.events_handler.start(Events.FOOD_FOR_FUEL)
+        if await self.tomba.events_handler.get_event_state(Events.FOOD_FOR_FUEL) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.FOOD_FOR_FUEL)
 
     async def on_boss_pig_entry(self, coming_from: Section):
         """This is bugged unless Clear the Fog is cleared"""
