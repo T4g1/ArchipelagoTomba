@@ -2,7 +2,7 @@ from collections.abc import Hashable
 
 from . import Handler, AbstractHandler
 from ...constants import Locations, Regions, Events
-from ...locations import LocationHandler, get_name
+from ...locations import LocationHandler, get_name, LocationData
 from ...bitutils import Bitmask
 
 
@@ -16,11 +16,17 @@ class CheckHandler(AbstractHandler):
         location = self.get_location(location_name, region_name)
         return location.id in self.ctx.checked_locations
 
-    async def check(self, location_name: str, region_name: str):
-        location = self.get_location(location_name, region_name)
+    async def _check(self, location: LocationData):
         await self.ctx.check_locations([location.id])
 
-    def get_location(self, location_name: str, region_name: str):
+        if location.at is not None:
+            await self.tomba.playstation.set_flag(location.at.address, location.at.mask, location.at.target_value)
+
+    async def check(self, location_name: str, region_name: str):
+        location = self.get_location(location_name, region_name)
+        await self._check(location)
+
+    def get_location(self, location_name: str, region_name: str) -> LocationData:
         location = LocationHandler.by_name.get(get_name(location_name, region_name), None)
         assert location is not None
         return location
@@ -35,25 +41,13 @@ class CheckHandler(AbstractHandler):
         # Cache the states region
         await psx.create_cache(0x09BCEC, 0x700)
 
-        checks = []
+        # Check locations that were checked in game
         for location in LocationHandler.with_bitmask:
             assert location.at is not None
 
-            # Check locations that were checked in game
             if location.id in self.ctx.missing_locations:
                 if await psx.get_flag(location.at.address, location.at.mask):
-                    checks.append(location.id)
-
-            await self.ctx.check_locations(checks)
-
-            # Align checked location and game state
-            if not self.tomba.section.equals(location.section):
-                if location.at.on_cheked:
-                    if location.id in self.ctx.checked_locations:
-                        await psx.set_flag(location.at.address, location.at.mask, location.at.target_value)
-                else:
-                    if location.id not in self.ctx.checked_locations:
-                        await psx.set_flag(location.at.address, location.at.mask, location.at.target_value)
+                    await self._check(location)
 
         # Check direct memory readings
         for bitmask, handler in self.ram_update_handlers.items():

@@ -164,7 +164,12 @@ class Entity:
 class EntityHandler:
     @staticmethod
     async def load_entities(
-        psx: Emulator, address: int, count: int, type: int | None = None, size: int = Entity.SIZE
+        psx: Emulator,
+        address: int,
+        count: int,
+        type: int | None = None,
+        size: int = Entity.SIZE,
+        is_occupied: bool | None = None,
     ) -> list[Entity]:
         entities = []
         for _ in range(count):
@@ -173,7 +178,9 @@ class EntityHandler:
             entity = Entity(address)
             entity.load(entity_raw)
 
-            if entity.type == type or type is None:
+            if (entity.type == type or type is None) and (
+                entity.occupied != 0x00 or not is_occupied or is_occupied is None
+            ):
                 entities.append(entity)
 
         return entities

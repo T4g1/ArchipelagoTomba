@@ -39,27 +39,20 @@ async def main():
             pass
 
     print("Entities:")
-    entities = await EntityHandler.load_entities(emulator, GAME_ENTITY_ADDRESS, GAME_ENTITY_COUNT)
+    entities = await EntityHandler.load_entities(emulator, GAME_ENTITY_ADDRESS, GAME_ENTITY_COUNT, is_occupied=True)
     for entity in entities:
-        if entity.occupied <= 0x00:
-            continue
-
         print(entity)
 
     print("Event cube chars:")
-    entities = await EntityHandler.load_entities(emulator, EVENT_CHAR_ADDRESS, EVENT_CHAR_COUNT)
+    entities = await EntityHandler.load_entities(emulator, EVENT_CHAR_ADDRESS, EVENT_CHAR_COUNT, is_occupied=True)
     for entity in entities:
-        if entity.occupied <= 0x00:
-            continue
-
         print(entity)
 
     print("Object slots:")
-    entities = await EntityHandler.load_entities(emulator, OBJECT_SLOTS_ADDRESS, OBJECT_SLOTS_COUNT, 0x78)
+    entities = await EntityHandler.load_entities(
+        emulator, OBJECT_SLOTS_ADDRESS, OBJECT_SLOTS_COUNT, 0x78, is_occupied=True
+    )
     for entity in entities:
-        if entity.occupied <= 0x00:
-            continue
-
         print(entity)
 
 

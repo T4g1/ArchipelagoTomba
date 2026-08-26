@@ -402,15 +402,9 @@ class Addresses(IntEnum):
 
     GAME_ID = 0x009244
 
-    # ??? = 0x09BC98
-
     AP_SCORE = 0x09BCD4
 
     LIVES = 0x09BCE8  # Shown amount = Stored - 1
-
-    SHOW_FOG = 0x09BCCE  # Also determines if can use FURIOUS TORNADO OR NOT
-
-    MAILBOX_STATE = 0x09BCEC
 
     EVENT_FLAGS = 0x09C10C
 
@@ -538,7 +532,8 @@ class GameState3(IntEnum):
     PLAYING_NO_HUD = 0x02
     IN_MENU = 0x03
     PLAYING_TOP_DOWN_A = 0x04
-    PLAYING_TOP_DOWN_B = 0x06
+    PLAYING_TOP_DOWN_B = 0x05
+    PLAYING_TOP_DOWN_C = 0x06
     LOADING = 0x07
 
 

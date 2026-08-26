@@ -46,11 +46,6 @@ class Bitmask:
     address: int
     mask: int
 
-    # What to do with it:
-    # True: set value if mask is checked,
-    # False: set value if mask is unchecked
-    on_checked: bool
-
     # False: Unset bit, True: Set bit
     target_value: bool
 
@@ -59,7 +54,6 @@ class Bitmask:
         address: int,
         mask: int | None = None,
         position: int | None = None,
-        on_checked: bool = True,
         target_value: bool = True,
     ):
         assert mask is not None or position is not None
@@ -71,7 +65,6 @@ class Bitmask:
         elif position is not None:
             self.mask = Bitmask.from_bit(position)
 
-        self.on_cheked = on_checked
         self.target_value = target_value
 
     @staticmethod
