@@ -93,6 +93,8 @@ class RetroArch(Emulator):
     async def async_read_memory(self, address, size=1):
         command = "READ_CORE_MEMORY"
 
+        address = self.sanitize_address(address)
+
         self.send(f"{command} {hex(address)} {size}\n")
         response = await self.async_recv()
         self.check_command_response(command, response)
@@ -105,13 +107,20 @@ class RetroArch(Emulator):
         if response_addr != address:
             raise BadEmulatorResponse()
 
-        ret = bytearray.fromhex(splits[2])
-        if len(ret) > size:
-            raise BadEmulatorResponse()
-        return ret
+        try:
+            ret = bytearray.fromhex(splits[2])
+            if len(ret) > size:
+                raise BadEmulatorResponse()
+            return ret
+        except ValueError:
+            raise BadEmulatorResponse(
+                f"Unexpected response to {command} on 0x{address:08X} for {size} bytes: {response}"
+            )
 
     async def write_memory(self, address, bytes: bytearray | bytes):
         command = "WRITE_CORE_MEMORY"
+
+        address = self.sanitize_address(address)
 
         self.send(f'{command} {hex(address)} {" ".join(hex(b) for b in bytes)}')
         select.select([self.socket], [], [])
@@ -123,3 +132,7 @@ class RetroArch(Emulator):
 
         if splits[2] == "-1":
             logger.info(splits[3])
+
+    def sanitize_address(self, address: int) -> int:
+        """RetroArch does not handle 0x8XXXXXXX addresses"""
+        return address & 0x7FFFFFFF
