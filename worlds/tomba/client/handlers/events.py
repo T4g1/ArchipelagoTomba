@@ -156,7 +156,11 @@ class EventsHandler(AbstractHandler):
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
-        return EventStatus(self.event_states[event.id])
+
+        try:
+            return EventStatus(self.event_states[event.id])
+        except Exception:
+            return EventStatus.STARTED
 
     async def set_event_state(self, event: EventData, status: EventStatus):
         self.externaly_triggered.append(event.name)
