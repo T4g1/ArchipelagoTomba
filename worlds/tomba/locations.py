@@ -831,7 +831,7 @@ class LocationHandler:
             Regions.LAVA_CAVES,
             Items.GREEN_EVIL_PIG_BAG,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD62, 0x01),
+            at=Bitmask(0x09BD62, 0x10),
         ),
         ItemLocData(
             "Bunk Flower 1",
