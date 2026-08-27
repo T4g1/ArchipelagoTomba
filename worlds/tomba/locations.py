@@ -1066,6 +1066,7 @@ class LocationHandler:
             Items.CHARITY_WINGS,
             Sections.BACCUS_VILLAGE,
             rule=HasStarted(Events.DEATH_FRUIT_JUICE),
+            event=Events.DEATH_FRUIT_JUICE,
         ),
         # Central Park
         ChestLocData(

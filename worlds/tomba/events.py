@@ -148,7 +148,12 @@ class EventHandler:
             started_rule=HasCleared(Events.SAVE_THE_DWARVES),
             cleared_rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT),
         ),
-        EventData(0x1B, Events.THE_BROKEN_FOUNTAIN, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.FLOWER_TEARS)),
+        EventData(
+            0x1B,
+            Events.THE_BROKEN_FOUNTAIN,
+            Regions.CHARITY_SQUARE,
+            cleared_rule=HasCleared(Events.THE_100_FLOWER_FOREST) & Has(Items.FLOWER_TEARS),
+        ),
         EventData(0x1C, Events.A_FAMILIAR_LOOKING_MANSION, Regions.MANSION),
         EventData(
             0x1D,
