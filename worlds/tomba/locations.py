@@ -779,7 +779,7 @@ class LocationHandler:
             Items.DASHING_PANTS,
             Sections.STORMY_MOUNTAINS_SECOND,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
-            at=Bitmask(0x09BD5D, 0x80),
+            at=Bitmask(0x09BD5D, 0x10),
         ),
         ChestLocData(
             "100 Year Old Chest Wing 1",
