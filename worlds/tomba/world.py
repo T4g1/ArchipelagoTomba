@@ -12,7 +12,7 @@ from . import (
 from .constants import Regions
 from .locations import LocationHandler
 from .items import ItemHandler, TombaItem
-from .regions import get_entrance_info
+from .regions import get_entry_info, get_exit_info
 
 
 class TombaWorld(World):
@@ -50,11 +50,15 @@ class TombaWorld(World):
         self.entrance_pairings = {}
         if self.options.entrance_randomization:
             placement = randomize_entrances(self, coupled=True, target_group_lookup={0: [0]})
+            print("RAW ER placement:")
+            for pairing in placement.pairings:
+                source, target = pairing
+                print(f"{source} -> {target}")
 
             # Flatten the array so the client can query by section all entrances to update
             for pairing in placement.pairings:
-                source_section, source_spawn = get_entrance_info(self.player, pairing[0])
-                target_section, target_spawn = get_entrance_info(self.player, pairing[1])
+                source_section, source_spawn = get_exit_info(self.player, pairing[0])
+                target_section, target_spawn = get_entry_info(self.player, pairing[1])
 
                 section_key = source_section.network_key()
                 if section_key not in self.entrance_pairings:

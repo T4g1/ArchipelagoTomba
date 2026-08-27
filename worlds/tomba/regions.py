@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 class Entry:
     name: str
     spawn_id: int
+    randomization_type: EntranceType = EntranceType.TWO_WAY
 
 
 @dataclass
@@ -27,6 +28,7 @@ class Exit:
     spawn_id: int
     target: Section | None = None
     rule: CollectionRule | Rule[Any] | None = None
+    randomization_type: EntranceType = EntranceType.TWO_WAY
 
 
 @dataclass
@@ -77,13 +79,13 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
             [
                 # Entry("Starting Pillar", 0x00),
                 Entry("Garage Door", 0x01),
-                # Entry("Mansion Door", 0x02),
+                Entry("Mansion Door", 0x02, randomization_type=EntranceType.ONE_WAY),
                 Entry("Witch Door", 0x03),
             ],
             [
-                Exit("Garage Entrance", 0x01, Sections.GARAGE, Rules.CAN_BREAK_STUFF),
+                Exit("Garage Door", 0x00, Sections.GARAGE, Rules.CAN_BREAK_STUFF),
                 Exit(
-                    "Mizuno's Entrance",
+                    "Witch Door",
                     0x02,
                     Sections.WITCH_HUT,
                     lambda state: state.can_reach_location(Started(Events.THE_CUTE_WITCH), player),
@@ -96,16 +98,16 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Underground Maze Door", 0x02),
             ],
             [
-                Exit("Ol' Pond Entrance", 0x00, Sections.OL_POND),
+                Exit("Ol' Pond Door", 0x00, Sections.OL_POND),
                 # Openned from the other side: connection will be a two-way on the incoming side
-                Exit("Underground Maze Entrance", 0x01),
+                Exit("Underground Maze Door", 0x01),
             ],
         ),
         Sections.FOREST_OF_ALL_BEGINNING_PART_2: Transitions(
             [
                 Entry("100 Year Old Man Door", 0x02),
             ],
-            [Exit("100 Year Old Man Entrance", 0x01, Sections.HUNDREDS_YEAR_OLD_MANS_HUT)],
+            [Exit("100 Year Old Man Door", 0x01, Sections.HUNDREDS_YEAR_OLD_MANS_HUT)],
         ),
         Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Transitions(
             [
@@ -113,9 +115,9 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Forest of 100 Flower Rope", 0x01),
             ],
             [
-                Exit("Forest of All Beginning Entrance", 0x00, Sections.FOREST_OF_ALL_BEGINNING_PART_2),
+                Exit("Forest of All Beginning Door", 0x00, Sections.FOREST_OF_ALL_BEGINNING_PART_2),
                 Exit(
-                    "Forest of 100 Flower Entrance",
+                    "Forest of 100 Flower Rope",
                     0x01,
                     Sections.FOREST_OF_100_FLOWERS_PART_1,
                     lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), player),
@@ -124,19 +126,19 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.GARAGE: Transitions(
             [
-                Entry("Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.VILLAGE_OF_ALL_BEGINNING),
+                Exit("Left Door", 0x00, Sections.VILLAGE_OF_ALL_BEGINNING),
             ],
         ),
         Sections.OL_POND: Transitions(
             [
-                Entry("Entrance", 0x02),
-                Entry("Trick Village Entrance", 0x01),
+                Entry("Left Door", 0x02),
+                Entry("Trick Village Door", 0x01),
             ],
             [
-                Exit("Hut Door", 0x00, Sections.FOREST_OF_ALL_BEGINNING_PART_1),
+                Exit("Left Door", 0x00, Sections.FOREST_OF_ALL_BEGINNING_PART_1),
                 Exit(
                     "Trick Village Door",
                     0x01,
@@ -152,8 +154,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         Sections.FOREST_OF_100_FLOWERS_PART_1: Transitions(
             [
                 # Entry("Spawn", 0x00),
-                Entry("Chimney Entrance", 0x01),
-                Entry("Big House Entrance", 0x02),
+                Entry("Chimney", 0x01),
+                Entry("Big House", 0x02),
             ],
             [
                 Exit("Chimney", 0x00, Sections.HUNDREDS_YEAR_OLD_MANS_HUT),
@@ -167,8 +169,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.FOREST_OF_100_FLOWERS_PART_2: Transitions(
             [
-                Entry("Stone Slab Entrance", 0x01),
-                Entry("Big Red Arrow Entrance", 0x02),
+                Entry("Stone Slab", 0x01),
+                Entry("Big Red Arrow", 0x02),
             ],
             [
                 Exit(
@@ -182,13 +184,13 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.WOBBLY_WHARF: Transitions(
             [
-                Entry("Big House Entrance", 0x02),
-                Entry("Stairs Entrance", 0x01),
+                Entry("Left Door", 0x02),
+                Entry("Right Door", 0x01),
             ],
             [
-                Exit("Big House", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_1),
+                Exit("Left Door", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_1),
                 Exit(
-                    "Stairs",
+                    "Right Door",
                     0x01,
                     Sections.CHARITY_SQUARE,
                     lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
@@ -197,21 +199,21 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.WATCH_TOWER: Transitions(
             [
-                Entry("Middle Entrance", 0x01),
-                Entry("Rightmost Entrance", 0x02),
-                Entry("Leftmost Entrance", 0x03),
-                Entry("Elevator Entrance", 0x04),
+                Entry("Middle Door", 0x01),
+                Entry("Rightmost Door", 0x02),
+                Entry("Leftmost Door", 0x03),
+                Entry("Elevator", 0x04),
             ],
             [
-                Exit("Leftmost", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_2),
+                Exit("Leftmost Door", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_2),
                 Exit(
-                    "Middle",
+                    "Middle Door",
                     0x01,
                     Sections.CHARITY_SQUARE,
                     lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
                 ),
                 Exit(
-                    "Rightmost",
+                    "Rightmost Door",
                     0x02,
                     Sections.MUSHROOM_FOREST,
                     lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
@@ -226,35 +228,40 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.CHARITY_SQUARE: Transitions(
             [
-                Entry("Stair Entrance", 0x01),
-                Entry("Leaf Slider Entrance", 0x02),
-                Entry("Rightmost Entrance", 0x03),
-                Entry("Flower Tower Entrance", 0x04),
+                Entry("Stair Door", 0x01),
+                # Entry("Leaf Slider Door", 0x02),
+                Entry("Rightmost Door", 0x03),
+                Entry("Flower Tower Door", 0x04),
             ],
             [
-                Exit("Rightmost", 0x00, Sections.WATCH_TOWER),
-                Exit("Stair", 0x01, Sections.WOBBLY_WHARF),
-                Exit("Leaf Slide", 0x02, Sections.LEAF_SLIDER),
-                Exit("Flower Tower", 0x03, Sections.FLOWER_TOWER),
+                Exit("Rightmost Door", 0x00, Sections.WATCH_TOWER),
+                Exit("Stair Door", 0x01, Sections.WOBBLY_WHARF),
+                Exit("Leaf Slide Door", 0x02, Sections.LEAF_SLIDER, randomization_type=EntranceType.ONE_WAY),
+                Exit(
+                    "Flower Tower Door",
+                    0x03,
+                    Sections.FLOWER_TOWER,
+                    lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
+                ),
             ],
         ),
         Sections.DWARF_VILLAGE: Transitions(
             [
-                Entry("Right Entrance", 0x01),
-                Entry("Left Entrance", 0x02),
+                Entry("Right Door", 0x01),
+                Entry("Left Door", 0x02),
             ],
             [
-                Exit("Left", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_2),
-                Exit("Right", 0x01, Sections.DWARF_ELDER_HUT),
+                Exit("Left Door", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_2),
+                Exit("Right Door", 0x01, Sections.DWARF_ELDER_HUT),
             ],
         ),
         Sections.DWARF_ELDER_HUT: Transitions(
             [
-                Entry("Left Entrance", 0x00),
-                Entry("Hole Entrance", 0x01),
+                Entry("Left Door", 0x00),
+                Entry("Hole", 0x01),
             ],
             [
-                Exit("Left", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_2),
+                Exit("Left Door", 0x00, Sections.FOREST_OF_100_FLOWERS_PART_2),
                 Exit(
                     "Hole",
                     0x01,
@@ -265,102 +272,104 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.UNDERGROUND_PRISON: Transitions(
             [
-                Entry("Left", 0x00),
+                Entry("Left Entry", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.DWARF_ELDER_HUT),
+                Exit("Left Entry", 0x00, Sections.DWARF_ELDER_HUT),
             ],
         ),
         Sections.UNDERGROUND_MAZE: Transitions(
             [
-                Entry("Bottom Right Entrance", 0x01),
-                Entry("Upper Right Entrance", 0x02),
-                Entry("Million Year Old Man Entrance", 0x03),
-                Entry("Upper Left Entrance", 0x04),
-                Entry("Bottom Left Entrance", 0x05),
+                Entry("Bottom Right Door", 0x01),
+                Entry("Upper Right Door", 0x02),
+                Entry("Million Year Old Man Door", 0x03),
+                Entry("Upper Left Door", 0x04),
+                Entry("Bottom Left Door", 0x05),
             ],
             [
                 Exit(
-                    "Million Year Old Man",
+                    "Million Year Old Man Door",
                     0x00,
                     Sections.MILLION_YEAR_OLD_MANS_ROOM,
                     lambda state: state.has(Items.MILLION_YEAR_OLD_BELL, player)
                     or state.can_reach_location(Cleared(Events.UNBREAKABLE_WIRE), player),
                 ),
                 Exit(
-                    "Upper Left",
+                    "Upper Left Door",
                     0x01,
                     Sections.THE_STRANGE_SMALL_ROOM,
                     lambda state: state.can_reach_location(Cleared(Events.THE_THIEFS_DOOR), player),
                 ),
                 Exit(
-                    "Bottom Left",
+                    "Bottom Left Door",
                     0x02,
                     Sections.FOREST_OF_ALL_BEGINNING_PART_1,
                     lambda state: state.can_reach_location(Cleared(Events.THE_THIEFS_DOOR), player),
                 ),
-                Exit("Bottom Right", 0x03, Sections.WATCH_TOWER),
-                Exit("Upper Right", 0x04, Sections.CIVILIZATION_ROOM),
+                Exit("Bottom Right Door", 0x03, Sections.WATCH_TOWER),
+                Exit("Upper Right Door", 0x04, Sections.CIVILIZATION_ROOM),
             ],
         ),
         Sections.MILLION_YEAR_OLD_MANS_ROOM: Transitions(
             [
-                Entry("Left", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.UNDERGROUND_MAZE),
+                Exit("Left Door", 0x00, Sections.UNDERGROUND_MAZE),
             ],
         ),
         Sections.THE_STRANGE_SMALL_ROOM: Transitions(
             [
-                Entry("Right", 0x02),
+                Entry("Right Door", 0x02),
             ],
             [
-                Exit("Right", 0x00, Sections.UNDERGROUND_MAZE),
+                Exit("Right Door", 0x00, Sections.UNDERGROUND_MAZE),
             ],
         ),
         Sections.STORMY_MOUNTAINS_PART_1: Transitions(
             [
-                Entry("Left Entrance", 0x01),
-                # Entry("Middle Entrance", 0x02),
-                Entry("Right Entrance", 0x03),
-                Entry("Pipe Entrance", 0x04),
+                Entry("Left Door", 0x01),
+                Entry("Middle Door", 0x02),
+                Entry("Right Door", 0x03),
+                Entry("Pipe Door", 0x04, randomization_type=EntranceType.ONE_WAY),
             ],
             [
-                Exit("Left", 0x00, Sections.BACCUS_VILLAGE),
-                Exit("Middle", 0x01, Sections.MUSHROOM_FOREST),
-                Exit("Right", 0x02, Sections.STORMY_MOUNTAINS_PART_2),
+                Exit("Left Door", 0x00, Sections.BACCUS_VILLAGE),
+                Exit("Middle Door", 0x01, Sections.MUSHROOM_FOREST),
+                Exit("Right Door", 0x02, Sections.STORMY_MOUNTAINS_PART_2),
             ],
         ),
         Sections.STORMY_MOUNTAINS_PART_2: Transitions(
             [
-                Entry("Left Entrance", 0x00),
-                Entry("Lava Caves Entrance", 0x0),
-                Entry("Bottom Right Entrance", 0x0),
+                Entry("Left Door", 0x00),
+                Entry("Lava Caves Door", 0x0),
+                # Entry("Bottom Right Door", 0x0),
             ],
             [
-                Exit("Left", 0x00, Sections.STORMY_MOUNTAINS_PART_1),
-                Exit("Lava Caves", 0x01, Sections.LAVA_CAVES),
-                Exit("Bottom Right", 0x02, Sections.STORMY_MOUNTAINS_PART_1),
+                Exit("Left Door", 0x00, Sections.STORMY_MOUNTAINS_PART_1),
+                Exit("Lava Caves Door", 0x01, Sections.LAVA_CAVES),
+                Exit(
+                    "Bottom Right Door", 0x02, Sections.STORMY_MOUNTAINS_PART_1, randomization_type=EntranceType.ONE_WAY
+                ),
                 # Exit("Phoenix", 0x03, Sections.BACCUS_VILLAGE),
             ],
         ),
         Sections.LAVA_CAVES: Transitions(
             [
-                Entry("Left Entrance", 0x01),
-                Entry("Right Entrance", 0x02),
-                Entry("Top Entrance", 0x03),
+                Entry("Left Door", 0x01),
+                Entry("Right Door", 0x02),
+                Entry("Top Door", 0x03),
             ],
             [
-                Exit("Left", 0x00, Sections.STORMY_MOUNTAINS_PART_2),
+                Exit("Left Door", 0x00, Sections.STORMY_MOUNTAINS_PART_2),
                 Exit(
-                    "Right",
+                    "Right Door",
                     0x01,
                     Sections.PHOENIXS_NEST,
                     lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
                 ),
                 Exit(
-                    "Top",
+                    "Top Door",
                     0x02,
                     Sections.HIDDEN_VILLAGE,
                     lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
@@ -370,50 +379,50 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.PHOENIXS_NEST: Transitions(
             [
-                Entry("Left", 0x01),
+                Entry("Left Door", 0x01),
             ],
             [
-                Exit("Left", 0x00, Sections.LAVA_CAVES),
+                Exit("Left Door", 0x00, Sections.LAVA_CAVES),
             ],
         ),
         Sections.HAUNTED_MANSION_NORTH: Transitions(
             [
-                Entry("Shadow Room Entrance", 0x01),
-                Entry("Civilization Room Entrance", 0x02),
-                Entry("Trick Room Entrance", 0x03),
-                Entry("Thief Room Three Entrance", 0x04),
-                Entry("Keyhole Room Entrance", 0x05),
-                Entry("Laughing Room Entrance", 0x06),
-                Entry("Thief Room One Entrance", 0x07),
-                # Entry("Sun Torch Stand Entrance", 0x0A),
+                Entry("Shadow Room Door", 0x01),
+                Entry("Civilization Room Door", 0x02),
+                Entry("Trick Room Door", 0x03),
+                Entry("Thief Room Three Door", 0x04),
+                Entry("Keyhole Room Door", 0x05),
+                Entry("Laughing Room Door", 0x06),
+                Entry("Thief Room One Door", 0x07),
+                # Entry("Sun Torch Stand Door", 0x0A),
             ],
             [
-                Exit("Shadow Room", 0x01, Sections.SHADOW_ROOM),
-                Exit("Civilization Room", 0x02, Sections.CIVILIZATION_ROOM),
-                Exit("Trick Room", 0x03, Sections.TRICK_ROOM),
-                Exit("Thief Room Three", 0x04, Sections.THIEFS_ROOM_THREE),
-                Exit("Keyhole Room", 0x05, Sections.KEYHOLE_ROOM),
-                Exit("Laughing Room", 0x06, Sections.LAUGHING_ROOM),
-                Exit("Thief Room One", 0x07, Sections.THIEFS_ROOM_ONE),
-                # Exit("Sun Torch Stand", 0x0B, Sections.SUN_TORCH_STAND),
+                Exit("Shadow Room Door", 0x01, Sections.SHADOW_ROOM),
+                Exit("Civilization Room Door", 0x02, Sections.CIVILIZATION_ROOM),
+                Exit("Trick Room Door", 0x03, Sections.TRICK_ROOM),
+                Exit("Thief Room Three Door", 0x04, Sections.THIEFS_ROOM_THREE),
+                Exit("Keyhole Room Door", 0x05, Sections.KEYHOLE_ROOM),
+                Exit("Laughing Room Door", 0x06, Sections.LAUGHING_ROOM),
+                Exit("Thief Room One Door", 0x07, Sections.THIEFS_ROOM_ONE),
+                # Exit("Sun Torch Stand Door", 0x0B, Sections.SUN_TORCH_STAND),
             ],
         ),
         Sections.HAUNTED_MANSION_WEST: Transitions(
             [
-                Entry("Pier Entrance", 0x00),
-                Entry("Crying Room Entrance", 0x01),
-                Entry("Stairs Entrance", 0x05),
+                Entry("Pier Door", 0x00),
+                Entry("Crying Room Door", 0x01),
+                Entry("Stairs Door", 0x05),
             ],
             [
-                Exit("Pier", 0x00, Sections.BACCUS_LAKE),
+                Exit("Pier Door", 0x00, Sections.BACCUS_LAKE),
                 Exit(
-                    "Crying Room",
+                    "Crying Room Door",
                     0x01,
                     Sections.CRY_ROOM,
                     lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
                 ),
                 Exit(
-                    "Stairs",
+                    "Stairs Door",
                     0x05,
                     Sections.MUSHROOM_FOREST,
                     lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
@@ -422,14 +431,14 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.HAUNTED_MANSION_SOUTH: Transitions(
             [
-                Entry("Swimming Room Entrance", 0x01),
-                Entry("Thief's Room Two Entrance", 0x02),
-                Entry("Tribulation Room Entrance", 0x03),
-                Entry("1,000 Year Old Man Room Entrance", 0x04),
-                Entry("Trick Room Entrance", 0x05),
-                Entry("Hidding Room Entrance", 0x06),
-                Entry("Baccus Village Entrance", 0x07),
-                # Entry("Sun Torch Stand Entrance", 0x0A),
+                Entry("Swimming Room", 0x01),
+                Entry("Thief's Room Two", 0x02),
+                Entry("Tribulation Room", 0x03),
+                Entry("1,000 Year Old Man Room", 0x04),
+                Entry("Trick Room", 0x05),
+                Entry("Hidding Room", 0x06),
+                Entry("Baccus Village", 0x07),
+                # Entry("Sun Torch Stand", 0x0A),
             ],
             [
                 Exit("Baccus Village", 0x00, Sections.BACCUS_VILLAGE),
@@ -476,8 +485,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.HAUNTED_MANSION_EAST: Transitions(
             [
-                Entry("Sunny Room Entrance", 0x01),
-                Entry("Trap Room Entrance", 0x02),
+                Entry("Sunny Room", 0x01),
+                Entry("Trap Room", 0x02),
             ],
             [
                 Exit("Sunny Room", 0x01, Sections.SUNNY_ROOM),
@@ -486,90 +495,90 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.SUNNY_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_EAST),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_EAST),
             ],
         ),
         Sections.THIEFS_ROOM_ONE: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_NORTH),
             ],
         ),
         Sections.SWIMMING_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_SOUTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_SOUTH),
             ],
         ),
         Sections.KEYHOLE_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_NORTH),
             ],
         ),
         Sections.HIDING_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_SOUTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_SOUTH),
             ],
         ),
         Sections.TRIBULATION_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_SOUTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_SOUTH),
             ],
         ),
         Sections.LAUGHING_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_NORTH),
             ],
         ),
         Sections.CIVILIZATION_ROOM: Transitions(
             [
-                Entry("Top Entrance", 0x00),
-                Entry("Bottom Entrance", 0x01),
+                Entry("Top Door", 0x00),
+                Entry("Bottom Door", 0x01),
             ],
             [
-                Exit("Top", 0x00, Sections.HAUNTED_MANSION_NORTH),
-                Exit("Bottom", 0x01, Sections.UNDERGROUND_MAZE),
+                Exit("Top Door", 0x00, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Bottom Door", 0x01, Sections.UNDERGROUND_MAZE),
             ],
         ),
         Sections.TRAP_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_EAST),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_EAST),
             ],
         ),
         Sections.TRICK_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
-                Entry("Right Entrance", 0x01),
+                Entry("Left Door", 0x00),
+                Entry("Right Door", 0x01),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_SOUTH),
-                Exit("Right", 0x01, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_SOUTH),
+                Exit("Right Door", 0x01, Sections.HAUNTED_MANSION_NORTH),
             ],
         ),
         # Sections.SUN_TORCH_STAND: Transitions([
-        #         Entry("Rope Entrance", 0x01),
+        #         Entry("Rope", 0x01),
         #     ], [
         #         Exit("Rope", 0x00, Sections.HAUNTED_MANSION_SOUTH),
         #         Exit("Rope", 0x01, Sections.HAUNTED_MANSION_NORTH),
@@ -577,143 +586,149 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         # ),
         Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_SOUTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_SOUTH),
             ],
         ),
         Sections.SHADOW_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_NORTH),
             ],
         ),
         Sections.THIEFS_ROOM_TWO: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_SOUTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_SOUTH),
             ],
         ),
         Sections.THIEFS_ROOM_THREE: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_NORTH),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_NORTH),
             ],
         ),
         Sections.CRY_ROOM: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.HAUNTED_MANSION_WEST),
+                Exit("Left Door", 0x00, Sections.HAUNTED_MANSION_WEST),
             ],
         ),
         Sections.BACCUS_VILLAGE: Transitions(
             [
-                Entry("South Entrance", 0x01),
-                Entry("Left Entrance", 0x02),
-                Entry("Parc Entrance", 0x03),
+                Entry("South Door", 0x01),
+                Entry("Left Door", 0x02),
+                Entry("Parc Door", 0x03),
             ],
             [
-                Exit("South", 0x00, Sections.STORMY_MOUNTAINS_PART_1),
+                Exit("South Door", 0x00, Sections.STORMY_MOUNTAINS_PART_1),
                 Exit(
-                    "Left",
+                    "Left Door",
                     0x01,
                     Sections.HAUNTED_MANSION_SOUTH,
                     lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
                 ),
-                Exit("Parc", 0x02, Sections.CENTRAL_PARK),
+                Exit("Parc Door", 0x02, Sections.CENTRAL_PARK),
             ],
         ),
         Sections.CENTRAL_PARK: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.BACCUS_VILLAGE),
+                Exit("Left Door", 0x00, Sections.BACCUS_VILLAGE),
             ],
         ),
         Sections.MOTOCROSS_COURSE: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Entrance", 0x00, randomization_type=EntranceType.ONE_WAY),
             ],
             [
-                Exit("Right", 0x00, Sections.THE_MERMAIDS_SINGING_BEACH),
+                Exit("Right", 0x00, Sections.THE_MERMAIDS_SINGING_BEACH, randomization_type=EntranceType.ONE_WAY),
             ],
         ),
         Sections.THE_MERMAIDS_SINGING_BEACH: Transitions(
             [
-                Entry("Left Entrance", 0x00),
-                Entry("Top Right Entrance", 0x01),
+                Entry("Left Entrance", 0x00, randomization_type=EntranceType.ONE_WAY),
+                Entry("Top Right Door", 0x01),
             ],
             [
-                Exit("Top Right", 0x00, Sections.THE_MERMAIDS_SINGING_ROCK),
+                Exit("Top Right Door", 0x00, Sections.THE_MERMAIDS_SINGING_ROCK),
                 Exit(
                     "Right",
                     0x01,
                     Sections.MASAKARI_RIVER,
                     lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+                    randomization_type=EntranceType.ONE_WAY,
                 ),
             ],
         ),
         Sections.THE_MERMAIDS_SINGING_ROCK: Transitions(
             [
-                Entry("Left Entrance", 0x00),
+                Entry("Left Door", 0x00),
             ],
             [
-                Exit("Left", 0x00, Sections.THE_MERMAIDS_SINGING_BEACH),
+                Exit("Left Door", 0x00, Sections.THE_MERMAIDS_SINGING_BEACH),
             ],
         ),
         Sections.BACCUS_LAKE: Transitions(
             [
-                Entry("South Entrance", 0x00),
-                Entry("North Entrance", 0x01),
+                Entry("South Door", 0x00),
+                Entry("North Door", 0x01),
             ],
             [
-                Exit("South", 0x00, Sections.HAUNTED_MANSION_WEST),
-                Exit("North", 0x01, Sections.BACCUS_LAKE_PIER),
+                Exit("South Door", 0x00, Sections.HAUNTED_MANSION_WEST),
+                Exit("North Door", 0x01, Sections.BACCUS_LAKE_PIER),
             ],
         ),
         Sections.BACCUS_LAKE_PIER: Transitions(
             [
-                Entry("South Entrance", 0x00),
+                Entry("South Door", 0x00),
             ],
             [
-                Exit("South", 0x00, Sections.BACCUS_LAKE),
+                Exit("South Door", 0x00, Sections.BACCUS_LAKE),
             ],
         ),
         Sections.MUSHROOM_FOREST: Transitions(
             [
-                Entry("Watch Tower Entrance", 0x01),
-                # Entry("Leaf Slider Entrance", 0x02),
-                Entry("Stormy Mountain Entrance", 0x03),
-                Entry("Lake Entrance", 0x04),
-                Entry("Haunted Mansion", 0x05),
+                Entry("Watch Tower Door", 0x01),
+                Entry("Leaf Slider", 0x02, randomization_type=EntranceType.ONE_WAY),
+                Entry("Stormy Mountain Door", 0x03),
+                Entry("Lake Door", 0x04),
+                Entry("Haunted Mansion Door", 0x05),
             ],
             [
-                Exit("Lake", 0x00, Sections.LAKE),
-                Exit("Watch Tower", 0x01, Sections.WATCH_TOWER),
+                Exit("Lake Door", 0x00, Sections.LAKE),
+                Exit("Watch Tower Door", 0x01, Sections.WATCH_TOWER),
                 Exit(
-                    "Stormy Mountain",
+                    "Stormy Mountain Door",
                     0x02,
                     Sections.STORMY_MOUNTAINS_PART_1,
                     lambda state: state.can_reach_location(Cleared(Events.THE_WORLDS_GREATEST_POUT), player),
                 ),
-                Exit("Haunted Mansion", 0x03, Sections.HAUNTED_MANSION_WEST),
+                Exit(
+                    "Haunted Mansion Door",
+                    0x03,
+                    Sections.HAUNTED_MANSION_WEST,
+                    lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+                ),
             ],
         ),
         Sections.LAKE: Transitions(
             [
-                Entry("Right Entrance", 0x00),
-                Entry("Right Door Entrance", 0x01),
-                Entry("Left Door Entrance", 0x02),
+                Entry("Right", 0x00),
+                Entry("Right Door", 0x01),
+                Entry("Left Door", 0x02),
             ],
             [
                 Exit("Right", 0x00, Sections.MUSHROOM_FOREST),
@@ -723,7 +738,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.MANSION_JUNGLE_PIG_ROOM: Transitions(
             [
-                Entry("Right Entrance", 0x0),
+                Entry("Right", 0x0),
             ],
             [
                 Exit("Right", 0x00, Sections.MANSION_STAIRS_DOWN),
@@ -731,18 +746,18 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.MANSION: Transitions(
             [
-                Entry("Left Entrance", 0x00),
-                Entry("Right Entrance", 0x01),
+                # Entry("Left", 0x00),
+                Entry("Right", 0x01),
             ],
             [
-                Exit("Left", 0x00, Sections.VILLAGE_OF_ALL_BEGINNING),
+                Exit("Left", 0x00, Sections.VILLAGE_OF_ALL_BEGINNING, randomization_type=EntranceType.ONE_WAY),
                 Exit("Right", 0x01, Sections.MANSION_STAIRS_UP),
             ],
         ),
         Sections.MANSION_STAIRS_UP: Transitions(
             [
-                Entry("Right Entrance", 0x00),
-                Entry("Left Entrance", 0x01),
+                Entry("Right", 0x00),
+                Entry("Left", 0x01),
             ],
             [
                 Exit("Left", 0x00, Sections.MANSION),
@@ -751,8 +766,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.MANSION_STAIRS_DOWN: Transitions(
             [
-                Entry("Right Entrance", 0x00),
-                Entry("Left Entrance", 0x01),
+                Entry("Right", 0x00),
+                Entry("Left", 0x01),
             ],
             [
                 Exit("Left", 0x00, Sections.MANSION_JUNGLE_PIG_ROOM),
@@ -761,25 +776,20 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.LEAF_SLIDER: Transitions(
             [
-                Entry("Entrance", 0x00),
+                Entry("Entrance", 0x00, randomization_type=EntranceType.ONE_WAY),
             ],
             [
-                Exit("Exit", 0x01, Sections.MUSHROOM_FOREST),
+                Exit("Exit", 0x01, Sections.MUSHROOM_FOREST, randomization_type=EntranceType.ONE_WAY),
             ],
         ),
         Sections.MASAKARI_JUNGLE: Transitions(
             [
-                # Entry("Left Entrance", 0x01),
-                Entry("Civilization Entrance", 0x02),
-                Entry("River Entrance", 0x03),
+                # Entry("Left", 0x01),
+                Entry("Civilization", 0x02),
+                Entry("River", 0x03),
             ],
             [
-                Exit(
-                    "Civilization",
-                    0x00,
-                    Sections.Y_CROSSING,
-                    # Has(Items.MINERS_HAT)
-                ),
+                Exit("Civilization", 0x00, Sections.Y_CROSSING, Has(Items.MINERS_HAT)),
                 Exit(
                     "River",
                     0x01,
@@ -790,9 +800,9 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.MASAKARI_RIVER: Transitions(
             [
-                Entry("Jungle Entrance", 0x01),
-                Entry("Old Tree Hill Entrance", 0x02),
-                Entry("Trick Entrance", 0x03),
+                Entry("Jungle", 0x01),
+                Entry("Old Tree Hill", 0x02),
+                Entry("Trick Village", 0x03),
             ],
             [
                 Exit(
@@ -812,11 +822,11 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.OLD_TREE_HILL: Transitions(
             [
-                Entry("Left Entrance", 0x01),
+                Entry("Left", 0x01),
             ],
             [
                 Exit(
-                    "River",
+                    "Left",
                     0x00,
                     Sections.MASAKARI_RIVER,
                     lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
@@ -827,21 +837,21 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.TRICK_VILLAGE: Transitions(
             [
-                Entry("Pond Entrance", 0x01),
-                Entry("Chimney Entrance", 0x02),
-                # Entry("Under Hut Entrance", 0x03),
-                Entry("River Entrance", 0x04),
+                Entry("Pond", 0x01),
+                Entry("Chimney", 0x02),
+                # Entry("Under Hut", 0x03),
+                Entry("River", 0x04),
             ],
             [
-                Exit("Ol' Pond", 0x00, Sections.OL_POND),
-                Exit("10,000 Year Old Man's Room", 0x01, Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM),
-                Exit("River Top", 0x02, Sections.MASAKARI_RIVER),
+                Exit("Pond", 0x00, Sections.OL_POND),
+                Exit("Chimney", 0x01, Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM),
+                Exit("River", 0x02, Sections.MASAKARI_RIVER),
                 # Exit("River Botoom", 0x03, Sections.MASAKARI_RIVER),
             ],
         ),
         Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM: Transitions(
             [
-                Entry("Chimney Entrance", 0x01),
+                Entry("Chimney", 0x01),
             ],
             [
                 Exit("Chimney", 0x00, Sections.TRICK_VILLAGE),
@@ -850,8 +860,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.LUMBERJACK_FACTORY: Transitions(
             [
-                Entry("Left Entrance", 0x00),
-                Entry("Broken Door Entrance", 0x01),
+                Entry("Left", 0x00),
+                Entry("Broken Door", 0x01),
             ],
             [
                 Exit("Left", 0x00, Sections.Y_CROSSING),
@@ -863,7 +873,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Entrance", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.LUMBERJACK_FACTORY),
+                Exit("Entrance", 0x00, Sections.LUMBERJACK_FACTORY),
             ],
         ),
         Sections.FLOWER_TOWER: Transitions(
@@ -871,7 +881,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Entrance", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.CHARITY_SQUARE),
+                Exit("Entrance", 0x00, Sections.CHARITY_SQUARE),
             ],
         ),
         Sections.CLOCK_TOWER_ENTRANCE: Transitions(
@@ -880,14 +890,14 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Top", 0x01),
             ],
             [
-                Exit("Up", 0x00, Sections.CLOCK_TOWER_HALFWAY_UP),
-                Exit("Y-crossing", 0x01, Sections.Y_CROSSING),
+                Exit("Top", 0x00, Sections.CLOCK_TOWER_HALFWAY_UP),
+                Exit("Bottom", 0x01, Sections.Y_CROSSING),
             ],
         ),
         Sections.CLOCK_TOWER_HALFWAY_UP: Transitions(
             [
-                Entry("Down Entrance", 0x00),
-                Entry("Up Entrance", 0x01),
+                Entry("Down", 0x00),
+                Entry("Up", 0x01),
             ],
             [
                 Exit("Down", 0x00, Sections.CLOCK_TOWER_ENTRANCE),
@@ -896,7 +906,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.CLOCK_TOWER_ENGINE_ROOM: Transitions(
             [
-                Entry("Down Entrance", 0x00),
+                Entry("Down", 0x00),
             ],
             [
                 Exit("Down", 0x00, Sections.CLOCK_TOWER_HALFWAY_UP),
@@ -904,8 +914,8 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.IRON_CASTLE_ENTRANCE: Transitions(
             [
-                Entry("Bottom Entrance", 0x00),
-                Entry("Top Entrance", 0x01),
+                Entry("Down", 0x00),
+                Entry("Top", 0x01),
             ],
             [
                 Exit("Down", 0x00, Sections.Y_CROSSING),
@@ -914,10 +924,10 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
         ),
         Sections.IRON_CASTLE_MAIN_ROOM: Transitions(
             [
-                Entry("Bottom Entrance", 0x00),
-                Entry("Left Entrance", 0x01),
-                Entry("Middle Entrance", 0x02),
-                Entry("Right Entrance", 0x03),
+                Entry("Bottom", 0x00),
+                Entry("Left", 0x01),
+                Entry("Middle", 0x02),
+                Entry("Right", 0x03),
             ],
             [
                 Exit("Bottom", 0x00, Sections.IRON_CASTLE_ENTRANCE),
@@ -931,7 +941,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Entrance", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.IRON_CASTLE_MAIN_ROOM),
+                Exit("Entrance", 0x00, Sections.IRON_CASTLE_MAIN_ROOM),
             ],
         ),
         Sections.IRON_CASTLE_RIGHT_ROOM: Transitions(
@@ -939,7 +949,7 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Entrance", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.IRON_CASTLE_MAIN_ROOM),
+                Exit("Entrance", 0x00, Sections.IRON_CASTLE_MAIN_ROOM),
             ],
         ),
         Sections.IRON_CASTLE_ENGINE_ROOM: Transitions(
@@ -947,15 +957,15 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Entrance", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.IRON_CASTLE_MAIN_ROOM),
+                Exit("Entrance", 0x00, Sections.IRON_CASTLE_MAIN_ROOM),
             ],
         ),
         Sections.Y_CROSSING: Transitions(
             [
-                Entry("Factory Entrance", 0x01),
-                Entry("Iron Castle Entrance", 0x02),
-                Entry("Clock Tower Entrance", 0x03),
-                Entry("Jungle Entrance", 0x04),
+                Entry("Factory", 0x01),
+                Entry("Iron Castle", 0x02),
+                Entry("Clock Tower", 0x03),
+                Entry("Jungle", 0x04),
             ],
             [
                 Exit(
@@ -979,13 +989,13 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
                 Entry("Entrance", 0x00),
             ],
             [
-                Exit("Exit", 0x00, Sections.VILLAGE_OF_ALL_BEGINNING),
+                Exit("Entrance", 0x00, Sections.VILLAGE_OF_ALL_BEGINNING),
             ],
         ),
         Sections.HIDDEN_VILLAGE: Transitions(
             [
                 # Entry("Leaf Butterfly Entrance", 0x01),
-                Entry("Ladder Entrance", 0x02),
+                Entry("Ladder", 0x02),
             ],
             [
                 Exit(
@@ -999,19 +1009,30 @@ def get_randomizable_transitions(player: int) -> dict[Section, Transitions]:
     }
 
 
-def get_entrance_info(player: int, entrance: str) -> tuple[Section, int]:
-    """Given an entrance name, gives the corresponding section and spawn ID"""
+def get_entry_info(player: int, entry_name: str) -> tuple[Section, int]:
+    """Given an entry name, gives the corresponding section and spawn ID"""
+    return _get_transition_info(player, entry_name, is_entry=True)
+
+
+def get_exit_info(player: int, exit_name: str) -> tuple[Section, int]:
+    """Given an exit name, gives the corresponding section and spawn ID"""
+    return _get_transition_info(player, exit_name, is_entry=False)
+
+
+def _get_transition_info(player: int, name: str, is_entry: bool) -> tuple[Section, int]:
+    """Given an exit name, gives the corresponding section and spawn ID"""
     er_transitions = get_randomizable_transitions(player)
     for source, transitions in er_transitions.items():
-        for entry in transitions.entries:
-            if get_entrance_name(source, entry.name) == entrance:
-                return (source, entry.spawn_id)
+        doors = transitions.exits
+        if is_entry:
+            doors = transitions.entries
+        for door in doors:
+            if get_entrance_name(source, door.name) == name:
+                return (source, door.spawn_id)
 
-        for exit in transitions.exits:
-            if get_entrance_name(source, exit.name) == entrance:
-                return (source, exit.spawn_id)
-
-    raise ValueError(f"Critical error: No entrance found matching {entrance} for entrance randomization")
+    raise ValueError(
+        f"Critical error: No {"entrance" if is_entry else "exit"} found matching {name} for entrance randomization"
+    )
 
 
 def connect_regions(world: TombaWorld) -> None:
@@ -1019,15 +1040,17 @@ def connect_regions(world: TombaWorld) -> None:
         source = world.get_region(section.name)
 
         if len(transitions.entries) != len(transitions.exits):
-            raise Exception(
+            print(
                 f"Number of entries ({len(transitions.entries)}) and exits ({len(transitions.exits)}) differs for {source}"
             )
 
         for entry in transitions.entries:
-            source.create_er_target(get_entrance_name(section, entry.name))
+            entrance = source.create_er_target(get_entrance_name(section, entry.name))
+            entrance.randomization_type = entry.randomization_type
 
         for exit in transitions.exits:
             exit_ = source.create_exit(get_entrance_name(section, exit.name))
+            exit_.randomization_type = exit.randomization_type
 
             if exit.rule is not None:
                 world.set_rule(exit_, exit.rule)
