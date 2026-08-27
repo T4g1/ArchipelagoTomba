@@ -724,7 +724,8 @@ class EventHandler:
             0xB4,
             Events.WHERE_THE_BARREL_ROLLS,
             Regions.WOBBLY_WHARF,
-            cleared_rule=HasCleared(Events.WHATS_UNDERWATER) & Rules.CAN_LIGHT_BREAK_STUFF,
+            started_rule=CanReachRegion(Regions.WOBBLY_WHARF) & Rules.CAN_LIGHT_BREAK_STUFF,
+            cleared_rule=HasCleared(Events.WHATS_UNDERWATER),
         ),
         EventData(
             0xB5,

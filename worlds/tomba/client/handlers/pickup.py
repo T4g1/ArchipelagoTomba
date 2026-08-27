@@ -70,7 +70,9 @@ class PickupHandler(AbstractHandler):
 
     async def on_banana_juice(self):
         """Starts a refreshing drink"""
-        await self.tomba.events_handler.start(Events.A_REFRESHING_DRINK)
+        if await self.tomba.events_handler.get_event_state(Events.A_REFRESHING_DRINK) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.A_REFRESHING_DRINK)
+
         await self.ctx.check_handler.check(Locations.MIXER, Regions.CLOCK_TOWER)
 
     async def on_bronze_medal(self):
@@ -89,17 +91,22 @@ class PickupHandler(AbstractHandler):
 
     async def on_yans_lunch_box(self):
         """Start the Take Out event"""
-        await self.tomba.events_handler.start(Events.TAKE_OUT)
+        if await self.tomba.events_handler.get_event_state(Events.TAKE_OUT) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.TAKE_OUT)
 
     async def on_flower_seeds(self):
         """The Flower Seeds event must be started to be able to use the seeds"""
-        await self.tomba.events_handler.start(Events.FLOWER_SEEDS)
+        if await self.tomba.events_handler.get_event_state(Events.FLOWER_SEEDS) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.FLOWER_SEEDS)
 
     async def on_seashell_necklace(self):
         """Needs the corresponding event to be able to use the necklace"""
-        await self.tomba.events_handler.start(Events.THE_MERMAIDS_NECKLACE)
+        if await self.tomba.events_handler.get_event_state(Events.THE_MERMAIDS_NECKLACE) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.THE_MERMAIDS_NECKLACE)
 
     async def on_weed_killer(self):
         """Needs to start the Death Fruit Juice event"""
-        await self.tomba.events_handler.start(Events.DEATH_FRUIT_JUICE)
+        if await self.tomba.events_handler.get_event_state(Events.DEATH_FRUIT_JUICE) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.DEATH_FRUIT_JUICE)
+
         await self.ctx.check_handler.check(Locations.GROWNUPS, Regions.BACCUS_VILLAGE)

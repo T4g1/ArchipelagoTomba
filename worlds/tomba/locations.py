@@ -367,7 +367,10 @@ class LocationHandler:
         ),
         ItemLocData(Locations.FILL_THE_BUCKET, Regions.WATCH_TOWER, Items.BUCKET_OF_WATER, rule=Has(Items.BUCKET)),
         ItemLocData(
-            "Win the Race", Regions.WATCH_TOWER, Items.SILVER_POWDER, rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT)
+            "Win the Race",
+            Regions.WATCH_TOWER,
+            Items.SILVER_POWDER,
+            rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT) & HasCleared(Events.LOOK_AND_SEE),
         ),
         # Wobbly Wharf
         ChestLocData(
@@ -758,7 +761,13 @@ class LocationHandler:
             ),
             at=Bitmask(0x09BD5D, 0x08),
         ),
-        ItemLocData("Big Keyhole", Regions.STORMY_MOUNTAIN, Items.RED_EVIL_PIG_BAG, rule=Has(Items.BIG_KEY)),
+        ItemLocData(
+            "Big Keyhole",
+            Regions.STORMY_MOUNTAIN,
+            Items.RED_EVIL_PIG_BAG,
+            rule=Has(Items.BIG_KEY),
+            event=Events.A_STORMY_PIG_BAG,
+        ),
         ItemLocData(
             "Herbs",
             Regions.STORMY_MOUNTAIN,

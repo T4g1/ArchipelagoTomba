@@ -85,6 +85,7 @@ class EventsHandler(AbstractHandler):
     async def on_phoenix_mountain(self):
         """Clear related events"""
         await self.clear(Events.A_STORMY_PIG_BAG)
+        await self.clear(Events.TO_PHOENIX_MOUNTAIN)
 
         # If the player seal the evil pig before going in the mountain for the first time
         if await self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
