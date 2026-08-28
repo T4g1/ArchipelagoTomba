@@ -161,7 +161,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
                 for location in locations:
                     print(f"    {json.dumps(location)},")
 
-    async def _cmd_event(self, message: str = "!!! DUMMY CUBE !!!"):
+    async def _cmd_event(self, message: str):
         """Spawn event text"""
         if isinstance(self.ctx, TombaContext):
             await display_cube_message(self.ctx.tomba.playstation, message, is_cleared=True)

@@ -485,7 +485,7 @@ class EventHandler:
             & (
                 CanReachRegion(Regions.OL_POND)
                 | CanReachRegion(Regions.MASAKARI_JUNGLE)
-                | CanReachRegion(Regions.HAUNTED_MANSION)
+                | CanReachRegion(Regions.HIDING_ROOM)
             ),
         ),
         EventData(

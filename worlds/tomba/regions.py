@@ -62,7 +62,11 @@ class Door:
 
         if self.back_end_id is None or self.back_start_id is None:
             self.randomization_type = EntranceType.ONE_WAY
-            print(f"One way: {self.name}")
+
+    def is_forward(self, name: str) -> bool:
+        """Indicate if the given name is the forward or backward direction"""
+        assert name == self.name or name == self.back_name
+        return name == self.name
 
 
 region_names = [value for key, value in Regions.__dict__.items() if not key.startswith("_") and isinstance(value, str)]
@@ -661,7 +665,7 @@ def get_randomizable_doors(player: int) -> list[Door]:
             rule=lambda state: state.can_reach_location(Cleared(Events.TRICK_VILLAGE), player),
         ),
         Door(
-            "Right Tunnel",
+            "Right Chute",
             source=Sections.TRICK_VILLAGE,
             target=Sections.MASAKARI_RIVER,
             start_id=0x02,

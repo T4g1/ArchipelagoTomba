@@ -137,7 +137,7 @@ class WarpHandler(AbstractHandler):
 
             # Event giver state to make sure Dwarf Language is correctly started
             await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
-    
+
     async def on_stormy_mountains_part_1_entry(self, coming_from: Section):
         """Open the bacccus door if entrance randomizer is enabled"""
         if self.ctx.slot_data.get("entrance_randomization", False):
