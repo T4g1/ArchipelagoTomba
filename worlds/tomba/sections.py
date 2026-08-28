@@ -108,6 +108,7 @@ class Sections:
 
     MUSHROOM_FOREST = Section(0x09, 0x00, Regions.MUSHROOM_FOREST)
     LAKE = Section(0x09, 0x01, Regions.LAKE)
+    LAKE_LEFT_BANK = Section(0x09, 0x01, Regions.LAKE_LEFT_BANK)
     MANSION_JUNGLE_PIG_ROOM = Section(0x09, 0x02, Regions.MANSION_JUNGLE_PIG_ROOM)
     MANSION = Section(0x09, 0x03, Regions.MANSION)
     MANSION_STAIRS_UP = Section(0x09, 0x04, Regions.MANSION_STAIRS_UP)

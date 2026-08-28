@@ -57,7 +57,7 @@ class Locations(str):
     TELESCOPE = "Top of Watch Tower"
     VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
-    WAHTS_UNDERWATER = "What's Underwater ?"
+    WHATS_UNDERWATER = "What's Underwater ?"
 
 
 class Regions(str):
@@ -94,6 +94,7 @@ class Regions(str):
     IRON_CASTLE_ENGINE_ROOM = "Iron Castle Engine Room"
     KEYHOLE_ROOM = "Keyhole Room"
     LAKE = "Lake"
+    LAKE_LEFT_BANK = "Lake (Left Bank)"
     LAUGHING_ROOM = "Laughing Room"
     LAVA_CAVES = "Lava Caves"
     LAVA_CAVES_PURIFIED = "Lava Caves (Purified)"
@@ -110,7 +111,6 @@ class Regions(str):
     MUSHROOM_FOREST = "Mushroom Forest"
     OL_POND = "Ol' Pond"
     OLD_TREE_HILL = "Old Tree Hill"
-    PHOENIX_MOUNTAIN = "Phoenix Mountain"
     PHOENIXS_NEST = "Phoenix's Nest"
     SHADOW_ROOM = "Shadow Room"
     STORMY_MOUNTAIN = "Stormy Mountain (Part 1)"
@@ -134,7 +134,6 @@ class Regions(str):
     UNDERGROUND_MAZE_INNER = "Underground Maze Inner"
     UNDERGROUND_PRISON = "Underground Prison"
     VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
-    VILLAGE_OF_CIVILIZATION = "Village Of Civilization"
     WATCH_TOWER = "Watch Tower"
     WITCHS_HUT = "Witch's Hut"
     WOBBLY_WHARF = "Wobbly Wharf"

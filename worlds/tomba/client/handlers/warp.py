@@ -3,6 +3,7 @@ from typing import Any
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
+from .door import Doors
 from ...constants import Events, EventStatus, Items, Addresses, Regions, Locations
 from ...sections import Section, Sections
 from ...items import ItemHandler
@@ -99,6 +100,8 @@ class WarpHandler(AbstractHandler):
             Sections.Y_CROSSING: Handler(self.on_y_crossing_entry),
             Sections.WOBBLY_WHARF: Handler(self.on_wobbly_wharf_entry),
             Sections.WATCH_TOWER: Handler(self.on_watch_tower_entry),
+            Sections.FOREST_OF_ALL_BEGINNING_PART_1: Handler(self.on_forest_of_all_beginning_part_1_entry),
+            Sections.STORMY_MOUNTAINS_PART_1: Handler(self.on_stormy_mountains_part_1_entry),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -134,6 +137,16 @@ class WarpHandler(AbstractHandler):
 
             # Event giver state to make sure Dwarf Language is correctly started
             await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
+    
+    async def on_stormy_mountains_part_1_entry(self, coming_from: Section):
+        """Open the bacccus door if entrance randomizer is enabled"""
+        if self.ctx.slot_data.get("entrance_randomization", False):
+            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+
+    async def on_forest_of_all_beginning_part_1_entry(self, coming_from: Section):
+        """Open the maze door as soon as the thief door is unlocked"""
+        if await self.tomba.events_handler.get_event_state(Events.THE_THIEFS_DOOR) is EventStatus.CLEARED:
+            await self.tomba.doors_handler.open(Doors.FOAB_UNDERGROUND_MAZE_DOOR)
 
     async def on_y_crossing_entry(self, coming_from: Section):
         """Start Food for Fuel

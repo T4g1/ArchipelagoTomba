@@ -1,8 +1,9 @@
 from collections.abc import Mapping
 from typing import Any
 
-from entrance_rando import randomize_entrances
+from entrance_rando import randomize_entrances, disconnect_entrance_for_randomization, EntranceType
 from worlds.AutoWorld import World
+from Utils import visualize_regions
 
 from . import constants
 from . import locations, regions, rules, web_world
@@ -12,7 +13,7 @@ from . import (
 from .constants import Regions
 from .locations import LocationHandler
 from .items import ItemHandler, TombaItem
-from .regions import get_entry_info, get_exit_info
+from .regions import get_randomizable_doors
 
 
 class TombaWorld(World):
@@ -49,26 +50,30 @@ class TombaWorld(World):
     def connect_entrances(self):
         self.entrance_pairings = {}
         if self.options.entrance_randomization:
+            for door in get_randomizable_doors(self.player):
+                one_way_target_name = None
+
+                entrance = self.get_entrance(door.name)
+                entrances = [entrance]
+
+                if entrance.randomization_type is EntranceType.TWO_WAY:
+                    # We disconnect the return edge too
+                    entrances.append(self.get_entrance(door.back_name))
+                else:
+                    one_way_target_name = door.name
+
+                for entrance in entrances:
+                    disconnect_entrance_for_randomization(entrance, one_way_target_name=one_way_target_name)
+
             placement = randomize_entrances(self, coupled=True, target_group_lookup={0: [0]})
             print("RAW ER placement:")
             for pairing in placement.pairings:
                 source, target = pairing
                 print(f"{source} -> {target}")
 
-            # Flatten the array so the client can query by section all entrances to update
-            for pairing in placement.pairings:
-                source_section, source_spawn = get_exit_info(self.player, pairing[0])
-                target_section, target_spawn = get_entry_info(self.player, pairing[1])
+            # TODO: Flatten
 
-                section_key = source_section.network_key()
-                if section_key not in self.entrance_pairings:
-                    self.entrance_pairings[section_key] = {}
-
-                self.entrance_pairings[section_key][source_spawn] = (
-                    target_section.area_id,
-                    target_section.section_id,
-                    target_spawn,
-                )
+        visualize_regions(self.get_region("Menu"), "tomba_debug.dot")
 
     def get_filler_item_name(self) -> str:
         return ItemHandler.get_random_filler_item_name(self)

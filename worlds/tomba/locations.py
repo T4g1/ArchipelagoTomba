@@ -1582,15 +1582,9 @@ class LocationHandler:
             at=Bitmask(0x09BD3D, 0x40),
         ),
         ChestLocData(
-<<<<<<< HEAD
             "Medicine",
-            Regions.UNDERGROUND_MAZE_ENTRANCE,
-            Items.COLD_MEDICINE,
-=======
-            "Medecine",
             Sections.UNDERGROUND_MAZE.name,
-            Items.COLD_MEDECINE,
->>>>>>> 778e05e4 ([add] First total randomization with doors)
+            Items.COLD_MEDICINE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD3D, 0x80),
         ),

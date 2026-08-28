@@ -55,8 +55,7 @@ class EventHandler:
         EventData(
             0x04,
             Events.MOTOCROSS_COURSE,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            cleared_rule=CanReachRegion(Regions.GARAGE),
+            Regions.GARAGE,
         ),
         EventData(
             0x05,
@@ -208,10 +207,23 @@ class EventHandler:
             Regions.MUSHROOM_FOREST,
             cleared_rule=Has(Items.RISE_AND_SHINE_POWDER) & Has(Items.TEAR_JAR),
         ),
-        EventData(0x29, Events.SMILE, Regions.STORMY_MOUNTAIN),
+        EventData(
+            0x29,
+            Events.SMILE,
+            Regions.STORMY_MOUNTAIN,
+            started_rule=CanReachRegion(Sections.MUSHROOM_FOREST.name)
+            & (
+                CanReachRegion(Sections.STORMY_MOUNTAINS_PART_1.name)
+                | CanReachRegion(Sections.HAUNTED_MANSION_NORTH.name)
+            ),
+        ),
         EventData(0x2A, Events.CRY_BABY, Sections.HAUNTED_MANSION_WEST.name),
         EventData(
-            0x2B, Events.CANT_STOP_CRYING, Regions.BACCUS_VILLAGE, started_rule=HasCleared(Events.WHERES_THE_BABY_MOUSE)
+            0x2B,
+            Events.CANT_STOP_CRYING,
+            Regions.BACCUS_VILLAGE,
+            started_rule=HasCleared(Events.WHERES_THE_BABY_MOUSE),
+            cleared_rule=CanReachRegion(Regions.MUSHROOM_FOREST),
         ),
         EventData(
             0x2C,
@@ -487,12 +499,7 @@ class EventHandler:
             & Has(Items.NEEDLEGATOR_TEETH)
             & Has(Items.SILVER_POWDER),
         ),
-        EventData(
-            0x79,
-            Events.THE_MERMAIDS_SINGING_ROCK,
-            Regions.VILLAGE_OF_ALL_BEGINNINGS,
-            started_rule=CanReachRegion(Regions.THE_MERMAIDS_SINGING_ROCK),
-        ),
+        EventData(0x79, Events.THE_MERMAIDS_SINGING_ROCK, Regions.THE_MERMAIDS_SINGING_ROCK),
         # EventData(0x7A, Events., Regions.), # Unused
         EventData(
             0x7B,
@@ -773,7 +780,9 @@ class EventHandler:
         EventData(
             0xBB, Events.THE_MYSTERIOUS_MUSHROOM, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
         ),
-        EventData(0xBC, Events.LEAF_SLIDER, Regions.CHARITY_SQUARE),
+        EventData(
+            0xBC, Events.LEAF_SLIDER, Regions.CHARITY_SQUARE, cleared_rule=CanReachRegion(Regions.MUSHROOM_FOREST)
+        ),
         EventData(
             0xBD,
             Events.RED_BLUE,

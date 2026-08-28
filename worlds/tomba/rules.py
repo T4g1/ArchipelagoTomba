@@ -58,8 +58,6 @@ def integrity_checks():
                     f"with a countable item {location.item.name} "
                     "but no area/section"
                 )
-        elif location.section is not None and not location.item.is_pants():
-            print(f"Uneccessary area/section for unique item {location.item.name}")
 
     for item in ItemHandler.item_table:
         if item.name in bypass_integrity_checks:
@@ -69,21 +67,6 @@ def integrity_checks():
 
         if not item.countable and len(location_ids) > 1:
             raise Exception(f"Unique item {item.name} reused across several locations")
-
-        used_areas_sections = []
-        for id in location_ids:
-            location = LocationHandler.by_id[id]
-            if not isinstance(location, ItemLocData):
-                continue
-
-            if location.section is None:
-                continue
-
-            section = str(location.section)
-            if section in used_areas_sections:
-                print(f"Duplicate section discriminator for item {item.name}: {section}")
-
-            used_areas_sections.append(section)
 
 
 def set_all_location_rules(world: TombaWorld) -> None:
