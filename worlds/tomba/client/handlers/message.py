@@ -184,11 +184,6 @@ class MessageHandler(AbstractHandler):
         status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
         return status == bytes.fromhex("FFFF")
 
-    async def has_event_cube_display(self) -> bool:
-        """Check if any other event is being displayed"""
-        status = await self.tomba.playstation.read_memory_block(self.POPUP_SLOT_2_STATUS, 2)
-        return status == bytes.fromhex("FFFF")
-
     async def print_event(self, message: str, is_cleared: bool):
         self.event_message_queue.append((message, is_cleared))
 

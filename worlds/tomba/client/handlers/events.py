@@ -14,6 +14,9 @@ class EventsHandler(AbstractHandler):
     externaly_triggered: list[str] = []
 
     def init_handlers(self):
+        """Keep in mind while writing those rules:
+        * Restarting the client means the hanlder can be re-triggered
+        So operations like forget/start must be guarded against possible regressions"""
         self.handlers = {
             Events.HIDE_AND_GO_SEEK: Handler(self.on_hide_and_go_seek),
             Events.LOOK_AND_SEE: Handler(self.on_look_and_see),
@@ -34,8 +37,10 @@ class EventsHandler(AbstractHandler):
         }
 
     async def on_mermaid_necklace(self):
-        """Make sure Mighty Fish Food event is not cleared"""
-        await self.tomba.events_handler.forget(Events.MIGHTY_FISH_FOOD)
+        """Make sure Mighty Fish Food event is not cleared
+        Until we actually have picked-it up"""
+        if not self.ctx.check_handler.is_checked(Locations.WAHTS_UNDERWATER, Regions.HAUNTED_MANSION):
+            await self.tomba.events_handler.forget(Events.MIGHTY_FISH_FOOD)
 
     async def on_somethings_cookin(self):
         """When this is cleared and the campfire location is not
@@ -50,7 +55,9 @@ class EventsHandler(AbstractHandler):
     async def on_break_the_rusty_door(self):
         """Uncheck Let's Ride the Raft
         If it's check at this point, the We Need Power event is softlocked"""
-        await self.forget(Events.LETS_RIDE_THE_RAFT)
+        if not await self.get_event_state(Events.WE_NEED_POWER) is EventStatus.CLEARED:
+            await self.forget(Events.LETS_RIDE_THE_RAFT)
+
         await self.clear(Events.I_NEED_A_BOMB)
 
     async def on_we_need_power(self):
@@ -78,6 +85,7 @@ class EventsHandler(AbstractHandler):
     async def on_phoenix_mountain(self):
         """Clear related events"""
         await self.clear(Events.A_STORMY_PIG_BAG)
+        await self.clear(Events.TO_PHOENIX_MOUNTAIN)
 
         # If the player seal the evil pig before going in the mountain for the first time
         if await self.get_event_state(Events.THE_MOUSE_PIG_BAG) is EventStatus.UNDISCOVERED:
@@ -149,7 +157,11 @@ class EventsHandler(AbstractHandler):
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
-        return EventStatus(self.event_states[event.id])
+
+        try:
+            return EventStatus(self.event_states[event.id])
+        except Exception:
+            return EventStatus.STARTED
 
     async def set_event_state(self, event: EventData, status: EventStatus):
         self.externaly_triggered.append(event.name)

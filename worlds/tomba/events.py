@@ -148,7 +148,12 @@ class EventHandler:
             started_rule=HasCleared(Events.SAVE_THE_DWARVES),
             cleared_rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT),
         ),
-        EventData(0x1B, Events.THE_BROKEN_FOUNTAIN, Regions.CHARITY_SQUARE, cleared_rule=Has(Items.FLOWER_TEARS)),
+        EventData(
+            0x1B,
+            Events.THE_BROKEN_FOUNTAIN,
+            Regions.CHARITY_SQUARE,
+            cleared_rule=HasCleared(Events.THE_100_FLOWER_FOREST) & Has(Items.FLOWER_TEARS),
+        ),
         EventData(0x1C, Events.A_FAMILIAR_LOOKING_MANSION, Regions.MANSION),
         EventData(
             0x1D,
@@ -350,10 +355,10 @@ class EventHandler:
             started_rule=HasCleared(Events.A_MANS_BEST_FRIEND),
             cleared_rule=Has(Items.SEAWEED) & CanReachRegion(Regions.DWARF_VILLAGE),
         ),
+        # EventData(0x59, Events., Regions.), # Unused
         EventData(
-            0x59, Events.BLUE_HIDDEN_POWERS, Regions.TRICK_VILLAGE, started_rule=HasCleared(Events.WHATS_UNDERWATER)
+            0x5A, Events.BLUE_HIDDEN_POWERS, Regions.TRICK_VILLAGE, started_rule=HasCleared(Events.WHATS_UNDERWATER)
         ),
-        # EventData(0x5A, Events., Regions.), # Unused
         # EventData(0x5B, Events., Regions.), # Unused
         # EventData(0x5C, Events., Regions.), # Unused
         # EventData(0x5D, Events., Regions.), # Unused
@@ -456,7 +461,12 @@ class EventHandler:
             Events.MIGHTY_FISH_FOOD,
             Regions.HAUNTED_MANSION,
             started_rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),
-            cleared_rule=Has(Items.MIGHTY_FISH_FOOD),
+            cleared_rule=Has(Items.MIGHTY_FISH_FOOD)
+            & (
+                CanReachRegion(Regions.OL_POND)
+                | CanReachRegion(Regions.MASAKARI_JUNGLE)
+                | CanReachRegion(Regions.HAUNTED_MANSION)
+            ),
         ),
         EventData(
             0x78,
@@ -719,7 +729,8 @@ class EventHandler:
             0xB4,
             Events.WHERE_THE_BARREL_ROLLS,
             Regions.WOBBLY_WHARF,
-            cleared_rule=HasCleared(Events.WHATS_UNDERWATER) & Rules.CAN_LIGHT_BREAK_STUFF,
+            started_rule=CanReachRegion(Regions.WOBBLY_WHARF) & Rules.CAN_LIGHT_BREAK_STUFF,
+            cleared_rule=HasCleared(Events.WHATS_UNDERWATER),
         ),
         EventData(
             0xB5,

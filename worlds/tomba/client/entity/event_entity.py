@@ -188,7 +188,7 @@ async def display_cube_message(psx: Emulator, message: str, is_cleared: bool = F
         return False
 
     # Anything else being displayed ?
-    if await EntityHandler.load_entities(psx, EVENT_CHAR_ADDRESS, EVENT_CHAR_COUNT, EVENT_CUBE_TYPE):
+    if await EntityHandler.load_entities(psx, EVENT_CHAR_ADDRESS, EVENT_CHAR_COUNT, EVENT_CUBE_TYPE, is_occupied=True):
         return False
 
     await psx.write_memory(CHARACTER_SLOTS_COUNT, (slots - char_count).to_bytes(TypeSize.HALF_WORD, byteorder="little"))

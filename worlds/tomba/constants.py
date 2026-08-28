@@ -30,7 +30,7 @@ class Locations(str):
     BUILD_A_RAFT = "Build a Raft"
     CAMPFIRE = "Campfire"
     CENTRAL_PARK_CHEST = "Central Park Chest"
-    CHARLES_PANTS = "Charle's Pant"
+    CHARLES_PANTS = "Charles' Pants"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
     FILL_THE_BUCKET = "Fill the Bucket"
@@ -57,6 +57,7 @@ class Locations(str):
     TELESCOPE = "Top of Watch Tower"
     VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
+    WAHTS_UNDERWATER = "What's Underwater ?"
 
 
 class Regions(str):
@@ -93,7 +94,7 @@ class Regions(str):
     VILLAGE_OF_ALL_BEGINNINGS = "Village Of All Beginnings"
     VILLAGE_OF_CIVILIZATION = "Village Of Civilization"
     WATCH_TOWER = "Watch Tower"
-    WOBBLY_WHARF = "Wobbly Warf"
+    WOBBLY_WHARF = "Wobbly Wharf"
     Y_CROSSING = "Y-crossing"
 
 
@@ -120,7 +121,7 @@ class Items(str):
     BUNK_FLOWER = "Bunk Flower"
     BUTAMUSHI_THORN = "Butamushi Thorn"
     CHARITY_WINGS = "Charity Wings"
-    CHARLES_PANTS = "Charle's Pants"
+    CHARLES_PANTS = "Charles' Pants"
     CHEESE = "Cheese"
     CHICK = "Chick"
     CHUCKLING_MUSHROOM = "Chuckling Mushroom"
@@ -402,15 +403,9 @@ class Addresses(IntEnum):
 
     GAME_ID = 0x009244
 
-    # ??? = 0x09BC98
-
     AP_SCORE = 0x09BCD4
 
     LIVES = 0x09BCE8  # Shown amount = Stored - 1
-
-    SHOW_FOG = 0x09BCCE  # Also determines if can use FURIOUS TORNADO OR NOT
-
-    MAILBOX_STATE = 0x09BCEC
 
     EVENT_FLAGS = 0x09C10C
 
@@ -538,7 +533,8 @@ class GameState3(IntEnum):
     PLAYING_NO_HUD = 0x02
     IN_MENU = 0x03
     PLAYING_TOP_DOWN_A = 0x04
-    PLAYING_TOP_DOWN_B = 0x06
+    PLAYING_TOP_DOWN_B = 0x05
+    PLAYING_TOP_DOWN_C = 0x06
     LOADING = 0x07
 
 
