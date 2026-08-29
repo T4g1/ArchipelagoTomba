@@ -8,6 +8,7 @@ from ...items import ItemHandler, ItemData
 from .player import TombaState
 
 INVENTORY_STACK_SIZE = 0xFF
+ITEM_MAX_AMOUNT = 99
 
 
 class Weapons(int):
@@ -141,7 +142,9 @@ class InventoryHandler(AbstractHandler):
             current_amount = await self.get_item_amount(item.game_id)
             has_item_already = has_item_already or current_amount > 0
 
-            new_amount = current_amount + 1
+            if current_amount < ITEM_MAX_AMOUNT:
+                new_amount = current_amount + 1
+
             should_display_acquired = True
 
         if item.record_amount:
@@ -151,6 +154,11 @@ class InventoryHandler(AbstractHandler):
             # Adding an item means shifting the whole stack to the right
             # and putting the item at the first position
             inventory_stack = item.game_id.to_bytes() + inventory_stack[:-1]
+
+            if inventory_counter != await self.get_inventory_counter():
+                logger.warning("Player inventory changed while adding the item, aborting...")
+                return False
+
             inventory_counter += 1
 
             await self.tomba.playstation.write_memory(Addresses.INVENTORY_STACK, inventory_stack)

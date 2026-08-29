@@ -205,7 +205,6 @@ class EventHandler:
             0x28,
             Events.TEARS_FROM_A_FLOWER,
             Regions.MUSHROOM_FOREST,
-            started_rule=HasCleared(Events.THE_PHOENIXS_FAVORITE),
             cleared_rule=Has(Items.RISE_AND_SHINE_POWDER) & Has(Items.TEAR_JAR),
         ),
         EventData(0x29, Events.SMILE, Regions.STORMY_MOUNTAIN),
@@ -289,7 +288,7 @@ class EventHandler:
             0x49,
             Events.WE_NEED_POWER,
             Regions.CLOCK_TOWER,
-            started_rule=HasCleared(Events.A_REFRESHING_DRINK),
+            started_rule=CanReachRegion(Regions.CLOCK_TOWER) & HasCleared(Events.I_CANT_SWIM),
             cleared_rule=Has(Items.BOMB) & CanReachRegion(Regions.IRON_CASTLE),
         ),
         # EventData(0x4A, Events., Regions.), # Unused
@@ -668,6 +667,7 @@ class EventHandler:
             Events.THE_FLOWER_TOWER,
             Regions.CHARITY_SQUARE,
             started_rule=Has(Items.FLOWER_TEARS) & CanReachRegion(Regions.CHARITY_SQUARE),
+            cleared_rule=HasCleared(Events.THE_100_FLOWER_FOREST),
         ),
         # EventData(0xA5, Events., Regions.), # Unused
         EventData(0xA6, Events.A_HUNGRY_MONKEY, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.BANANAS)),
