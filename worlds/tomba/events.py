@@ -667,6 +667,7 @@ class EventHandler:
             Events.THE_FLOWER_TOWER,
             Regions.CHARITY_SQUARE,
             started_rule=Has(Items.FLOWER_TEARS) & CanReachRegion(Regions.CHARITY_SQUARE),
+            cleared_rule=HasCleared(Events.THE_100_FLOWER_FOREST),
         ),
         # EventData(0xA5, Events., Regions.), # Unused
         EventData(0xA6, Events.A_HUNGRY_MONKEY, Regions.VILLAGE_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.BANANAS)),
