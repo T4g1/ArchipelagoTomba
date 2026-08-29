@@ -253,7 +253,7 @@ class TombaGame:
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
 
-            self.should_update_entrances = self.ctx.slot_data.get("entrance_randomization", False)
+            self.should_update_entrances = True
 
             await self.warp_hanlder.handle_leaving(self.section, to=new_section)
             await self.warp_hanlder.handle(self.section, coming_from=old_section)

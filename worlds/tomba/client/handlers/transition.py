@@ -67,11 +67,26 @@ class TransitionHandler(AbstractHandler):
 
     async def update_transitions(self, section: Section):
         """Re-writes all transitions to align on the randomized entrances"""
-
         pairings: dict[str, dict[int, tuple[int, int, int]]] = self.ctx.slot_data.get("entrance_pairings", [])
+
+        if not pairings:
+            # Alter the transition out of Mermaid Singing Beach
+            target_section = Sections.MASAKARI_JUNGLE
+            target_spawn = 0x01
+            if self.ctx.slot_data.get("fast_motocross_retry", False):
+                target_section = Sections.GARAGE
+                target_spawn = 0x00
+
+            pairings[Sections.THE_MERMAIDS_SINGING_BEACH.network_key()] = {}
+            pairings[Sections.THE_MERMAIDS_SINGING_BEACH.network_key()][0x01] = (
+                target_section.area_id,
+                target_section.section_id,
+                target_spawn,
+            )
+
         entrances_array = await Entrance.compute_entrances_array(self.tomba.playstation, section)
 
-        for entrance_id, target in pairings.get(section.network_key(), {}).items():
+        for entrance_id, target in pairings.get(section.get_unpurified().network_key(), {}).items():
             target_area = target[0]
             target_section = target[1]
             target_spawn = target[2]

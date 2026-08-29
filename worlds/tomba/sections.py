@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from .constants import Regions
 
@@ -25,10 +26,16 @@ class Section:
     def __hash__(self) -> int:
         return hash((self.area_id, self.section_id))
 
+    def __eq__(self, other: Section) -> bool:
+        return (self.area_id, self.section_id) == (other.area_id, other.section_id)
+
     def __repr__(self) -> str:
         if self.name == "":
             return self.network_key()
         return f"{self.network_key()} - {self.name}"
+
+    def get_unpurified(self) -> Section:
+        return purified_sections.get(self, self)
 
     def network_key(self) -> str:
         """Archipelago only allows str keys on the network

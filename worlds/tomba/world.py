@@ -129,6 +129,7 @@ class TombaWorld(World):
             "deathlink",
             "god_mode",
             "entrance_randomization",
+            "fast_motocross_retry",
         )
 
         slot_data["world_version"] = self.world_version.as_simple_string()
