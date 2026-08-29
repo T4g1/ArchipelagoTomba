@@ -1051,7 +1051,10 @@ class LocationHandler:
         ),
         ItemLocData(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE, Items.GOLDEN_FRUIT, rule=Has(Items.CHEESE, 15)),
         ItemLocData(
-            Locations.GROWNUPS, Regions.BACCUS_VILLAGE, Items.WEED_KILLER, rule=HasCleared(Events.MONSTER_HUNT)
+            Locations.DEATH_FRUIT_JUICE_STARTED,
+            Regions.BACCUS_VILLAGE,
+            Items.WEED_KILLER,
+            rule=HasCleared(Events.MONSTER_HUNT),
         ),
         ItemLocData(
             "Give the Baby Pig",
@@ -1061,7 +1064,7 @@ class LocationHandler:
             rule=Has(Items.BABY_PIG) & HasCleared(Events.CANT_STOP_CRYING),
         ),
         ItemLocData(
-            "Weed Killer",
+            "Death Fuit Juice cleared",
             Regions.BACCUS_VILLAGE,
             Items.CHARITY_WINGS,
             Sections.BACCUS_VILLAGE,

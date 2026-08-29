@@ -109,4 +109,4 @@ class PickupHandler(AbstractHandler):
         if await self.tomba.events_handler.get_event_state(Events.DEATH_FRUIT_JUICE) is EventStatus.UNDISCOVERED:
             await self.tomba.events_handler.start(Events.DEATH_FRUIT_JUICE)
 
-        await self.ctx.check_handler.check(Locations.GROWNUPS, Regions.BACCUS_VILLAGE)
+        await self.ctx.check_handler.check(Locations.DEATH_FRUIT_JUICE_STARTED, Regions.BACCUS_VILLAGE)

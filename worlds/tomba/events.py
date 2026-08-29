@@ -205,7 +205,6 @@ class EventHandler:
             0x28,
             Events.TEARS_FROM_A_FLOWER,
             Regions.MUSHROOM_FOREST,
-            started_rule=HasCleared(Events.THE_PHOENIXS_FAVORITE),
             cleared_rule=Has(Items.RISE_AND_SHINE_POWDER) & Has(Items.TEAR_JAR),
         ),
         EventData(0x29, Events.SMILE, Regions.STORMY_MOUNTAIN),
