@@ -525,7 +525,7 @@ class LocationHandler:
             Regions.CHARITY_SQUARE,
             Items.AP_CRYSTAL,
             Sections.CHARITY_SQUARE,
-            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE,
             at=Bitmask(0x09BD1F, 0x02),
         ),
         ChestLocData(
