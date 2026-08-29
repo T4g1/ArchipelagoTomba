@@ -289,7 +289,7 @@ class EventHandler:
             0x49,
             Events.WE_NEED_POWER,
             Regions.CLOCK_TOWER,
-            started_rule=HasCleared(Events.A_REFRESHING_DRINK),
+            started_rule=CanReachRegion(Regions.CLOCK_TOWER) & HasCleared(Events.I_CANT_SWIM),
             cleared_rule=Has(Items.BOMB) & CanReachRegion(Regions.IRON_CASTLE),
         ),
         # EventData(0x4A, Events., Regions.), # Unused
