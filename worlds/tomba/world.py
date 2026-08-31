@@ -3,7 +3,8 @@ from typing import Any
 
 from entrance_rando import randomize_entrances, disconnect_entrance_for_randomization, EntranceType
 from worlds.AutoWorld import World
-from Utils import visualize_regions
+
+# from Utils import visualize_regions
 
 from . import constants
 from . import locations, regions, rules, web_world
@@ -74,7 +75,7 @@ class TombaWorld(World):
             for pairing in placement.pairings:
                 source, target = pairing
 
-                print(f"{source} -> {target}")
+                # print(f"{source} -> {target}")
 
                 # Fetch the paired doors
                 source_door = by_name[source]
@@ -109,10 +110,10 @@ class TombaWorld(World):
                     end_id,
                 )
 
-            print("RE output:")
-            print(self.entrance_pairings)
+            # print("RE output:")
+            # print(self.entrance_pairings)
 
-        visualize_regions(self.get_region("Menu"), "tomba_debug.dot")
+        # visualize_regions(self.get_region("Menu"), "tomba_debug.dot")
 
     def get_filler_item_name(self) -> str:
         return ItemHandler.get_random_filler_item_name(self)

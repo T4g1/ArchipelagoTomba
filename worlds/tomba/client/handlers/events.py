@@ -78,6 +78,10 @@ class EventsHandler(AbstractHandler):
         """Clear related events"""
         await self.clear(Events.THE_JUNGLE_PIG_BAG)
 
+        # The Swimming event is bugged upon clearing the Jungle (Tomba! will learn to swim in the trees...)
+        await self.clear(Events.A_REFRESHING_DRINK)
+        await self.clear(Events.I_CANT_SWIM)
+
     async def on_baccus_village(self):
         """Clear related events"""
         await self.clear(Events.THE_MOUSE_PIG_BAG)

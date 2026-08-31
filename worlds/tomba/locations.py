@@ -1366,7 +1366,13 @@ class LocationHandler:
             at=Bitmask(0x09BE3E, 0x10),
         ),
         # Clock Tower
-        ItemLocData(Locations.MIXER, Regions.CLOCK_TOWER_ENGINE_ROOM, Items.BANANA_JUICE, rule=Has(Items.BANANAS)),
+        ItemLocData(
+            Locations.MIXER,
+            Regions.CLOCK_TOWER_ENGINE_ROOM,
+            Items.BANANA_JUICE,
+            rule=Has(Items.BANANAS),
+            event=Events.A_REFRESHING_DRINK,
+        ),
         # Lumberjack Factory
         ItemLocData("Bassement", Regions.LUMBERJACK_FACTORY, Items.CHARITY_WINGS, Section(0x0B, 0x02)),
         ItemLocData(

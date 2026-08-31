@@ -729,15 +729,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x01,
         ),
-        Door(
-            "Top Door",
-            source=Sections.IRON_CASTLE_ENTRANCE,
-            target=Sections.IRON_CASTLE_MAIN_ROOM,
-            start_id=0x01,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Top Door",
+        #     source=Sections.IRON_CASTLE_ENTRANCE,
+        #     target=Sections.IRON_CASTLE_MAIN_ROOM,
+        #     start_id=0x01,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Left Door",
             source=Sections.IRON_CASTLE_MAIN_ROOM,
@@ -747,16 +747,16 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x01,
         ),
-        Door(
-            "Middle Door",
-            source=Sections.IRON_CASTLE_MAIN_ROOM,
-            target=Sections.IRON_CASTLE_ENGINE_ROOM,
-            start_id=0x02,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x02,
-            rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), player),
-        ),
+        # Door(
+        #     "Middle Door",
+        #     source=Sections.IRON_CASTLE_MAIN_ROOM,
+        #     target=Sections.IRON_CASTLE_ENGINE_ROOM,
+        #     start_id=0x02,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), player),
+        # ),
         Door(
             "Right Door",
             source=Sections.IRON_CASTLE_MAIN_ROOM,
@@ -793,7 +793,7 @@ def connect_regions(world: TombaWorld) -> None:
 
         # Add the return direction
         if entrance.randomization_type is EntranceType.TWO_WAY:
-            entrance = target.connect(source, door.back_name)
+            entrance = target.connect(source, door.back_name, door.rule)
             entrance.randomization_type = door.randomization_type
 
     connect(
@@ -895,6 +895,13 @@ def connect_regions(world: TombaWorld) -> None:
     )
     connect(
         Sections.CLOCK_TOWER_HALFWAY_UP.name, Sections.CLOCK_TOWER_ENGINE_ROOM.name, entrance_type=EntranceType.TWO_WAY
+    )
+    connect(Sections.IRON_CASTLE_ENTRANCE.name, Sections.IRON_CASTLE_MAIN_ROOM.name, entrance_type=EntranceType.TWO_WAY)
+    connect(
+        Sections.IRON_CASTLE_MAIN_ROOM.name,
+        Sections.IRON_CASTLE_ENGINE_ROOM.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), world.player),
     )
 
     connect(

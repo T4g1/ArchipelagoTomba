@@ -75,7 +75,7 @@ class EventHandler:
             0x08,
             Events.I_CANT_SWIM,
             Regions.OL_POND,
-            cleared_rule=CanReachRegion(Regions.MASAKARI_JUNGLE) & Has(Items.BANANA_JUICE),
+            cleared_rule=CanReachRegion(Regions.MASAKARI_JUNGLE) & HasCleared(Events.A_REFRESHING_DRINK),
         ),
         EventData(
             0x09, Events.INSIDE_THE_KOKKA_EGGS, Regions.FOREST_OF_ALL_BEGINNINGS, cleared_rule=Has(Items.CHICK, 4)
