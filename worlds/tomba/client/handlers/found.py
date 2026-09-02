@@ -114,14 +114,9 @@ class FoundHandler(AbstractHandler):
             # TODO: Should be removed for release so player can't get unintended items
             return await self.tomba.inventory_handler.receive_item(item)
 
+        # Location checks with an at parameter will be triggered elsewhere
         first_unchecked = next(
-            (
-                location
-                for location in locations
-                if (
-                    location.id not in self.ctx.sent_checks and location.at is None  # Those will be triggered elsewhere
-                )
-            ),
+            (location for location in locations if (location.id not in self.ctx.sent_checks and location.at is None)),
             None,
         )
 

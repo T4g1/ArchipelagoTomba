@@ -264,7 +264,7 @@ class LocationHandler:
             Sections.OL_POND,
             at=Bitmask(0x09BF12, 0x04),
         ),
-        ItemLocData("AP Box", Sections.OL_POND.name, Items.CHEESE, Sections.OL_POND),
+        ItemLocData("AP Box", Sections.OL_POND.name, Items.CHEESE, Sections.OL_POND, at=Bitmask(0x09BD01, 0x80)),
         ItemLocData("1Up 1", Sections.OL_POND.name, Items.ONE_UP, Sections.OL_POND, event=Events.TAKE_ME_HOME),
         ItemLocData("1Up 2", Sections.OL_POND.name, Items.ONE_UP, Sections.OL_POND, event=Events.TAKE_ME_HOME),
         ChestLocData(
@@ -304,6 +304,7 @@ class LocationHandler:
             Sections.FOREST_OF_100_FLOWERS_PART_1.name,
             Items.BAKED_YAM,
             rule=Has(Items.BUCKET_OF_WATER),
+            at=Bitmask(0x09C1BD, 0x04),
         ),
         ChestLocData(
             Locations.HIDDEN_CHEST_FOREST_100_FLOWER_1,
