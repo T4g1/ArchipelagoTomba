@@ -1124,7 +1124,7 @@ class LocationHandler:
             Sections.TRAP_ROOM.name,
             Items.CHEESE,
             Sections.TRAP_ROOM,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Has(Items.JEWEL_OF_FIRE),
             at=Bitmask(0x09BD7C, 0x20),
         ),
         ChestLocData(
@@ -1132,7 +1132,7 @@ class LocationHandler:
             Sections.TRAP_ROOM.name,
             Items.CHEESE,
             Sections.TRAP_ROOM,
-            rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
+            rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Has(Items.JEWEL_OF_FIRE),
             at=Bitmask(0x09BD7C, 0x20),
         ),
         ItemLocData(
@@ -1147,7 +1147,7 @@ class LocationHandler:
             Sections.TRAP_ROOM.name,
             Items.LUNCH_BOX,
             Sections.TRAP_ROOM,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Has(Items.JEWEL_OF_FIRE),
             at=Bitmask(0x09BD7C, 0x40),
         ),
         ChestLocData(
