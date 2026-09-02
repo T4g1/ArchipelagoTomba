@@ -257,7 +257,13 @@ class LocationHandler:
             rule=HasCleared(Events.INSIDE_THE_KOKKA_EGGS),
         ),
         # Ol' Pond
-        ItemLocData("Drown", Sections.OL_POND.name, Items.BANANAS, Sections.OL_POND),
+        ItemLocData(
+            Locations.DROWN,
+            Sections.OL_POND.name,
+            Items.BANANAS,
+            Sections.OL_POND,
+            at=Bitmask(0x09BF12, 0x04),
+        ),
         ItemLocData("AP Box", Sections.OL_POND.name, Items.CHEESE, Sections.OL_POND),
         ItemLocData("1Up 1", Sections.OL_POND.name, Items.ONE_UP, Sections.OL_POND, event=Events.TAKE_ME_HOME),
         ItemLocData("1Up 2", Sections.OL_POND.name, Items.ONE_UP, Sections.OL_POND, event=Events.TAKE_ME_HOME),

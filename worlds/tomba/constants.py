@@ -34,6 +34,7 @@ class Locations(str):
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
     DEATH_FRUIT_JUICE_STARTED = "Death Fuit Juice started"
+    DROWN = "Drown"
     FILL_THE_BUCKET = "Fill the Bucket"
     FIND_MY_SON = "Find my Son"
     FIRE_STARTER = "Fire Starter"

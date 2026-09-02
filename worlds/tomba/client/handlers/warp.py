@@ -102,6 +102,7 @@ class WarpHandler(AbstractHandler):
             Sections.WATCH_TOWER: Handler(self.on_watch_tower_entry),
             Sections.FOREST_OF_ALL_BEGINNING_PART_1: Handler(self.on_forest_of_all_beginning_part_1_entry),
             Sections.STORMY_MOUNTAINS_PART_1: Handler(self.on_stormy_mountains_part_1_entry),
+            Sections.TRICK_VILLAGE: Handler(self.on_trick_village_entry),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -120,6 +121,18 @@ class WarpHandler(AbstractHandler):
             if await self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
+
+    async def on_trick_village_entry(self, coming_from: Section):
+        """Start the I Can't Swim event
+        Give the banana location and
+        Move the fisherman out of the way"""
+        if await self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.I_CANT_SWIM)
+
+            # Remove the fisherman from the Ol' Pond
+            await self.tomba.playstation.set_flag(0x09C227, 0x03, True)
+
+            await self.ctx.check_handler.check(Locations.DROWN, Regions.OL_POND)
 
     async def on_wobbly_wharf_entry(self, coming_from: Section):
         await self.init_forest_of_100_flower_area()
