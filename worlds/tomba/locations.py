@@ -345,8 +345,18 @@ class LocationHandler:
             at=Bitmask(0x09BD1F, 0x08),
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
         ),
-        ItemLocData(Locations.TELESCOPE, Sections.WATCH_TOWER.name, Items.TELESCOPE),
-        ItemLocData("Push the Boulder", Sections.WATCH_TOWER.name, Items.DIRTY_MIRROR),
+        ItemLocData(
+            Locations.TELESCOPE,
+            Sections.WATCH_TOWER.name,
+            Items.TELESCOPE,
+            at=Bitmask(0x09C122, 0x01),
+        ),
+        ItemLocData(
+            "Push the Boulder",
+            Sections.WATCH_TOWER.name,
+            Items.DIRTY_MIRROR,
+            at=Bitmask(0x09BF27, 0x01),
+        ),
         ItemLocData(
             "Find the seeds",
             Sections.WATCH_TOWER.name,
