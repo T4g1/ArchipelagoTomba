@@ -35,7 +35,12 @@ class EventsHandler(AbstractHandler):
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
+            Events.CLEAR_THE_FOG: Handler(self.on_clear_the_fog),
         }
+
+    async def on_clear_the_fog(self):
+        """Remove the fog"""
+        await self.tomba.playstation.write_memory(0x09BCCE, 0x03.to_bytes())
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared
