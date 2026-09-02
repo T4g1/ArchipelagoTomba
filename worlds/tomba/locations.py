@@ -1385,7 +1385,13 @@ class LocationHandler:
             rule=Has(Items.WINE) & HasStarted(Events.FOOD_FOR_FUEL),
         ),
         # Iron Castle
-        ItemLocData("Need Power", Regions.IRON_CASTLE_MAIN_ROOM, Items.KEY_TO_OL_POND, rule=Has(Items.BOMB)),
+        ItemLocData(
+            "Need Power",
+            Regions.IRON_CASTLE_MAIN_ROOM,
+            Items.KEY_TO_OL_POND,
+            rule=Has(Items.BOMB),
+            event=Events.WE_NEED_POWER,
+        ),
         # Hidden Village
         ItemLocData(Locations.FIND_MY_SON, Regions.HIDDEN_VILLAGE, Items.YANS_LUNCH_BOX, event=Events.TAKE_OUT),
         ItemLocData(
@@ -1543,6 +1549,7 @@ class LocationHandler:
             & Has(Items.MATH_BEAD_8)
             & Has(Items.MATH_BEAD_9)
             & Has(Items.MATH_BEAD_10),
+            event=Events.THE_10_MATH_BEADS,
         ),
         ItemLocData(
             "Collect the Beads Wire",
@@ -1558,6 +1565,7 @@ class LocationHandler:
             & Has(Items.MATH_BEAD_8)
             & Has(Items.MATH_BEAD_9)
             & Has(Items.MATH_BEAD_10),
+            event=Events.THE_10_MATH_BEADS,
         ),
         ItemLocData(
             "5 Golden Items",
@@ -1569,6 +1577,7 @@ class LocationHandler:
             & Has(Items.GOLD_MEDAL)
             & Has(Items.GOLDEN_LEAF_BUTTERFLY)
             & Has(Items.GOLDEN_FRUIT),
+            event=Events.THE_5_GOLDEN_ITEMS,
         ),
         # Underground Maze Entrance
         ChestLocData(

@@ -16,7 +16,6 @@ from ...locations import LocationHandler, ItemLocData
 from ...helpers import codify
 from ..handlers.warp import warp_masks
 from ..entity.event_entity import display_cube_message
-from .entity import EntityHandler
 
 
 class TombaCommandProcessor(ClientCommandProcessor):
@@ -105,21 +104,6 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """Force re-patch"""
         if isinstance(self.ctx, TombaContext):
             await self.ctx.tomba.patcher._patch()
-
-    async def _cmd_replay(self):
-        """Replay every checked event and remove location with bitmask from the current game"""
-        if isinstance(self.ctx, TombaContext):
-            for id in self.ctx.checked_locations:
-                location = LocationHandler.by_id[id]
-                if location.name.endswith("Cleared"):
-                    await self.ctx.tomba.events_handler.clear(location.name[: -len(" Cleared")])
-                elif location.at is not None:
-                    await self.ctx.tomba.playstation.set_flag(location.at.address, location.at.mask)
-
-    async def _cmd_disable(self, type: str):
-        """Disable entity type"""
-        if isinstance(self.ctx, TombaContext):
-            await EntityHandler.disable(self.ctx.tomba.playstation, 0x7D16)
 
     async def _cmd_poptracker(self, type: str):
         """Export data for Poptracker"""

@@ -102,10 +102,11 @@ class TombaContext(CommonContext):
 
         self.sent_checks = []
 
-    async def check_locations(self, locations: list[int]) -> None:
-        locations = [location for location in locations if location not in self.sent_checks]
+    async def check_locations(self, raw_locations: list[int]) -> None:
+        locations = [location for location in raw_locations if location not in self.sent_checks]
 
         if len(locations) <= 0:
+            logger.debug(f"All locations from {raw_locations} are sent")
             return
 
         self.sent_checks.extend(locations)
@@ -180,9 +181,8 @@ class TombaContext(CommonContext):
             )
 
         logger.info("Server Status: Connected")
-        logger.debug(f"missing locations: {self.missing_locations}")
-        logger.debug(f"checked locations: {self.checked_locations}")
-        logger.debug(f"items received: {self.items_received}")
+
+        self.sent_checks.extend(self.checked_locations)
 
         self.connection_status = ConnectionStatus.CONNECTED
 

@@ -119,8 +119,7 @@ class FoundHandler(AbstractHandler):
                 location
                 for location in locations
                 if (
-                    location.id not in self.ctx.checked_locations
-                    and location.at is None  # Those will be triggered elsewhere
+                    location.id not in self.ctx.sent_checks and location.at is None  # Those will be triggered elsewhere
                 )
             ),
             None,

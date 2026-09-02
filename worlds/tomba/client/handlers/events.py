@@ -67,7 +67,7 @@ class EventsHandler(AbstractHandler):
         location = LocationHandler.by_name.get(Cleared(Events.LETS_RIDE_THE_RAFT))
         assert location is not None
 
-        if location.id in self.ctx.checked_locations:
+        if location.id in self.ctx.sent_checks:
             await self.clear(Events.LETS_RIDE_THE_RAFT)
 
     async def on_trick_village(self):
@@ -149,7 +149,7 @@ class EventsHandler(AbstractHandler):
 
     def is_cleared(self, event_name: str) -> bool:
         event = self.get_event_location(Cleared(event_name))
-        return event.id in self.ctx.checked_locations
+        return event.id in self.ctx.sent_checks
 
     async def clear(self, event_name: str):
         await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)

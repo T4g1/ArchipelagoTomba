@@ -14,7 +14,7 @@ class CheckHandler(AbstractHandler):
     def is_checked(self, location_name: str, region_name: str):
         """Indicate if the given location has been checked already or not"""
         location = self.get_location(location_name, region_name)
-        return location.id in self.ctx.checked_locations
+        return location.id in self.ctx.sent_checks
 
     async def _check(self, location: LocationData):
         await self.ctx.check_locations([location.id])
