@@ -73,7 +73,7 @@ class PickupHandler(AbstractHandler):
         if await self.tomba.events_handler.get_event_state(Events.A_REFRESHING_DRINK) is EventStatus.UNDISCOVERED:
             await self.tomba.events_handler.start(Events.A_REFRESHING_DRINK)
 
-        await self.ctx.check_handler.check(Locations.MIXER, Regions.CLOCK_TOWER)
+        await self.ctx.check_handler.check(Locations.MIXER, Regions.CLOCK_TOWER_ENGINE_ROOM)
 
     async def on_bronze_medal(self):
         """Clear Bronze Medal event"""

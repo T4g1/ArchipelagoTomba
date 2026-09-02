@@ -16,6 +16,10 @@ class TypeSize(int):
     BYTE = 1
 
 
+def is_address(address: int) -> bool:
+    return address & 0x80000000 != 0 and address & 0x7F000000 == 0
+
+
 def read_int(
     data: bytearray, start: int, size: int, byteorder: Literal["little", "big"] = "little", signed: bool = False
 ) -> int:

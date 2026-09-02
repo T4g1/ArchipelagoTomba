@@ -316,7 +316,6 @@ async def main():
                 break
         except (BlockingIOError, TimeoutError, ConnectionResetError):
             await asyncio.sleep(1.0)
-            pass
 
     await extract_wfm(emulator)
 

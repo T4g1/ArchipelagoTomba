@@ -2,14 +2,71 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 from rule_builder.rules import Has, Rule
+from dataclasses import dataclass
 
-from BaseClasses import Region, CollectionRule
+from BaseClasses import Region, CollectionRule, Entrance
+from entrance_rando import EntranceType
 
 from .constants import Regions, Items, Events
 from .helpers import Started, Cleared, Rules
+from .sections import Section, Sections
 
 if TYPE_CHECKING:
     from .world import TombaWorld
+
+
+@dataclass
+class Door:
+    raw_name: str
+    name: str
+
+    source: Section
+    target: Section
+
+    # Entrance ID to update
+    start_id: int
+
+    # Entrance ID to go to
+    end_id: int
+
+    # Same for the return trip
+    back_name: str
+    back_start_id: int | None = None
+    back_end_id: int | None = None
+
+    randomization_type: EntranceType = EntranceType.TWO_WAY
+
+    rule: CollectionRule | Rule[Any] | None = None
+
+    def __init__(
+        self,
+        name: str,
+        source: Section,
+        target: Section,
+        start_id: int,
+        end_id: int,
+        back_start_id: int | None = None,
+        back_end_id: int | None = None,
+        rule: CollectionRule | Rule[Any] | None = None,
+    ):
+        self.raw_name = name
+        self.name = f"{source.name}: {name}"
+        self.back_name = f"{target.name}: {name}"
+        self.source = source
+        self.target = target
+        self.start_id = start_id
+        self.end_id = end_id
+        self.back_start_id = back_start_id
+        self.back_end_id = back_end_id
+        self.rule = rule
+
+        if self.back_end_id is None or self.back_start_id is None:
+            self.randomization_type = EntranceType.ONE_WAY
+
+    def is_forward(self, name: str) -> bool:
+        """Indicate if the given name is the forward or backward direction"""
+        assert name == self.name or name == self.back_name
+        return name == self.name
 
 
 region_names = [value for key, value in Regions.__dict__.items() if not key.startswith("_") and isinstance(value, str)]
@@ -23,229 +80,855 @@ def create_and_connect_regions(world: TombaWorld) -> None:
 def create_all_regions(world: TombaWorld) -> None:
     regions = []
 
+    regions.append(Region("Menu", world.player, world.multiworld))
+
     for region_name in region_names:
         regions.append(Region(region_name, world.player, world.multiworld))
 
     world.multiworld.regions += regions
 
 
-def connect(
-    world: TombaWorld,
-    source_name: str,
-    target_name: str,
-    rule: CollectionRule | Rule[Any] | None = None,
-    suffix: str = "",
-):
-    source = world.get_region(source_name)
-    target = world.get_region(target_name)
-    source.connect(target, f"{source} to {target}{suffix}", rule)
+def get_randomizable_doors(player: int) -> list[Door]:
+    return [
+        Door(
+            "Garage Door",
+            source=Sections.VILLAGE_OF_ALL_BEGINNING,
+            target=Sections.GARAGE,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=Rules.CAN_BREAK_STUFF,
+        ),
+        Door(
+            "Witch Door",
+            source=Sections.VILLAGE_OF_ALL_BEGINNING,
+            target=Sections.WITCH_HUT,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x03,
+            rule=lambda state: state.can_reach_location(Started(Events.THE_CUTE_WITCH), player),
+        ),
+        Door(
+            "Mansion Door",
+            source=Sections.MANSION,
+            target=Sections.VILLAGE_OF_ALL_BEGINNING,
+            start_id=0x00,
+            end_id=0x02,
+        ),
+        Door(
+            "Ol' Pond Door",
+            source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+            target=Sections.OL_POND,
+            start_id=0x00,
+            end_id=0x02,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Underground Maze Door",
+            source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+            target=Sections.UNDERGROUND_MAZE,
+            start_id=0x01,
+            end_id=0x05,
+            back_start_id=0x02,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.THE_THIEFS_DOOR), player),
+        ),
+        Door(
+            "Trick Village Door",
+            source=Sections.OL_POND,
+            target=Sections.TRICK_VILLAGE,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: (
+                state.can_reach_location(Cleared(Events.I_CANT_SWIM), player)
+                and state.has(Items.KEY_TO_OL_POND, player)
+            )
+            or state.has(Items.SACRED_FISH, player),
+        ),
+        Door(
+            "100 YOAM Door",
+            source=Sections.FOREST_OF_ALL_BEGINNING_PART_2,
+            target=Sections.HUNDREDS_YEAR_OLD_MANS_HUT,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x02,
+        ),
+        Door(
+            "Chimney",
+            source=Sections.HUNDREDS_YEAR_OLD_MANS_HUT,
+            target=Sections.FOREST_OF_100_FLOWERS_PART_1,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), player),
+        ),
+        Door(
+            "Big House",
+            source=Sections.FOREST_OF_100_FLOWERS_PART_1,
+            target=Sections.WOBBLY_WHARF,
+            start_id=0x01,
+            end_id=0x02,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
+        ),
+        Door(
+            "Stone Slab",
+            source=Sections.FOREST_OF_100_FLOWERS_PART_2,
+            target=Sections.WATCH_TOWER,
+            start_id=0x01,
+            end_id=0x03,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
+        ),
+        Door(
+            "Big Red Arrow",
+            source=Sections.FOREST_OF_100_FLOWERS_PART_2,
+            target=Sections.DWARF_VILLAGE,
+            start_id=0x02,
+            end_id=0x02,
+            back_start_id=0x00,
+            back_end_id=0x02,
+        ),
+        Door(
+            "Wobbly Stairs",
+            source=Sections.WOBBLY_WHARF,
+            target=Sections.CHARITY_SQUARE,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x01,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
+        ),
+        Door(
+            "Elevator",
+            source=Sections.WATCH_TOWER,
+            target=Sections.UNDERGROUND_MAZE,
+            start_id=0x03,
+            end_id=0x01,
+            back_start_id=0x03,
+            back_end_id=0x04,
+            rule=lambda state: state.can_reach_location(Cleared(Events.WE_NEED_POWER), player),
+        ),
+        Door(
+            "Middle Door",
+            source=Sections.WATCH_TOWER,
+            target=Sections.CHARITY_SQUARE,
+            start_id=0x01,
+            end_id=0x03,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
+        ),
+        Door(
+            "Rightmost Door",
+            source=Sections.WATCH_TOWER,
+            target=Sections.MUSHROOM_FOREST,
+            start_id=0x02,
+            end_id=0x01,
+            back_start_id=0x01,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
+        ),
+        # Door("Leaf Slider", source=Sections.CHARITY_SQUARE, target=Sections.LEAF_SLIDER,
+        #     start_id=0x02, end_id=0x00,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.LEAF_SLIDER), player)
+        # ),
+        Door(
+            "Flower Tower",
+            source=Sections.CHARITY_SQUARE,
+            target=Sections.FLOWER_TOWER,
+            start_id=0x03,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x04,
+            rule=lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
+        ),
+        Door(
+            "Right Door",
+            source=Sections.DWARF_VILLAGE,
+            target=Sections.DWARF_ELDER_HUT,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Hole",
+            source=Sections.DWARF_ELDER_HUT,
+            target=Sections.UNDERGROUND_PRISON,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
+        ),
+        Door(
+            "Million Year Old Man Door",
+            source=Sections.UNDERGROUND_MAZE,
+            target=Sections.MILLION_YEAR_OLD_MANS_ROOM,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x03,
+            rule=lambda state: state.has(Items.MILLION_YEAR_OLD_BELL, player)
+            or state.can_reach_location(Cleared(Events.UNBREAKABLE_WIRE), player),
+        ),
+        Door(
+            "Upper Right Door",
+            source=Sections.UNDERGROUND_MAZE,
+            target=Sections.CIVILIZATION_ROOM,
+            start_id=0x04,
+            end_id=0x01,
+            back_start_id=0x01,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Started(Events.THE_CIVILIZATION_MACHINE), player),
+        ),
+        Door(
+            "Upper Left Door",
+            source=Sections.UNDERGROUND_MAZE,
+            target=Sections.THE_STRANGE_SMALL_ROOM,
+            start_id=0x01,
+            end_id=0x02,
+            back_start_id=0x00,
+            back_end_id=0x04,
+        ),
+        Door(
+            "Out of Leaf Slider",
+            source=Sections.LEAF_SLIDER,
+            target=Sections.MUSHROOM_FOREST,
+            start_id=0x01,
+            end_id=0x02,
+        ),
+        Door(
+            "Right Door",
+            source=Sections.MUSHROOM_FOREST,
+            target=Sections.STORMY_MOUNTAINS_PART_1,
+            start_id=0x02,
+            end_id=0x02,
+            back_start_id=0x01,
+            back_end_id=0x03,
+            rule=lambda state: state.can_reach_location(Cleared(Events.THE_WORLDS_GREATEST_POUT), player),
+        ),
+        Door(
+            "Background Door",
+            source=Sections.MUSHROOM_FOREST,
+            target=Sections.HAUNTED_MANSION_WEST,
+            start_id=0x03,
+            end_id=0x05,
+            back_start_id=0x05,
+            back_end_id=0x05,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Left Door",
+            source=Sections.MUSHROOM_FOREST,
+            target=Sections.LAKE,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x04,
+        ),
+        Door(
+            "Left Mansion Door",
+            source=Sections.LAKE_LEFT_BANK,
+            target=Sections.MANSION_STAIRS_DOWN,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x01,
+            back_end_id=0x02,
+            rule=Has(Items.NAVY_EVIL_PIG_BAG),
+        ),
+        Door(
+            "Right Mansion Door",
+            source=Sections.LAKE_LEFT_BANK,
+            target=Sections.MANSION_STAIRS_UP,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x01,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Upstair Door",
+            source=Sections.MANSION_STAIRS_UP,
+            target=Sections.MANSION,
+            start_id=0x00,
+            end_id=0x01,
+            back_start_id=0x01,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Downstair Door",
+            source=Sections.MANSION_STAIRS_DOWN,
+            target=Sections.MANSION_JUNGLE_PIG_ROOM,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Right Exit",
+            source=Sections.STORMY_MOUNTAINS_PART_1,
+            target=Sections.STORMY_MOUNTAINS_PART_2,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x03,
+        ),
+        Door(
+            "Left Door",
+            source=Sections.STORMY_MOUNTAINS_PART_1,
+            target=Sections.BACCUS_VILLAGE,
+            start_id=0x00,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Pipe",
+            source=Sections.STORMY_MOUNTAINS_PART_2,
+            target=Sections.STORMY_MOUNTAINS_PART_1,
+            start_id=0x02,
+            end_id=0x04,
+        ),
+        Door(
+            "Lava Caves Door",
+            source=Sections.STORMY_MOUNTAINS_PART_2,
+            target=Sections.LAVA_CAVES,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Right Door",
+            source=Sections.LAVA_CAVES,
+            target=Sections.PHOENIXS_NEST,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
+        ),
+        Door(
+            "Ladder",
+            source=Sections.LAVA_CAVES,
+            target=Sections.HIDDEN_VILLAGE,
+            start_id=0x02,
+            end_id=0x02,
+            back_start_id=0x00,
+            back_end_id=0x03,
+            rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player)
+            and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
+        ),
+        Door(
+            "Shadow Room Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.SHADOW_ROOM,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Civilization Room Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.CIVILIZATION_ROOM,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x02,
+        ),
+        Door(
+            "Trick Room Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.TRICK_ROOM,
+            start_id=0x03,
+            end_id=0x01,
+            back_start_id=0x01,
+            back_end_id=0x03,
+        ),
+        Door(
+            "Thief Room Three Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.THIEFS_ROOM_THREE,
+            start_id=0x04,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x04,
+        ),
+        Door(
+            "Keyhole Room Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.KEYHOLE_ROOM,
+            start_id=0x05,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x05,
+        ),
+        Door(
+            "Laughing Room Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.LAUGHING_ROOM,
+            start_id=0x06,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x06,
+            rule=lambda state: state.can_reach_location(Cleared(Events.SMILE), player),
+        ),
+        Door(
+            "Thief Room One Door",
+            source=Sections.HAUNTED_MANSION_NORTH,
+            target=Sections.THIEFS_ROOM_ONE,
+            start_id=0x07,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x07,
+        ),
+        Door(
+            "Baccus Lake Exit",
+            source=Sections.HAUNTED_MANSION_WEST,
+            target=Sections.BACCUS_LAKE,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x00,
+        ),
+        Door(
+            "Crying Door",
+            source=Sections.HAUNTED_MANSION_WEST,
+            target=Sections.CRY_ROOM,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Haunted Mansion",
+            source=Sections.BACCUS_VILLAGE,
+            target=Sections.HAUNTED_MANSION_SOUTH,
+            start_id=0x01,
+            end_id=0x07,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Swimming Room",
+            source=Sections.HAUNTED_MANSION_SOUTH,
+            target=Sections.SWIMMING_ROOM,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Thief's Room Two",
+            source=Sections.HAUNTED_MANSION_SOUTH,
+            target=Sections.THIEFS_ROOM_TWO,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Tribulation Room",
+            source=Sections.HAUNTED_MANSION_SOUTH,
+            target=Sections.TRIBULATION_ROOM,
+            start_id=0x03,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x03,
+        ),
+        Door(
+            "1,000 Year Old Man Room",
+            source=Sections.HAUNTED_MANSION_SOUTH,
+            target=Sections.THOUSAND_YEAR_OLD_MANS_ROOM,
+            start_id=0x04,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x04,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Trick Room",
+            source=Sections.HAUNTED_MANSION_SOUTH,
+            target=Sections.TRICK_ROOM,
+            start_id=0x05,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x05,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Hidding Room",
+            source=Sections.HAUNTED_MANSION_SOUTH,
+            target=Sections.HIDING_ROOM,
+            start_id=0x06,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x06,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Sunny Room",
+            source=Sections.HAUNTED_MANSION_EAST,
+            target=Sections.SUNNY_ROOM,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Trap Room",
+            source=Sections.HAUNTED_MANSION_EAST,
+            target=Sections.TRAP_ROOM,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
+        ),
+        Door(
+            "Parc Door",
+            source=Sections.BACCUS_VILLAGE,
+            target=Sections.CENTRAL_PARK,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x03,
+        ),
+        Door(
+            "River Door",
+            source=Sections.THE_MERMAIDS_SINGING_BEACH,
+            target=Sections.MASAKARI_RIVER,
+            start_id=0x01,
+            end_id=0x03,
+        ),
+        Door(
+            "Pier Door",
+            source=Sections.BACCUS_LAKE,
+            target=Sections.BACCUS_LAKE_PIER,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Background Door",
+            source=Sections.MASAKARI_JUNGLE,
+            target=Sections.Y_CROSSING,
+            start_id=0x00,
+            end_id=0x04,
+            back_start_id=0x03,
+            back_end_id=0x02,
+            rule=Has(Items.MINERS_HAT),
+        ),
+        Door(
+            "Right Jump",
+            source=Sections.MASAKARI_JUNGLE,
+            target=Sections.MASAKARI_RIVER,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x03,
+            rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        ),
+        Door(
+            "Middle Ladder",
+            source=Sections.MASAKARI_RIVER,
+            target=Sections.OLD_TREE_HILL,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        ),
+        Door(
+            "Right Tunnel",
+            source=Sections.MASAKARI_RIVER,
+            target=Sections.TRICK_VILLAGE,
+            start_id=0x02,
+            end_id=0x04,
+            rule=lambda state: state.can_reach_location(Cleared(Events.TRICK_VILLAGE), player),
+        ),
+        Door(
+            "Right Chute",
+            source=Sections.TRICK_VILLAGE,
+            target=Sections.MASAKARI_RIVER,
+            start_id=0x02,
+            end_id=0x03,
+            rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        ),
+        Door(
+            "Chimney",
+            source=Sections.TRICK_VILLAGE,
+            target=Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM,
+            start_id=0x01,
+            end_id=0x01,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        ),
+        Door(
+            "Factory Door",
+            source=Sections.Y_CROSSING,
+            target=Sections.LUMBERJACK_FACTORY,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+            rule=lambda state: state.can_reach_location(Started(Events.WE_NEED_POWER), player),
+        ),
+        Door(
+            "Castle Door",
+            source=Sections.Y_CROSSING,
+            target=Sections.IRON_CASTLE_ENTRANCE,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x02,
+            rule=lambda state: state.can_reach_location(Started(Events.WE_NEED_POWER), player),
+        ),
+        Door(
+            "Clock Door",
+            source=Sections.Y_CROSSING,
+            target=Sections.CLOCK_TOWER_ENTRANCE,
+            start_id=0x02,
+            end_id=0x00,
+            back_start_id=0x01,
+            back_end_id=0x03,
+        ),
+        Door(
+            "Broken Door",
+            source=Sections.LUMBERJACK_FACTORY,
+            target=Sections.DRIED_WISHING_WELL,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        Door(
+            "Top Door",
+            source=Sections.CLOCK_TOWER_ENTRANCE,
+            target=Sections.CLOCK_TOWER_HALFWAY_UP,
+            start_id=0x00,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        # Door(
+        #     "Top Door",
+        #     source=Sections.IRON_CASTLE_ENTRANCE,
+        #     target=Sections.IRON_CASTLE_MAIN_ROOM,
+        #     start_id=0x01,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
+        Door(
+            "Left Door",
+            source=Sections.IRON_CASTLE_MAIN_ROOM,
+            target=Sections.IRON_CASTLE_LEFT_ROOM,
+            start_id=0x01,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x01,
+        ),
+        # Door(
+        #     "Middle Door",
+        #     source=Sections.IRON_CASTLE_MAIN_ROOM,
+        #     target=Sections.IRON_CASTLE_ENGINE_ROOM,
+        #     start_id=0x02,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), player),
+        # ),
+        Door(
+            "Right Door",
+            source=Sections.IRON_CASTLE_MAIN_ROOM,
+            target=Sections.IRON_CASTLE_RIGHT_ROOM,
+            start_id=0x03,
+            end_id=0x00,
+            back_start_id=0x00,
+            back_end_id=0x03,
+        ),
+    ]
 
 
 def connect_regions(world: TombaWorld) -> None:
-    connect(
-        world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.FOREST_OF_ALL_BEGINNINGS,
-        lambda state: state.can_reach_location(Cleared(Events.CLEAR_THE_FOG), world.player),
-    )
-    connect(
-        world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.THE_MERMAIDS_SINGING_ROCK,
-        Rules.CAN_BREAK_STUFF & Has(Items.FUEL_BAR),
-    )
+    def connect(
+        source_name: str,
+        target_name: str,
+        entrance_type: EntranceType,
+        rule: CollectionRule | Rule[Any] | None = None,
+        suffix: str = "",
+    ) -> Entrance:
+        source = world.get_region(source_name)
+        target = world.get_region(target_name)
+        entrance = source.connect(target, f"{source} to {target}{suffix}", rule)
+        entrance.randomization_type = entrance_type
+        return entrance
+
+    # Connect all randomizable doors
+    for door in get_randomizable_doors(world.player):
+        source = world.get_region(door.source.name)
+        target = world.get_region(door.target.name)
+
+        entrance = source.connect(target, door.name, door.rule)
+        entrance.randomization_type = door.randomization_type
+
+        # Add the return direction
+        if entrance.randomization_type is EntranceType.TWO_WAY:
+            entrance = target.connect(source, door.back_name, door.rule)
+            entrance.randomization_type = door.randomization_type
 
     connect(
-        world,
-        Regions.FOREST_OF_ALL_BEGINNINGS,
-        Regions.FOREST_OF_100_FLOWERS,
-        lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), world.player),
-    )
-    connect(world, Regions.FOREST_OF_ALL_BEGINNINGS, Regions.OL_POND)
-
-    connect(world, Regions.FOREST_OF_100_FLOWERS, Regions.DWARF_VILLAGE)
-    connect(
-        world,
-        Regions.FOREST_OF_100_FLOWERS,
-        Regions.WOBBLY_WHARF,
-        lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
+        "Menu",
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
-        world,
-        Regions.FOREST_OF_100_FLOWERS,
-        Regions.WATCH_TOWER,
-        lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
-    )
-
-    connect(world, Regions.LAVA_CAVES_PURIFIED, Regions.HIDDEN_VILLAGE, Rules.CAN_GRAPPLE)
-    connect(world, Regions.CHARITY_SQUARE, Regions.HIDDEN_VILLAGE, Has(Items.LEAF_BUTTERFLY, 29))
-    connect(world, Regions.HIDDEN_VILLAGE, Regions.LAVA_CAVES_PURIFIED, Has(Cleared(Events.LAVA_CAVES)))
-
-    connect(
-        world,
-        Regions.DWARF_VILLAGE,
-        Regions.DWARF_JAIL,
-        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
-    )
-
-    connect(
-        world,
-        Regions.WATCH_TOWER,
-        Regions.MUSHROOM_FOREST,
-        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.FOREST_OF_ALL_BEGINNING_PART_1.name,
+        rule=lambda state: state.can_reach_location(Cleared(Events.CLEAR_THE_FOG), world.player),
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
-        world,
-        Regions.WATCH_TOWER,
-        Regions.CHARITY_SQUARE,
-        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        Sections.FOREST_OF_ALL_BEGINNING_PART_1.name,
+        Sections.FOREST_OF_ALL_BEGINNING_PART_2.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
-        world,
-        Regions.WATCH_TOWER,
-        Regions.UNDERGROUND_MAZE_ENTRANCE,
-        lambda state: state.can_reach_location(Cleared(Events.WE_NEED_POWER), world.player),
+        Sections.GARAGE.name,
+        Sections.MOTOCROSS_COURSE.name,
+        rule=Has(Items.FUEL_BAR),
+        entrance_type=EntranceType.ONE_WAY,
     )
-
     connect(
-        world,
-        Regions.WOBBLY_WHARF,
-        Regions.CHARITY_SQUARE,
-        lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        Sections.MOTOCROSS_COURSE.name, Sections.THE_MERMAIDS_SINGING_BEACH.name, entrance_type=EntranceType.ONE_WAY
     )
-
-    connect(world, Regions.MUSHROOM_FOREST, Regions.MANSION)
     connect(
-        world,
-        Regions.MUSHROOM_FOREST,
-        Regions.STORMY_MOUNTAIN,
-        lambda state: state.can_reach_location(Cleared(Events.THE_WORLDS_GREATEST_POUT), world.player),
+        Sections.THE_MERMAIDS_SINGING_BEACH.name,
+        Sections.THE_MERMAIDS_SINGING_ROCK.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
-
-    connect(world, Regions.STORMY_MOUNTAIN, Regions.LAVA_CAVES)
-    connect(world, Regions.STORMY_MOUNTAIN, Regions.BACCUS_VILLAGE)
-
     connect(
-        world,
-        Regions.LAVA_CAVES,
+        Sections.FOREST_OF_100_FLOWERS_PART_1.name,
+        Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.CHARITY_SQUARE.name,
+        Sections.HIDDEN_VILLAGE.name,
+        rule=Has(Items.LEAF_BUTTERFLY, 29),
+        entrance_type=EntranceType.ONE_WAY,
+    )
+    connect(
+        Sections.CHARITY_SQUARE.name,
+        Sections.LEAF_SLIDER.name,
+        rule=lambda state: state.can_reach_location(Cleared(Events.LEAF_SLIDER), world.player),
+        entrance_type=EntranceType.ONE_WAY,
+    )
+    connect(
+        Sections.LAVA_CAVES.name,
         Regions.LAVA_CAVES_PURIFIED,
-        lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), world.player),
+        rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), world.player),
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(Sections.HAUNTED_MANSION_SOUTH.name, Sections.HAUNTED_MANSION_WEST.name, entrance_type=EntranceType.TWO_WAY)
+    connect(
+        Sections.HAUNTED_MANSION_SOUTH.name,
+        Sections.HAUNTED_MANSION_EAST.name,
+        rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(Sections.HAUNTED_MANSION_EAST.name, Sections.HAUNTED_MANSION_NORTH.name, entrance_type=EntranceType.TWO_WAY)
+    connect(
+        Sections.HAUNTED_MANSION_WEST.name,
+        Sections.HAUNTED_MANSION_NORTH.name,
+        rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
-        world,
-        Regions.LAVA_CAVES_PURIFIED,
-        Regions.PHOENIXS_NEST,
+        Sections.LAKE.name,
+        Sections.LAKE_LEFT_BANK.name,
+        rule=lambda state: state.can_reach_location(Started(Events.I_CANT_SWIM), world.player),
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(Sections.HAUNTED_MANSION_NORTH.name, Sections.SUN_TORCH_STAND.name, entrance_type=EntranceType.TWO_WAY)
+    connect(
+        Sections.HAUNTED_MANSION_SOUTH.name,
+        Sections.SUN_TORCH_STAND.name,
+        rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.STORMY_MOUNTAINS_PART_2.name,
+        Sections.BACCUS_VILLAGE.name,
+        entrance_type=EntranceType.ONE_WAY,
+    )
+    connect(
+        Sections.PHOENIXS_NEST.name,
+        Sections.MASAKARI_JUNGLE.name,
+        rule=lambda state: state.can_reach_location(Cleared(Events.THE_MASTER_OF_THE_SKIES), world.player),
+        entrance_type=EntranceType.ONE_WAY,
+    )
+    connect(
+        Sections.UNDERGROUND_MAZE.name,
+        Regions.UNDERGROUND_MAZE_INNER,
+        rule=lambda state: state.can_reach_location(Cleared(Events.THE_THIEFS_DOOR), world.player),
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.CLOCK_TOWER_HALFWAY_UP.name, Sections.CLOCK_TOWER_ENGINE_ROOM.name, entrance_type=EntranceType.TWO_WAY
+    )
+    connect(Sections.IRON_CASTLE_ENTRANCE.name, Sections.IRON_CASTLE_MAIN_ROOM.name, entrance_type=EntranceType.TWO_WAY)
+    connect(
+        Sections.IRON_CASTLE_MAIN_ROOM.name,
+        Sections.IRON_CASTLE_ENGINE_ROOM.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), world.player),
     )
 
     connect(
-        world,
-        Regions.PHOENIXS_NEST,
-        Regions.MASAKARI_JUNGLE,
-        lambda state: state.can_reach_location(Cleared(Events.THE_MASTER_OF_THE_SKIES), world.player),
-    )
-
-    connect(world, Regions.BACCUS_VILLAGE, Regions.MUSHROOM_FOREST)
-    connect(world, Regions.BACCUS_VILLAGE, Regions.CENTRAL_PARK)
-    connect(
-        world,
-        Regions.BACCUS_VILLAGE,
-        Regions.BACCUS_LAKE,
-        lambda state: state.can_reach_location(Started(Events.A_DRINK_FOR_GROWNUPS), world.player),
-    )
-    connect(
-        world,
-        Regions.BACCUS_VILLAGE,
-        Regions.HAUNTED_MANSION,
-        lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
-    )
-
-    connect(world, Regions.Y_CROSSING, Regions.CLOCK_TOWER)
-    connect(
-        world,
-        Regions.Y_CROSSING,
-        Regions.IRON_CASTLE,
-        lambda state: state.can_reach_location(Started(Events.WE_NEED_POWER), world.player),
-    )
-    connect(
-        world,
-        Regions.Y_CROSSING,
-        Regions.LUMBERJACK_FACTORY,
-        lambda state: state.can_reach_location(Started(Events.WE_NEED_POWER), world.player),
-    )
-
-    connect(
-        world,
-        Regions.OL_POND,
-        Regions.TRICK_VILLAGE,
-        lambda state: (
-            state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player)
-            and state.has(Items.KEY_TO_OL_POND, world.player)
-        )
-        or state.has(Items.SACRED_FISH, world.player),
-    )
-    connect(
-        world,
-        Regions.UNDERGROUND_MAZE_ENTRANCE,
-        Regions.UNDERGROUND_MAZE,
-        Has(Items.THIEFS_WIRE),
-    )
-    connect(world, Regions.UNDERGROUND_MAZE_ENTRANCE, Regions.FOREST_OF_ALL_BEGINNINGS)
-    connect(
-        world,
-        Regions.UNDERGROUND_MAZE,
-        Regions.MILLION_YEAR_OLD_MANS_ROOM,
-        lambda state: state.has(Items.MILLION_YEAR_OLD_BELL, world.player)
-        or state.can_reach_location(Cleared(Events.UNBREAKABLE_WIRE), world.player),
-    )
-    connect(world, Regions.UNDERGROUND_MAZE, Regions.THE_STRANGE_SMALL_ROOM)
-    connect(world, Regions.UNDERGROUND_MAZE, Regions.HAUNTED_MANSION)
-
-    # Warning: Sacred Fish cannot be used to cross Masakari River
-    connect(
-        world,
-        Regions.THE_MERMAIDS_SINGING_ROCK,
-        Regions.OLD_TREE_HILL,
-        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
-    )
-    connect(
-        world,
-        Regions.THE_MERMAIDS_SINGING_ROCK,
-        Regions.MASAKARI_JUNGLE,
-        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
-    )
-    connect(
-        world,
-        Regions.MASAKARI_JUNGLE,
-        Regions.OLD_TREE_HILL,
-        lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
-    )
-    connect(world, Regions.MASAKARI_JUNGLE, Regions.Y_CROSSING, Has(Items.MINERS_HAT))
-
-    connect(
-        world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.FOREST_OF_ALL_BEGINNINGS,
-        Has(Items.HUNDRED_YEAR_OLD_BELL),
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.HUNDREDS_YEAR_OLD_MANS_HUT.name,
+        rule=Has(Items.HUNDRED_YEAR_OLD_BELL),
         suffix=" with Bell",
+        entrance_type=EntranceType.ONE_WAY,
     )
     connect(
-        world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.HAUNTED_MANSION,
-        Has(Items.THOUSAND_YEAR_OLD_BELL),
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.THOUSAND_YEAR_OLD_MANS_ROOM.name,
+        rule=Has(Items.THOUSAND_YEAR_OLD_BELL),
         suffix=" with Bell",
+        entrance_type=EntranceType.ONE_WAY,
     )
     connect(
-        world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.TRICK_VILLAGE,
-        Has(Items.TEN_THOUSAND_YEAR_OLD_BELL),
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.TEN_THOUSAND_YEAR_OLD_MANS_ROOM.name,
+        rule=Has(Items.TEN_THOUSAND_YEAR_OLD_BELL),
         suffix=" with Bell",
+        entrance_type=EntranceType.ONE_WAY,
     )
     connect(
-        world,
-        Regions.VILLAGE_OF_ALL_BEGINNINGS,
-        Regions.UNDERGROUND_MAZE,
-        Has(Items.MILLION_YEAR_OLD_BELL),
+        Sections.VILLAGE_OF_ALL_BEGINNING.name,
+        Sections.MILLION_YEAR_OLD_MANS_ROOM.name,
+        rule=Has(Items.MILLION_YEAR_OLD_BELL),
         suffix=" with Bell",
+        entrance_type=EntranceType.ONE_WAY,
     )

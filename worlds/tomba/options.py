@@ -48,6 +48,24 @@ class StatusAlteration(Toggle):
     display_name = "Random status alteration ?"
 
 
+class FastMotocrossRetry(Toggle):
+    """
+    Toggle to warp back to the Motcross start after leaving the Mermaid Beach
+    If disabled, player will be warped to the start of the Masakari Jungle
+    This setting is ignored if entrance randomization is enabled
+    """
+
+    display_name = "Faster Motocross Retry ?"
+
+
+class EntranceRandomization(Toggle):
+    """
+    Toggle if the door should be randomized too
+    """
+
+    display_name = "Entrance randomization enabled ?"
+
+
 class GodMode(Toggle):
     """
     Toggle this if you want to never run out of lifes
@@ -133,3 +151,5 @@ class TombaOptions(PerGameCommonOptions):
     status_alteration: StatusAlteration
     deathlink: Deathlink
     god_mode: GodMode
+    entrance_randomization: EntranceRandomization
+    fast_motocross_retry: FastMotocrossRetry

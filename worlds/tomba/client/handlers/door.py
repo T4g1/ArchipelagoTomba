@@ -1,25 +1,20 @@
-from enum import IntEnum
-
 from . import AbstractHandler
+from ...bitutils import Bitmask
 
 
-class Doors(IntEnum):
-    BACCUS_DOOR = 0x09C258
-
-
-class DoorState(IntEnum):
-    CLOSED = 0x00
-    OPEN = 0x02
+class Doors:
+    BACCUS_DOOR = Bitmask(0x09C258, 0x02)
+    FOAB_UNDERGROUND_MAZE_DOOR = Bitmask(0x09C355, 0x01)
 
 
 class DoorHandler(AbstractHandler):
     """Manipulates connection/door between areas/sections"""
 
-    async def set_door(self, door: Doors, state: DoorState):
-        await self.tomba.playstation.write_memory(door, state.to_bytes())
+    async def set_door(self, door: Bitmask, open: bool):
+        await self.tomba.playstation.set_flag(door.address, door.mask, open)
 
-    async def open(self, door: Doors):
-        await self.set_door(door, DoorState.OPEN)
+    async def open(self, door: Bitmask):
+        await self.set_door(door, True)
 
-    async def close(self, door: Doors):
-        await self.set_door(door, DoorState.CLOSED)
+    async def close(self, door: Bitmask):
+        await self.set_door(door, False)

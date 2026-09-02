@@ -21,6 +21,7 @@ from ..constants import (
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
+from .handlers.transition import TransitionHandler
 from .handlers.events import EventsHandler
 from .handlers.door import DoorHandler
 from .handlers.message import MessageHandler
@@ -50,6 +51,7 @@ class TombaGame:
     warp_hanlder: WarpHandler
     events_handler: EventsHandler
     doors_handler: DoorHandler
+    transition_handler: TransitionHandler
 
     def __init__(self, ctx: TombaContext, emulator_address="127.0.0.1", emulator_port=55355):
         self.ctx = ctx
@@ -59,9 +61,11 @@ class TombaGame:
         self.should_reset_auth = False
 
         self.status = GameState.UNKNOWN
-        self.section: Section = Sections.NONE
+        self.section: Section = Section(0xFF, 0xFF)
 
         self.playstation: Emulator
+
+        self.should_update_entrances = False
 
         self.inventory_handler = InventoryHandler(self.ctx, self)
         self.pickup_handler = PickupHandler(self.ctx, self)
@@ -70,6 +74,7 @@ class TombaGame:
         self.doors_handler = DoorHandler(self.ctx, self)
         self.message_handler = MessageHandler(self.ctx, self)
         self.player_handler = PlayerHandler(self.ctx, self)
+        self.transition_handler = TransitionHandler(self.ctx, self)
 
     async def wait_for_emulator_connection(self):
         logger.info("Waiting on connection to emulator...")
@@ -94,7 +99,6 @@ class TombaGame:
                         break
                 except (BlockingIOError, TimeoutError, ConnectionResetError):
                     await asyncio.sleep(1.0)
-                    pass
 
             await asyncio.sleep(1.0)
 
@@ -249,8 +253,14 @@ class TombaGame:
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
 
+            self.should_update_entrances = True
+
             await self.warp_hanlder.handle_leaving(self.section, to=new_section)
             await self.warp_hanlder.handle(self.section, coming_from=old_section)
+
+        if self.should_update_entrances and await self.has_game_in_progress():
+            await self.transition_handler.update_transitions(new_section)
+            self.should_update_entrances = False
 
     async def update_events(self):
         await self.events_handler.update_events()

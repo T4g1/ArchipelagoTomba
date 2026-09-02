@@ -3,6 +3,7 @@ from typing import Any
 from CommonClient import logger
 
 from . import Handler, AbstractHandler
+from .door import Doors
 from ...constants import Events, EventStatus, Items, Addresses, Regions, Locations
 from ...sections import Section, Sections
 from ...items import ItemHandler
@@ -13,7 +14,7 @@ warp_masks: dict[Section, Bitmask] = {
     Sections.FOREST_OF_ALL_BEGINNING_PART_1: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x02),
     Sections.OL_POND: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x04),
     Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Bitmask(Addresses.WARP_ENTRY_STATE + 0x00, 0x08),
-    Sections.FOREST_OF_100_FLOWERS: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x01),
+    Sections.FOREST_OF_100_FLOWERS_PART_1: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x01),
     Sections.DWARF_VILLAGE: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x02),
     Sections.WOBBLY_WHARF: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x04),
     Sections.WATCH_TOWER: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x08),
@@ -22,7 +23,7 @@ warp_masks: dict[Section, Bitmask] = {
     Sections.MILLION_YEAR_OLD_MANS_ROOM: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x40),
     Sections.THE_STRANGE_SMALL_ROOM: Bitmask(Addresses.WARP_ENTRY_STATE + 0x02, 0x80),
     Sections.MUSHROOM_FOREST: Bitmask(Addresses.WARP_ENTRY_STATE + 0x04, 0x01),
-    Sections.STORMY_MOUNTAINS: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x01),
+    Sections.STORMY_MOUNTAINS_PART_1: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x01),
     Sections.LAVA_CAVES: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x02),
     Sections.PHOENIXS_NEST: Bitmask(Addresses.WARP_ENTRY_STATE + 0x06, 0x04),
     Sections.BACCUS_VILLAGE: Bitmask(Addresses.WARP_ENTRY_STATE + 0x08, 0x01),
@@ -42,10 +43,13 @@ purified_mask: dict[str, int] = {
     Regions.FOREST_OF_100_FLOWERS: 0x01,
     Regions.STORMY_MOUNTAIN: 0x02,
     Regions.LAVA_CAVES: 0x04,
-    Regions.HAUNTED_MANSION: 0x08,
     Regions.BACCUS_VILLAGE: 0x10,
     Regions.MASAKARI_JUNGLE: 0x20,
     Regions.TRICK_VILLAGE: 0x40,
+    Sections.HAUNTED_MANSION_NORTH.name: 0x08,
+    Sections.HAUNTED_MANSION_WEST.name: 0x08,
+    Sections.HAUNTED_MANSION_SOUTH.name: 0x08,
+    Sections.HAUNTED_MANSION_EAST.name: 0x08,
 }
 
 
@@ -84,7 +88,7 @@ class WarpHandler(AbstractHandler):
             Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river_entry),
-            Sections.FOREST_OF_100_FLOWERS: Handler(self.on_forest_of_100_flowers_entry),
+            Sections.FOREST_OF_100_FLOWERS_PART_1: Handler(self.on_forest_of_100_flowers_entry),
             Sections.BOSS_FOREST_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_HAUNTED_PIG: Handler(self.on_boss_pig_entry),
             Sections.BOSS_JUNGLE_PIG: Handler(self.on_boss_pig_entry),
@@ -96,6 +100,11 @@ class WarpHandler(AbstractHandler):
             Sections.Y_CROSSING: Handler(self.on_y_crossing_entry),
             Sections.WOBBLY_WHARF: Handler(self.on_wobbly_wharf_entry),
             Sections.WATCH_TOWER: Handler(self.on_watch_tower_entry),
+            Sections.FOREST_OF_ALL_BEGINNING_PART_1: Handler(self.on_forest_of_all_beginning_part_1_entry),
+            Sections.STORMY_MOUNTAINS_PART_1: Handler(self.on_stormy_mountains_part_1_entry),
+            Sections.TRICK_VILLAGE: Handler(self.on_trick_village_entry),
+            Sections.OL_POND: Handler(self.on_ol_pond_entry),
+            Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Handler(self.on_100_year_old_man_hut_entry),
         }
 
     async def on_forest_of_all_beginning_left(self, to: Section):
@@ -115,6 +124,30 @@ class WarpHandler(AbstractHandler):
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
 
+    async def on_ol_pond_entry(self, coming_from: Section):
+        await self.fix_forest_of_all_beginning()
+
+    async def on_100_year_old_man_hut_entry(self, coming_from: Section):
+        await self.fix_forest_of_all_beginning()
+
+    async def fix_forest_of_all_beginning(self):
+        await self.tomba.events_handler.clear(Events.CLEAR_THE_FOG)
+
+        # Remove the second guide interaction
+        await self.tomba.playstation.write_memory(0x09C212, 0x06.to_bytes())
+
+    async def on_trick_village_entry(self, coming_from: Section):
+        """Start the I Can't Swim event
+        Give the banana location and
+        Move the fisherman out of the way"""
+        if await self.tomba.events_handler.get_event_state(Events.I_CANT_SWIM) is EventStatus.UNDISCOVERED:
+            await self.tomba.events_handler.start(Events.I_CANT_SWIM)
+
+            # Remove the fisherman from the Ol' Pond
+            await self.tomba.playstation.write_memory(0x09C227, 0x03.to_bytes())
+
+            await self.ctx.check_handler.check(Locations.DROWN, Regions.OL_POND)
+
     async def on_wobbly_wharf_entry(self, coming_from: Section):
         await self.init_forest_of_100_flower_area()
 
@@ -131,6 +164,16 @@ class WarpHandler(AbstractHandler):
 
             # Event giver state to make sure Dwarf Language is correctly started
             await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
+
+    async def on_stormy_mountains_part_1_entry(self, coming_from: Section):
+        """Open the bacccus door if entrance randomizer is enabled"""
+        if self.ctx.slot_data.get("entrance_randomization", False):
+            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+
+    async def on_forest_of_all_beginning_part_1_entry(self, coming_from: Section):
+        """Open the maze door as soon as the thief door is unlocked"""
+        if await self.tomba.events_handler.get_event_state(Events.THE_THIEFS_DOOR) is EventStatus.CLEARED:
+            await self.tomba.doors_handler.open(Doors.FOAB_UNDERGROUND_MAZE_DOOR)
 
     async def on_y_crossing_entry(self, coming_from: Section):
         """Start Food for Fuel

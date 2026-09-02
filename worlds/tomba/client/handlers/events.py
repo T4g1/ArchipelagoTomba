@@ -4,6 +4,7 @@ from . import Handler, AbstractHandler
 from ...constants import Addresses, Events, EventStatus, Locations, Regions
 from ...events import EventHandler, EventData
 from ...locations import LocationHandler, Cleared, LocationData
+from ...sections import Sections
 from .door import Doors
 
 
@@ -34,12 +35,17 @@ class EventsHandler(AbstractHandler):
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
+            Events.CLEAR_THE_FOG: Handler(self.on_clear_the_fog),
         }
+
+    async def on_clear_the_fog(self):
+        """Remove the fog"""
+        await self.tomba.playstation.write_memory(0x09BCCE, 0x03.to_bytes())
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared
         Until we actually have picked-it up"""
-        if not self.ctx.check_handler.is_checked(Locations.WAHTS_UNDERWATER, Regions.HAUNTED_MANSION):
+        if not self.ctx.check_handler.is_checked(Locations.WHATS_UNDERWATER, Regions.HIDING_ROOM):
             await self.tomba.events_handler.forget(Events.MIGHTY_FISH_FOOD)
 
     async def on_somethings_cookin(self):
@@ -66,7 +72,7 @@ class EventsHandler(AbstractHandler):
         location = LocationHandler.by_name.get(Cleared(Events.LETS_RIDE_THE_RAFT))
         assert location is not None
 
-        if location.id in self.ctx.checked_locations:
+        if location.id in self.ctx.sent_checks:
             await self.clear(Events.LETS_RIDE_THE_RAFT)
 
     async def on_trick_village(self):
@@ -76,6 +82,10 @@ class EventsHandler(AbstractHandler):
     async def on_deep_jungle_pig(self):
         """Clear related events"""
         await self.clear(Events.THE_JUNGLE_PIG_BAG)
+
+        # The Swimming event is bugged upon clearing the Jungle (Tomba! will learn to swim in the trees...)
+        await self.clear(Events.A_REFRESHING_DRINK)
+        await self.clear(Events.I_CANT_SWIM)
 
     async def on_baccus_village(self):
         """Clear related events"""
@@ -111,7 +121,7 @@ class EventsHandler(AbstractHandler):
         await self.clear(Events.THE_HAUNTED_PIG_BAG)
         await self.clear(Events.BREAK_THE_MAGIC_EGG)
 
-        await self.ctx.check_handler.check(Locations.PAINTING_OF_A_BIG_KEY, Regions.HAUNTED_MANSION)
+        await self.ctx.check_handler.check(Locations.PAINTING_OF_A_BIG_KEY, Sections.THIEFS_ROOM_THREE.name)
 
         await self.tomba.playstation.write_memory(Addresses.MAGIC_EGGS_BROKEN_COUNT, 0xFF.to_bytes())
 
@@ -144,7 +154,7 @@ class EventsHandler(AbstractHandler):
 
     def is_cleared(self, event_name: str) -> bool:
         event = self.get_event_location(Cleared(event_name))
-        return event.id in self.ctx.checked_locations
+        return event.id in self.ctx.sent_checks
 
     async def clear(self, event_name: str):
         await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)

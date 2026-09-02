@@ -24,6 +24,8 @@ class PlayerHandler(AbstractHandler):
 
     async def update_deathlink(self):
         """Periodically checks if the player is dead"""
+        if not await self.tomba.is_playing():
+            return
 
         current_lives = (await self.tomba.playstation.async_read_memory(Addresses.LIVES))[0]
 
