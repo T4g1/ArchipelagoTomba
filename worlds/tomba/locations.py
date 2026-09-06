@@ -146,29 +146,22 @@ class LocationHandler:
             "What the Witch Lost",
             Sections.WITCH_HUT.name,
             Items.MAGIC_MIRROR,
-            rule=HasStarted(Events.THE_CUTE_WITCH) & Has(Items.DIRTY_MIRROR) & Has(Items.THREE_CRYSTAL_BALLS),
+            rule=HasCleared(Events.WHAT_THE_WITCH_LOST),
+            event=Events.WHAT_THE_WITCH_LOST,
         ),
         ItemLocData(
             "Magic Mirror",
             Sections.WITCH_HUT.name,
             Items.GRAPPLEJACK,
-            rule=HasStarted(Events.THE_CUTE_WITCH)
-            & Has(Items.DIRTY_MIRROR)
-            & Has(Items.THREE_CRYSTAL_BALLS)
-            & Has(Items.GRAPPLE)
-            & Has(Items.BLACKJACK),  # Clean Mirror is no use
+            rule=HasCleared(Events.POWER_UP_FOR_TOOLS),
+            event=Events.POWER_UP_FOR_TOOLS,
         ),
         ItemLocData(
             "Make Candy",
             Sections.WITCH_HUT.name,
             Items.GOLD_CANDY,
-            rule=HasStarted(Events.THE_CUTE_WITCH)
-            & Has(Items.BITING_PLANT_FLOWER)
-            & Has(Items.BUTAMUSHI_THORN)
-            & Has(Items.KOKKA_CLAW)
-            & Has(Items.MOLASSES)
-            & Has(Items.NEEDLEGATOR_TEETH)
-            & Has(Items.SILVER_POWDER),
+            rule=HasCleared(Events.LETS_MAKE_CANDY),
+            event=Events.LETS_MAKE_CANDY,
         ),
         ItemLocData(
             Locations.MAILBOX,
@@ -205,6 +198,7 @@ class LocationHandler:
             Sections.FOREST_OF_ALL_BEGINNING_PART_1.name,
             Items.BITING_PLANT_FLOWER,
             Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+            at=Bitmask(0x09C3E3, 0x02),
         ),
         ChestLocData(
             "10,000 Year Chest",
@@ -255,6 +249,7 @@ class LocationHandler:
             Sections.HUNDREDS_YEAR_OLD_MANS_HUT.name,
             Items.HUNDRED_YEAR_OLD_KEY,
             rule=HasCleared(Events.INSIDE_THE_KOKKA_EGGS),
+            event=Events.INSIDE_THE_KOKKA_EGGS,
         ),
         # Ol' Pond
         ItemLocData(
@@ -361,7 +356,10 @@ class LocationHandler:
             "Find the seeds",
             Sections.WATCH_TOWER.name,
             Items.FLOWER_SEEDS,
-            rule=HasCleared(Events.A_LOST_CHILD) & HasCleared(Events.THE_100_FLOWER_FOREST),
+            rule=HasCleared(Events.A_LOST_CHILD)
+            & HasCleared(Events.THE_100_FLOWER_FOREST)
+            & HasCleared(Events.DEATH_FRUIT_JUICE),
+            at=Bitmask(0x09BD1F, 0x10),
         ),
         ChestLocData(
             Locations.WATCH_TOWER_PANTS,
@@ -394,6 +392,7 @@ class LocationHandler:
             Sections.WATCH_TOWER.name,
             Items.SILVER_POWDER,
             rule=HasCleared(Events.THE_WORLDS_GREATEST_POUT) & HasCleared(Events.LOOK_AND_SEE),
+            event=Events.READY_SET_GO,
         ),
         # Wobbly Wharf
         ChestLocData(
@@ -420,7 +419,8 @@ class LocationHandler:
             Locations.BARON,
             Sections.DWARF_VILLAGE.name,
             Items.BARON,
-            rule=Has(Items.SEAWEED) & HasCleared(Events.DELICIOUS_KNOWLEDGE_FRUIT),
+            rule=HasCleared(Events.BARONS_STRENGTH),
+            event=Events.BARONS_STRENGTH,
         ),
         ItemLocData("Rescue the Child", Sections.DWARF_VILLAGE.name, Items.CHEESE, Sections.DWARF_VILLAGE),
         ItemLocData("Meet the Dwarf Elder", Sections.DWARF_ELDER_HUT.name, Items.BLUE_EVIL_PIG_BAG),
