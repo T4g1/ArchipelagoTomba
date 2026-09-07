@@ -1391,7 +1391,7 @@ class LocationHandler:
             event=Events.A_REFRESHING_DRINK,
         ),
         # Lumberjack Factory
-        ItemLocData("Bassement", Regions.LUMBERJACK_FACTORY, Items.CHARITY_WINGS, Section(0x0B, 0x02)),
+        ItemLocData("Basement", Regions.LUMBERJACK_FACTORY, Items.CHARITY_WINGS, Section(0x0B, 0x02)),
         ItemLocData(
             Locations.BUILD_A_RAFT, Regions.LUMBERJACK_FACTORY, Items.RAFT, rule=HasStarted(Events.LETS_RIDE_THE_RAFT)
         ),
