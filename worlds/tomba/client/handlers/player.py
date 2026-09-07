@@ -1,7 +1,9 @@
 from enum import IntEnum
 
 from . import AbstractHandler
-from ...constants import Addresses, CustomCommand, Music
+from ...constants import Addresses, Music
+
+KILL_SWITCH = 0x09BCA0
 
 
 class TombaState(IntEnum):
@@ -36,18 +38,18 @@ class PlayerHandler(AbstractHandler):
             elif self.ctx.is_deathlink_enabled():
                 await self.ctx.send_death("The evil pigs won")
 
-            # Receive deathlink
-            if self.ctx.deathlink_pending:
-                await self.tomba.set_command(CustomCommand.KILL_TOMBA)
-                await self.tomba.set_music(Music.DYING)
-                self.ctx.deathlink_pending = False
-
-                self.dying = True
-
             if self.ctx.slot_data["god_mode"]:
                 await self.add_life()
 
         self.lives = current_lives
+
+        # Receive deathlink
+        if self.ctx.deathlink_pending:
+            await self.tomba.playstation.write_memory(KILL_SWITCH, 0x01.to_bytes())
+            await self.tomba.set_music(Music.DYING)
+            self.ctx.deathlink_pending = False
+
+            self.dying = True
 
     async def add_life(self):
         lifes = (await self.tomba.playstation.async_read_memory(Addresses.LIVES))[0]
