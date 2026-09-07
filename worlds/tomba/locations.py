@@ -1212,7 +1212,6 @@ class LocationHandler:
             Sections.KEYHOLE_ROOM,
             rule=HasCleared(Events.THE_HAUNTED_PIG_BAG),
             at=Bitmask(0x09BD7C, 0x04),
-            event=Events.THE_HAUNTED_PIG_BAG,
         ),
         ItemLocData(
             "Use Small Key",

@@ -1,4 +1,4 @@
-from CommonClient import logger
+from collections.abc import Hashable
 
 from . import Handler, AbstractHandler
 from ...constants import Addresses, Events, EventStatus, Locations, Regions
@@ -11,8 +11,16 @@ from .door import Doors
 class EventsHandler(AbstractHandler):
     """Handles events management and specific event processes"""
 
+    handlers_by_value: dict[Hashable, Handler]
+
     event_states: bytearray = bytearray(0xFF)
     externaly_triggered: list[str] = []
+
+    async def handle_value(self, event_name: str, value: int):
+        """Handler for specific value of event state"""
+        handler = self.handlers_by_value.get(event_name, None)
+        if handler:
+            await handler.callback(value)
 
     def init_handlers(self):
         """Keep in mind while writing those rules:
@@ -37,6 +45,17 @@ class EventsHandler(AbstractHandler):
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
             Events.CLEAR_THE_FOG: Handler(self.on_clear_the_fog),
         }
+
+        self.handlers_by_value = {
+            Events.SAVE_THE_DWARVES: Handler(self.on_save_the_dwarves),
+        }
+
+    async def on_save_the_dwarves(self, value: int):
+        """Prevents softlock when all dwarves are saved but language is not learned"""
+        if value != 0x08:
+            return
+
+        await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
 
     async def on_clear_the_fog(self):
         """Remove the fog"""
@@ -210,7 +229,9 @@ class EventsHandler(AbstractHandler):
                 await self.handle(event.name)
             except ValueError:
                 # At least Beginners Dward Language event is expected to have other values as its a multi step event
-                logger.debug(f"Event {event.name} got updated to {new_states[id]} which is not used here")
+                pass
+
+            await self.handle_value(event.name, new_states[id])
 
     def is_externaly_triggered(self, event_name: str):
         return event_name in self.externaly_triggered
