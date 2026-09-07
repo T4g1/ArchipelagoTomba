@@ -723,7 +723,7 @@ class EventHandler:
             0xAE,
             Events.THE_HAUNTED_PIG_BAG,
             Sections.HAUNTED_MANSION_SOUTH.name,
-            cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            cleared_rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Has(Items.BIG_KEY),
         ),
         EventData(0xAF, Events.THE_WORLDS_GREATEST_SMILE, Regions.MUSHROOM_FOREST),
         EventData(0xB0, Events.THE_WORLDS_GREATEST_POUT, Regions.MUSHROOM_FOREST),
