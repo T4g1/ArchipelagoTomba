@@ -1111,7 +1111,14 @@ class LocationHandler:
             & HasCleared(Events.A_DRINK_FOR_GROWNUPS),
             at=Bitmask(0x09BD9C, 0x01),
         ),
-        ItemLocData("Baccus Wine", Regions.CENTRAL_PARK, Items.WINE, rule=HasStarted(Events.FOOD_FOR_FUEL)),
+        ItemLocData(
+            "Baccus Wine",
+            Sections.CENTRAL_PARK.name,
+            Items.WINE,
+            Sections.CENTRAL_PARK,
+            rule=HasStarted(Events.FOOD_FOR_FUEL),
+            at=Bitmask(0x09C370, 0x01),
+        ),
         # Haunted Mansion
         ChestLocData(
             "100 Year Old Apples",
@@ -1135,6 +1142,7 @@ class LocationHandler:
             Items.STRONG_WIRE,
             Sections.TRIBULATION_ROOM,
             rule=HasStarted(Events.UNBREAKABLE_WIRE),
+            event=Events.UNBREAKABLE_WIRE,
         ),
         ChestLocData(
             "100 Year Old Chest 1",
@@ -1229,7 +1237,13 @@ class LocationHandler:
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Has(Items.SMALL_KEY) & HasCleared(Events.THE_HAUNTED_MANSION),
             at=Bitmask(0x09BD7E, 0x80),
         ),
-        ItemLocData("Save the Villager", Sections.THIEFS_ROOM_TWO.name, Items.SMALL_KEY, Sections.THIEFS_ROOM_TWO),
+        ItemLocData(
+            "Save the Villager",
+            Sections.THIEFS_ROOM_TWO.name,
+            Items.SMALL_KEY,
+            Sections.THIEFS_ROOM_TWO,
+            at=Bitmask(0x09C295, 0x01),
+        ),
         ItemLocData(
             "Near the Million Year Old Chest",
             Sections.SUNNY_ROOM.name,
@@ -1242,9 +1256,22 @@ class LocationHandler:
             Sections.TRIBULATION_ROOM.name,
             Items.LARGE_KEY_PANEL_2,
             Sections.TRIBULATION_ROOM,
+            at=Bitmask(0x09BD7D, 0x02),
         ),
-        ItemLocData("Near the Siren", Sections.HIDING_ROOM.name, Items.LARGE_KEY_PANEL_3, Sections.HIDING_ROOM),
-        ItemLocData("On the Elevator", Sections.TRICK_ROOM.name, Items.LARGE_KEY_PANEL_4, Sections.TRICK_ROOM),
+        ItemLocData(
+            "Near the Siren",
+            Sections.HIDING_ROOM.name,
+            Items.LARGE_KEY_PANEL_3,
+            Sections.HIDING_ROOM,
+            at=Bitmask(0x09BD7D, 0x04),
+        ),
+        ItemLocData(
+            "On the Elevator",
+            Sections.TRICK_ROOM.name,
+            Items.LARGE_KEY_PANEL_4,
+            Sections.TRICK_ROOM,
+            at=Bitmask(0x09BD7D, 0x08),
+        ),
         ItemLocData(
             "Near the Forest Pig Entrance",
             Sections.LAUGHING_ROOM.name,
@@ -1252,7 +1279,13 @@ class LocationHandler:
             Sections.LAUGHING_ROOM,
             at=Bitmask(0x09BD7D, 0x10),
         ),
-        ItemLocData("In the Chimney", Sections.SUN_TORCH_STAND.name, Items.JEWEL_OF_FIRE, Sections.SUN_TORCH_STAND),
+        ItemLocData(
+            "In the Chimney",
+            Sections.SUN_TORCH_STAND.name,
+            Items.JEWEL_OF_FIRE,
+            Sections.SUN_TORCH_STAND,
+            at=Bitmask(0x09BD7D, 0x20),
+        ),
         ItemLocData(
             "Save the Old Man",
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM.name,
@@ -1300,12 +1333,18 @@ class LocationHandler:
         # Baccus Lake
         ItemLocData(
             Locations.PIPE,
-            Regions.BACCUS_LAKE,
+            Sections.BACCUS_LAKE_PIER.name,
             Items.PIPE,
+            Sections.BACCUS_LAKE_PIER,
+            at=Bitmask(0x09BDFC, 0x01),
         ),
         # Phoenix's Nest
         ItemLocData(
-            "Green Jewel", Regions.PHOENIXS_NEST, Items.JEWEL_OF_WIND, rule=HasCleared(Events.THE_PHOENIXS_FAVORITE)
+            "Green Jewel",
+            Regions.PHOENIXS_NEST,
+            Items.JEWEL_OF_WIND,
+            rule=HasCleared(Events.THE_PHOENIXS_FAVORITE),
+            at=Bitmask(0x09BD62, 0x40),
         ),
         # Masakari Jungle
         ChestLocData(
@@ -1365,7 +1404,12 @@ class LocationHandler:
             ),
             at=Bitmask(0x09BE3E, 0x04),
         ),
-        ItemLocData("Drown a Second Time", Regions.MASAKARI_JUNGLE, Items.MINERS_HAT),
+        ItemLocData(
+            "Drown a Second Time",
+            Regions.MASAKARI_JUNGLE,
+            Items.MINERS_HAT,
+            at=Bitmask(0x09C3E0, 0x01),
+        ),
         # Old Tree Hill
         ChestLocData(
             "Old Tree AP Crystal",
@@ -1374,7 +1418,12 @@ class LocationHandler:
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
             at=Bitmask(0x09BE3E, 0x08),
         ),
-        ItemLocData("Old Tree", Regions.OLD_TREE_HILL, Items.KNOWLEDGE_FRUIT),
+        ItemLocData(
+            "Old Tree",
+            Regions.OLD_TREE_HILL,
+            Items.KNOWLEDGE_FRUIT,
+            at=Bitmask(0x09BE3E, 0x20),
+        ),
         ChestLocData(
             "Navy Evil Pig Bag",
             Regions.OLD_TREE_HILL,
@@ -1391,9 +1440,20 @@ class LocationHandler:
             event=Events.A_REFRESHING_DRINK,
         ),
         # Lumberjack Factory
-        ItemLocData("Basement", Regions.LUMBERJACK_FACTORY, Items.CHARITY_WINGS, Section(0x0B, 0x02)),
         ItemLocData(
-            Locations.BUILD_A_RAFT, Regions.LUMBERJACK_FACTORY, Items.RAFT, rule=HasStarted(Events.LETS_RIDE_THE_RAFT)
+            "Basement",
+            Sections.DRIED_WISHING_WELL.name,
+            Items.CHARITY_WINGS,
+            Sections.DRIED_WISHING_WELL,
+            at=Bitmask(0x09BE5C, 0x08),
+        ),
+        # This one does not have any flags in RAM when the item is picked up
+        ItemLocData(
+            Locations.BUILD_A_RAFT,
+            Regions.LUMBERJACK_FACTORY,
+            Items.RAFT,
+            rule=HasStarted(Events.LETS_RIDE_THE_RAFT),
+            event=Events.LETS_RIDE_THE_RAFT,
         ),
         ItemLocData(
             "Fuel Bar",
@@ -1962,7 +2022,7 @@ def create_regular_locations(world: TombaWorld) -> None:
 
     if not world.options.optional_randomized:
         # Force Pipe
-        PIPE = world.get_location(get_name(Locations.PIPE, Regions.BACCUS_LAKE))
+        PIPE = world.get_location(get_name(Locations.PIPE, Sections.BACCUS_LAKE_PIER.name))
         PIPE.place_locked_item(ItemHandler.create_item(world, Items.PIPE))
 
         # Force Broken Vase
