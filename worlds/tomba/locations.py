@@ -386,7 +386,11 @@ class LocationHandler:
             at=Bitmask(0x09BD20, 0x01),
         ),
         ItemLocData(
-            Locations.FILL_THE_BUCKET, Sections.WATCH_TOWER.name, Items.BUCKET_OF_WATER, rule=Has(Items.BUCKET)
+            Locations.FILL_THE_BUCKET,
+            Sections.WATCH_TOWER.name,
+            Items.BUCKET_OF_WATER,
+            rule=Has(Items.BUCKET),
+            at=Bitmask(0x09C215, 0x04),
         ),
         ItemLocData(
             "Win the Race",
@@ -405,7 +409,13 @@ class LocationHandler:
             at=Bitmask(0x09BD23, 0x01),
         ),
         # This one can also be found by using the bucket of water in forest of 100 flowers
-        ItemLocData("Find a bucket", Sections.WOBBLY_WHARF.name, Items.BUCKET, rule=Rules.CAN_BIG_JUMP),
+        ItemLocData(
+            "Find a bucket",
+            Sections.WOBBLY_WHARF.name,
+            Items.BUCKET,
+            rule=Rules.CAN_BIG_JUMP,
+            at=Bitmask(0x09C215, 0x07),
+        ),
         # Dwarf Village
         # TODO: Find where this is called in game (reverse)
         # Not yet working. This Max Vit+1 is given by the lady after giving her the Baked Yam which clears the event Something's Cooking
