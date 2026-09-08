@@ -39,7 +39,7 @@ class LocationData:
     region: str
     item: ItemData | None
     progress_type: LocationProgressType
-    sections: Section | None
+    section: Section | None
     rule: Rule | None
     at: Bitmask | None
     type: LocationType
@@ -83,10 +83,6 @@ class LocationData:
 
 @dataclass
 class ItemLocData(LocationData):
-    x: int | None
-    y: int | None
-    related_event: str
-
     # Kept for Poptracker
     base_name: str
 
@@ -169,7 +165,12 @@ class LocationHandler:
             Items.FURIOUS_TORNADO,
             at=Bitmask(0x09BCEC, 0x01),
         ),
-        ItemLocData("Peach Flower Gas", Sections.VILLAGE_OF_ALL_BEGINNING.name, Items.BABY_PIG),
+        ItemLocData(
+            "Peach Flower Gas",
+            Sections.VILLAGE_OF_ALL_BEGINNING.name,
+            Items.BABY_PIG,
+            at=Bitmask(0x09BCFC, 0x01),
+        ),
         ItemLocData(
             Locations.KOKKA_EGG_1,
             Sections.VILLAGE_OF_ALL_BEGINNING.name,
@@ -422,10 +423,25 @@ class LocationHandler:
             rule=HasCleared(Events.BARONS_STRENGTH),
             event=Events.BARONS_STRENGTH,
         ),
-        ItemLocData("Rescue the Child", Sections.DWARF_VILLAGE.name, Items.CHEESE, Sections.DWARF_VILLAGE),
-        ItemLocData("Meet the Dwarf Elder", Sections.DWARF_ELDER_HUT.name, Items.BLUE_EVIL_PIG_BAG),
         ItemLocData(
-            "Plant a Garden", Sections.DWARF_ELDER_HUT.name, Items.GOLD_FLOWER, rule=HasCleared(Events.FLOWER_SEEDS)
+            "Rescue the Child",
+            Sections.DWARF_VILLAGE.name,
+            Items.CHEESE,
+            Sections.DWARF_VILLAGE,
+            event=Events.A_LOST_CHILD,
+        ),
+        ItemLocData(
+            "Meet the Dwarf Elder",
+            Sections.DWARF_ELDER_HUT.name,
+            Items.BLUE_EVIL_PIG_BAG,
+            event=Events.THE_EVIL_PIG_BAG,
+        ),
+        ItemLocData(
+            "Plant a Garden",
+            Sections.DWARF_ELDER_HUT.name,
+            Items.GOLD_FLOWER,
+            rule=HasCleared(Events.FLOWER_SEEDS),
+            event=Events.PLANT_A_FLOWER_GARDEN,
         ),
         ChestLocData(
             "1,000 Year Chest",
@@ -433,7 +449,7 @@ class LocationHandler:
             Items.CHARITY_WINGS,
             Sections.DWARF_VILLAGE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
-            # TODO: Can't find the bitmask for that one
+            at=Bitmask(0x09C3CC, 0x02),
         ),
         ItemLocData(
             Locations.FIRE_STARTER,
@@ -1368,7 +1384,9 @@ class LocationHandler:
             )
             for index in range(1, 5)
         ],
-        ItemLocData("Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Section(0x0A, 0x00)),
+        ItemLocData(
+            "Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Sections.MASAKARI_JUNGLE, at=Bitmask(0x09BE42, 0x20)
+        ),
         ItemLocData(
             "Coconut Tree",
             Regions.MASAKARI_JUNGLE,
