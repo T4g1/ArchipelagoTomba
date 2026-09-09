@@ -16,6 +16,12 @@ class EventsHandler(AbstractHandler):
     event_states: bytearray = bytearray(0xFF)
     externaly_triggered: list[str] = []
 
+    async def start_beginner_dwarf_language(self):
+        await self.tomba.events_handler.start(Events.BEGINNERS_DWARF_LANGUAGE)
+
+        # Event giver state to make sure Dwarf Language is correctly started
+        await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
+
     async def handle_value(self, event_name: str, value: int):
         """Handler for specific value of event state"""
         handler = self.handlers_by_value.get(event_name, None)
@@ -52,10 +58,8 @@ class EventsHandler(AbstractHandler):
 
     async def on_save_the_dwarves(self, value: int):
         """Prevents softlock when all dwarves are saved but language is not learned"""
-        if value != 0x08:
-            return
-
-        await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
+        if value == 0x08:
+            await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
 
     async def on_clear_the_fog(self):
         """Remove the fog"""
@@ -127,6 +131,10 @@ class EventsHandler(AbstractHandler):
     async def on_the_100_flower_forest(self):
         """Clear related events"""
         await self.clear(Events.THE_EVIL_PIG_BAG)
+        await self.clear(Events.SAVE_THE_DWARVES)
+
+        if await self.tomba.events_handler.get_event_state(Events.BEGINNERS_DWARF_LANGUAGE) is EventStatus.UNDISCOVERED:
+            await self.start_beginner_dwarf_language()
 
     async def on_lava_caves(self):
         """Clear related events"""

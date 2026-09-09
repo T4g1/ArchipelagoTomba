@@ -160,10 +160,7 @@ class WarpHandler(AbstractHandler):
             await self.tomba.events_handler.start(Events.SAVE_THE_DWARVES)
 
         if await self.tomba.events_handler.get_event_state(Events.BEGINNERS_DWARF_LANGUAGE) is EventStatus.UNDISCOVERED:
-            await self.tomba.events_handler.start(Events.BEGINNERS_DWARF_LANGUAGE)
-
-            # Event giver state to make sure Dwarf Language is correctly started
-            await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
+            await self.tomba.events_handler.start_beginner_dwarf_language()
 
     async def on_stormy_mountains_part_1_entry(self, coming_from: Section):
         """Open the bacccus door if entrance randomizer is enabled"""
