@@ -1,17 +1,32 @@
-from CommonClient import logger
+from collections.abc import Hashable
 
 from . import Handler, AbstractHandler
 from ...constants import Addresses, Events, EventStatus, Locations, Regions
 from ...events import EventHandler, EventData
 from ...locations import LocationHandler, Cleared, LocationData
+from ...sections import Sections
 from .door import Doors
 
 
 class EventsHandler(AbstractHandler):
     """Handles events management and specific event processes"""
 
+    handlers_by_value: dict[Hashable, Handler]
+
     event_states: bytearray = bytearray(0xFF)
     externaly_triggered: list[str] = []
+
+    async def start_beginner_dwarf_language(self):
+        await self.tomba.events_handler.start(Events.BEGINNERS_DWARF_LANGUAGE)
+
+        # Event giver state to make sure Dwarf Language is correctly started
+        await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
+
+    async def handle_value(self, event_name: str, value: int):
+        """Handler for specific value of event state"""
+        handler = self.handlers_by_value.get(event_name, None)
+        if handler:
+            await handler.callback(value)
 
     def init_handlers(self):
         """Keep in mind while writing those rules:
@@ -34,12 +49,26 @@ class EventsHandler(AbstractHandler):
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
+            Events.CLEAR_THE_FOG: Handler(self.on_clear_the_fog),
         }
+
+        self.handlers_by_value = {
+            Events.SAVE_THE_DWARVES: Handler(self.on_save_the_dwarves),
+        }
+
+    async def on_save_the_dwarves(self, value: int):
+        """Prevents softlock when all dwarves are saved but language is not learned"""
+        if value == 0x08:
+            await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
+
+    async def on_clear_the_fog(self):
+        """Remove the fog"""
+        await self.tomba.playstation.write_memory(0x09BCCE, 0x03.to_bytes())
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared
         Until we actually have picked-it up"""
-        if not self.ctx.check_handler.is_checked(Locations.WAHTS_UNDERWATER, Regions.HAUNTED_MANSION):
+        if not self.ctx.check_handler.is_checked(Locations.WHATS_UNDERWATER, Regions.HIDING_ROOM):
             await self.tomba.events_handler.forget(Events.MIGHTY_FISH_FOOD)
 
     async def on_somethings_cookin(self):
@@ -66,7 +95,7 @@ class EventsHandler(AbstractHandler):
         location = LocationHandler.by_name.get(Cleared(Events.LETS_RIDE_THE_RAFT))
         assert location is not None
 
-        if location.id in self.ctx.checked_locations:
+        if location.id in self.ctx.sent_checks:
             await self.clear(Events.LETS_RIDE_THE_RAFT)
 
     async def on_trick_village(self):
@@ -77,10 +106,17 @@ class EventsHandler(AbstractHandler):
         """Clear related events"""
         await self.clear(Events.THE_JUNGLE_PIG_BAG)
 
+        # The Swimming event is bugged upon clearing the Jungle (Tomba! will learn to swim in the trees...)
+        await self.clear(Events.A_REFRESHING_DRINK)
+        await self.clear(Events.I_CANT_SWIM)
+
     async def on_baccus_village(self):
         """Clear related events"""
         await self.clear(Events.THE_MOUSE_PIG_BAG)
         await self.ctx.check_handler.check(Locations.CENTRAL_PARK_CHEST, Regions.CENTRAL_PARK)  # No longer accessible
+
+        # Allow the player to go to Baccus Village
+        await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_phoenix_mountain(self):
         """Clear related events"""
@@ -92,12 +128,16 @@ class EventsHandler(AbstractHandler):
             # Prevents softlock if speaking to the Phoenix guy
             await self.start(Events.THE_MOUSE_PIG_BAG)
 
-            # Allow the player to go to Baccus Village
-            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+        # Allow the player to go to Baccus Village
+        await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_the_100_flower_forest(self):
         """Clear related events"""
         await self.clear(Events.THE_EVIL_PIG_BAG)
+        await self.clear(Events.SAVE_THE_DWARVES)
+
+        if await self.tomba.events_handler.get_event_state(Events.BEGINNERS_DWARF_LANGUAGE) is EventStatus.UNDISCOVERED:
+            await self.start_beginner_dwarf_language()
 
     async def on_lava_caves(self):
         """Clear related events"""
@@ -111,7 +151,7 @@ class EventsHandler(AbstractHandler):
         await self.clear(Events.THE_HAUNTED_PIG_BAG)
         await self.clear(Events.BREAK_THE_MAGIC_EGG)
 
-        await self.ctx.check_handler.check(Locations.PAINTING_OF_A_BIG_KEY, Regions.HAUNTED_MANSION)
+        await self.ctx.check_handler.check(Locations.PAINTING_OF_A_BIG_KEY, Sections.THIEFS_ROOM_THREE.name)
 
         await self.tomba.playstation.write_memory(Addresses.MAGIC_EGGS_BROKEN_COUNT, 0xFF.to_bytes())
 
@@ -144,7 +184,7 @@ class EventsHandler(AbstractHandler):
 
     def is_cleared(self, event_name: str) -> bool:
         event = self.get_event_location(Cleared(event_name))
-        return event.id in self.ctx.checked_locations
+        return event.id in self.ctx.sent_checks
 
     async def clear(self, event_name: str):
         await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
@@ -200,7 +240,9 @@ class EventsHandler(AbstractHandler):
                 await self.handle(event.name)
             except ValueError:
                 # At least Beginners Dward Language event is expected to have other values as its a multi step event
-                logger.debug(f"Event {event.name} got updated to {new_states[id]} which is not used here")
+                pass
+
+            await self.handle_value(event.name, new_states[id])
 
     def is_externaly_triggered(self, event_name: str):
         return event_name in self.externaly_triggered

@@ -65,7 +65,7 @@ class InventoryHandler(AbstractHandler):
 
     async def on_inventory_updated(self):
         # Assume its the start of a new game if not checked locations
-        if len(self.ctx.checked_locations) > 0:
+        if len(self.ctx.sent_checks) > 0:
             return
 
         # Check if this is enabled

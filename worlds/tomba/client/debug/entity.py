@@ -1,7 +1,6 @@
 import asyncio
 
-from ..emulators.emulator import CORE_TYPE, EmulatorStatus
-from ..emulators.bizhawk import BizHawk
+from . import bizhawk_connect
 from ..entity.entity import (
     EntityHandler,
     GAME_ENTITY_ADDRESS,
@@ -17,26 +16,7 @@ from ..entity.event_entity import (
 
 async def main():
     """Primarly used as a tool to reverse"""
-    emulator_address = "127.0.0.1"
-    emulator_port = 55355
-
-    emulator = BizHawk(emulator_address, emulator_port)
-
-    print("Waiting on connection to emulator...")
-
-    while True:
-        try:
-            if not await emulator.connect():
-                continue
-
-            _ = await emulator.get_version()
-            status, core_type, _, _ = await emulator.get_status()
-
-            if (status == EmulatorStatus.PAUSED or status == EmulatorStatus.PLAYING) and core_type == CORE_TYPE:
-                break
-        except (BlockingIOError, TimeoutError, ConnectionResetError):
-            await asyncio.sleep(1.0)
-            pass
+    emulator = await bizhawk_connect()
 
     print("Entities:")
     entities = await EntityHandler.load_entities(emulator, GAME_ENTITY_ADDRESS, GAME_ENTITY_COUNT, is_occupied=True)

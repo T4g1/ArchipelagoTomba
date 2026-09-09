@@ -160,7 +160,7 @@ class ItemHandler:
         ItemData(0x4A, IC.progression, Items.MATH_BEAD_8),
         ItemData(0x4B, IC.progression, Items.MATH_BEAD_9),
         ItemData(0x4C, IC.progression, Items.MATH_BEAD_10),
-        # ItemData(0x4D, IC.filler, Items.ITEM),
+        # ItemData(0x4D, IC.filler, Items.MAX_VITALITY_1),
         # ItemData(0x4E, IC.filler, Items.ITEM),
         # ItemData(0x4F, IC.filler, Items.ITEM),
         # ItemData(0x50, IC.filler, Items.ITEM),

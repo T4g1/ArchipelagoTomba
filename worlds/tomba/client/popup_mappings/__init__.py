@@ -86,9 +86,9 @@ DEBUG_CHARMAPS: dict[str, int] = {
 
 CHARMAPS: dict[int, dict[str, int]] = {
     Sections.VILLAGE_OF_ALL_BEGINNING.area_id: MAPPING_AREA_0,
-    Sections.FOREST_OF_100_FLOWERS.area_id: MAPPING_AREA_1,
+    Sections.FOREST_OF_100_FLOWERS_PART_1.area_id: MAPPING_AREA_1,
     Sections.DWARF_VILLAGE.area_id: MAPPING_AREA_2,
-    Sections.STORMY_MOUNTAINS.area_id: MAPPING_AREA_3,
+    Sections.STORMY_MOUNTAINS_PART_1.area_id: MAPPING_AREA_3,
     0x04: MAPPING_AREA_1,  # Haunted Mansion
     0x07: MAPPING_AREA_1,  # Haunted Mansion Purified
 }
