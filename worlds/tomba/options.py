@@ -60,7 +60,9 @@ class FastMotocrossRetry(Toggle):
 
 class EntranceRandomization(Toggle):
     """
+    WARNING: THIS IS HIGHLY EXPERIMENTAL, IT WILL BREAK YOUR GAME
     Toggle if the door should be randomized too
+    WARNING: THIS IS HIGHLY EXPERIMENTAL, IT WILL BREAK YOUR GAME
     """
 
     display_name = "Entrance randomization enabled ?"
@@ -151,5 +153,5 @@ class TombaOptions(PerGameCommonOptions):
     status_alteration: StatusAlteration
     deathlink: Deathlink
     god_mode: GodMode
-    # entrance_randomization: EntranceRandomization
+    entrance_randomization: EntranceRandomization
     fast_motocross_retry: FastMotocrossRetry
