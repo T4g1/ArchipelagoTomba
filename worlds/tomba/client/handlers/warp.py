@@ -82,6 +82,7 @@ class WarpHandler(AbstractHandler):
             Sections.WOBBLY_WHARF: Handler(self.on_wobbly_wharf_left),
             Sections.HIDDEN_VILLAGE: Handler(self.on_hidden_village_left),
             Sections.OLD_TREE_HILL: Handler(self.on_old_tree_hill_left),
+            Sections.MUSHROOM_FOREST: Handler(self.on_mushroom_forest_left),
         }
 
         # Handlers for when we enter a section
@@ -107,6 +108,11 @@ class WarpHandler(AbstractHandler):
             Sections.OL_POND: Handler(self.on_ol_pond_entry),
             Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Handler(self.on_100_year_old_man_hut_entry),
         }
+
+    async def on_mushroom_forest_left(self, to: Section):
+        """Another irregular entry to the Haunted Mansion"""
+        if to.equals(Sections.HAUNTED_MANSION_EAST):
+            await self.on_haunted_mansion_irregular_entry(coming_from=Sections.MUSHROOM_FOREST)
 
     async def on_old_tree_hill_left(self, to: Section):
         """Another irregular entry to the Haunted Mansion"""
