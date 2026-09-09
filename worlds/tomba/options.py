@@ -151,5 +151,5 @@ class TombaOptions(PerGameCommonOptions):
     status_alteration: StatusAlteration
     deathlink: Deathlink
     god_mode: GodMode
-    entrance_randomization: EntranceRandomization
+    # entrance_randomization: EntranceRandomization
     fast_motocross_retry: FastMotocrossRetry
