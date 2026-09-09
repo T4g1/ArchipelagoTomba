@@ -115,6 +115,9 @@ class EventsHandler(AbstractHandler):
         await self.clear(Events.THE_MOUSE_PIG_BAG)
         await self.ctx.check_handler.check(Locations.CENTRAL_PARK_CHEST, Regions.CENTRAL_PARK)  # No longer accessible
 
+        # Allow the player to go to Baccus Village
+        await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+
     async def on_phoenix_mountain(self):
         """Clear related events"""
         await self.clear(Events.A_STORMY_PIG_BAG)
@@ -125,8 +128,8 @@ class EventsHandler(AbstractHandler):
             # Prevents softlock if speaking to the Phoenix guy
             await self.start(Events.THE_MOUSE_PIG_BAG)
 
-            # Allow the player to go to Baccus Village
-            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+        # Allow the player to go to Baccus Village
+        await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_the_100_flower_forest(self):
         """Clear related events"""

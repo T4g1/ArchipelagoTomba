@@ -81,6 +81,7 @@ class WarpHandler(AbstractHandler):
             Sections.FOREST_OF_ALL_BEGINNING_PART_1: Handler(self.on_forest_of_all_beginning_left),
             Sections.WOBBLY_WHARF: Handler(self.on_wobbly_wharf_left),
             Sections.HIDDEN_VILLAGE: Handler(self.on_hidden_village_left),
+            Sections.OLD_TREE_HILL: Handler(self.on_old_tree_hill_left),
         }
 
         # Handlers for when we enter a section
@@ -106,6 +107,11 @@ class WarpHandler(AbstractHandler):
             Sections.OL_POND: Handler(self.on_ol_pond_entry),
             Sections.HUNDREDS_YEAR_OLD_MANS_HUT: Handler(self.on_100_year_old_man_hut_entry),
         }
+
+    async def on_old_tree_hill_left(self, to: Section):
+        """Another irregular entry to the Haunted Mansion"""
+        if to.equals(Sections.HAUNTED_MANSION_NORTH):
+            await self.on_haunted_mansion_irregular_entry(coming_from=Sections.OLD_TREE_HILL)
 
     async def on_forest_of_all_beginning_left(self, to: Section):
         # Replace the blue apple if needed

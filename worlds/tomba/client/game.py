@@ -255,7 +255,7 @@ class TombaGame:
 
             self.should_update_entrances = True
 
-            await self.warp_hanlder.handle_leaving(self.section, to=new_section)
+            await self.warp_hanlder.handle_leaving(old_section, to=self.section)
             await self.warp_hanlder.handle(self.section, coming_from=old_section)
 
         if self.should_update_entrances and await self.has_game_in_progress():
