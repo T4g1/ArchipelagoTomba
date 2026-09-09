@@ -779,7 +779,7 @@ def connect_regions(world: TombaWorld) -> None:
     ) -> Entrance:
         source = world.get_region(source_name)
         target = world.get_region(target_name)
-        entrance = source.connect(target, f"{source} to {target}{suffix}", rule)
+        entrance = source.connect(target, f"{source_name} to {target_name}{suffix}", rule)
         entrance.randomization_type = entrance_type
         return entrance
 

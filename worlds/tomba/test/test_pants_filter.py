@@ -19,7 +19,7 @@ class TestPantsFilter(TombaTestBase):
             self.assertEqual(locations[0].name, pants)
 
             # In Stormy Mountains
-            locations = self.filter(item, Sections.STORMY_MOUNTAINS_SECOND)
+            locations = self.filter(item, Sections.STORMY_MOUNTAINS_PART_2)
             self.assertEqual(1, len(locations))
 
             pants = get_name(Locations.STORMY_MOUNTAIN_PANTS, Regions.STORMY_MOUNTAIN)

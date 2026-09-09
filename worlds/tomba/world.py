@@ -35,6 +35,8 @@ class TombaWorld(World):
 
     entrance_pairings: dict[str, dict[int, tuple[int, int, int]]]
 
+    explicit_indirect_conditions = False
+
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
         locations.create_all_locations(self)
