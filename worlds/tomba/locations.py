@@ -466,8 +466,15 @@ class LocationHandler:
             Sections.DWARF_VILLAGE.name,
             Items.TORCH,
             rule=HasStarted(Events.WHERED_THE_LIGHTS_GO),
+            at=Bitmask(0x09C1BF, 0x03),
         ),
-        ItemLocData(Locations.JAIL, Sections.UNDERGROUND_PRISON.name, Items.BROKEN_VASE, rule=Has(Items.TORCH)),
+        ItemLocData(
+            Locations.JAIL,
+            Sections.UNDERGROUND_PRISON.name,
+            Items.BROKEN_VASE,
+            rule=Has(Items.TORCH),
+            at=Bitmask(0x09C23E, 0x01),
+        ),
         # Mushroom Forest
         ChestLocData(
             "100 Year Old AP Crystal",
@@ -477,9 +484,19 @@ class LocationHandler:
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1E, 0x80),
         ),
-        ItemLocData("AP Box", Sections.MUSHROOM_FOREST.name, Items.ORDINARY_MUSHROOM, rule=Has(Locations.AP_150_000)),
         ItemLocData(
-            "Tear Jar", Sections.MUSHROOM_FOREST.name, Items.TEAR_JAR, rule=HasCleared(Events.THE_100_FLOWER_FOREST)
+            "AP Box",
+            Sections.MUSHROOM_FOREST.name,
+            Items.ORDINARY_MUSHROOM,
+            rule=Has(Locations.AP_150_000),
+            event=Events.A_SAFE_MUSHROOM,
+        ),
+        ItemLocData(
+            "Tear Jar",
+            Sections.MUSHROOM_FOREST.name,
+            Items.TEAR_JAR,
+            rule=HasCleared(Events.THE_100_FLOWER_FOREST),
+            event=Events.I_NEED_A_TEAR_BOTTLE,
         ),
         ChestLocData(
             "Mysterious Mushroom",
@@ -574,7 +591,12 @@ class LocationHandler:
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1F, 0x02),
         ),
-        ItemLocData(Locations.MONSTER_HUNT, Sections.MUSHROOM_FOREST.name, Items.RISE_AND_SHINE_POWDER),
+        ItemLocData(
+            Locations.MONSTER_HUNT,
+            Sections.MUSHROOM_FOREST.name,
+            Items.RISE_AND_SHINE_POWDER,
+            event=Events.MONSTER_HUNT,
+        ),
         # Charity Square
         ChestLocData(
             "10,000 Year Old AP Crystal",
@@ -604,6 +626,7 @@ class LocationHandler:
             | Has(Items.JEWEL_OF_FIRE)
             | Has(Items.JEWEL_OF_WATER)
             | Has(Items.JEWEL_OF_WIND),
+            at=Bitmask(0x09C11F, 0x03),
         ),
         ChestLocData(
             "1Up 1",
