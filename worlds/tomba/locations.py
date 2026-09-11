@@ -414,7 +414,7 @@ class LocationHandler:
             Sections.WOBBLY_WHARF.name,
             Items.BUCKET,
             rule=Rules.CAN_BIG_JUMP,
-            at=Bitmask(0x09C215, 0x07),
+            at=Bitmask(0x09C215, 0x03),
         ),
         # Dwarf Village
         # TODO: Find where this is called in game (reverse)
@@ -613,7 +613,13 @@ class LocationHandler:
             at=Bitmask(0x09BD1F, 0x01),
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
         ),
-        ItemLocData("Sacred Fish", Regions.CHARITY_SQUARE, Items.SACRED_FISH, rule=HasCleared(Events.THE_FLOWER_TOWER)),
+        ItemLocData(
+            "Sacred Fish",
+            Regions.CHARITY_SQUARE,
+            Items.SACRED_FISH,
+            rule=HasCleared(Events.THE_FLOWER_TOWER),
+            at=Bitmask(0x09BE9C, 0x01),
+        ),
         ItemLocData(
             "Crystal Balls",
             Regions.CHARITY_SQUARE,
@@ -704,7 +710,15 @@ class LocationHandler:
             rule=Has(Items.MILLION_YEAR_OLD_KEY),
             at=Bitmask(0x09BE1D, 0x02),
         ),
-        ItemLocData("Familiar Beach", Regions.MANSION, Items.SEAWEED, rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)),
+        ItemLocData(
+            "Familiar Beach",
+            Regions.MANSION,
+            Items.SEAWEED,
+            rule=HasStarted(Events.SEAWEED_FOR_YOUR_HEALTH)
+            & HasCleared(Events.DELICIOUS_KNOWLEDGE_FRUIT)
+            & HasCleared(Events.HEALING_HERBS_FOR_BARON),
+            at=Bitmask(0x09BE1E, 0x40),
+        ),
         # Stormy Mountain
         ChestLocData(
             "100 Year Old Chest",
@@ -800,6 +814,7 @@ class LocationHandler:
                 | Rules.HAS_ANY_JEWEL
                 | Rules.HAS_BLUE_POWDER
             ),
+            at=Bitmask(0x09C36A, 0x01),
         ),
         ItemLocData(
             "Smile Wing",
@@ -913,7 +928,12 @@ class LocationHandler:
             at=Bitmask(0x09BD5D, 0x40),
         ),
         # Lava Caves
-        ItemLocData(Locations.CHARLES_PANTS, Regions.LAVA_CAVES, Items.CHARLES_PANTS),
+        ItemLocData(
+            Locations.CHARLES_PANTS,
+            Regions.LAVA_CAVES,
+            Items.CHARLES_PANTS,
+            at=Bitmask(0x09C364, 0x01),
+        ),
         ChestLocData(
             "Green Evil Pig Bag Chest",
             Regions.LAVA_CAVES,
@@ -1054,6 +1074,7 @@ class LocationHandler:
             Regions.LAVA_CAVES_PURIFIED,
             Items.WHAT_THE_THIEF_FORGOT,
             rule=HasCleared(Events.THE_HAUNTED_MANSION),
+            at=Bitmask(0x09C1CB, 0x01),
         ),
         ChestLocData(
             "10,000 Year Charity Wing 1",
@@ -1128,12 +1149,19 @@ class LocationHandler:
             rule=Has(Items.CHEESE, 10),
             event=Events.SOME_CHEESE_PLEASE,
         ),
-        ItemLocData(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE, Items.GOLDEN_FRUIT, rule=Has(Items.CHEESE, 15)),
+        ItemLocData(
+            Locations.GOLDEN_FRUIT,
+            Regions.BACCUS_VILLAGE,
+            Items.GOLDEN_FRUIT,
+            rule=Has(Items.CHEESE, 15),
+            at=Bitmask(0x09C374, 0x02),
+        ),
         ItemLocData(
             Locations.DEATH_FRUIT_JUICE_STARTED,
             Regions.BACCUS_VILLAGE,
             Items.WEED_KILLER,
             rule=HasCleared(Events.MONSTER_HUNT),
+            at=Bitmask(0x09C132, 0x01),
         ),
         ItemLocData(
             "Give the Baby Pig",
@@ -1229,7 +1257,7 @@ class LocationHandler:
             Sections.SWIMMING_ROOM.name,
             Items.LARGE_LUNCH_BOX,
             Sections.SWIMMING_ROOM,
-            rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
+            rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & (Rules.CAN_GRAPPLE | Rules.CAN_SWIM),
             at=Bitmask(0x09BD7C, 0x02),
         ),
         ChestLocData(
