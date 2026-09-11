@@ -1168,7 +1168,8 @@ class LocationHandler:
             Regions.BACCUS_VILLAGE,
             Items.KOKKA_CLAW,
             Sections.BACCUS_VILLAGE,
-            rule=Has(Items.BABY_PIG) & HasCleared(Events.CANT_STOP_CRYING),
+            rule=Has(Items.BABY_PIG) & HasCleared(Events.CANT_STOP_CRYING) & HasStarted(Events.PEACH_FLOWER_GAS),
+            event=Events.PEACH_FLOWER_GAS,
         ),
         ItemLocData(
             "Death Fuit Juice cleared",
@@ -1243,6 +1244,7 @@ class LocationHandler:
             Items.MIGHTY_FISH_FOOD,
             Sections.HIDING_ROOM,
             rule=Has(Items.SEASHELL_NECKLACE) & HasCleared(Events.THE_10000_YEAR_OLD_MAN),
+            at=Bitmask(0x09BD7D, 0x40),
         ),
         ChestLocData(
             "1,000 Year Old Chest near Yan",
@@ -1538,7 +1540,8 @@ class LocationHandler:
             "Fuel Bar",
             Regions.LUMBERJACK_FACTORY,
             Items.FUEL_BAR,
-            rule=Has(Items.WINE) & HasStarted(Events.FOOD_FOR_FUEL),
+            rule=Has(Items.WINE) & HasStarted(Events.FOOD_FOR_FUEL) & HasCleared(Events.THE_CIVILIZATION_MACHINE),
+            at=Bitmask(0x09C3EA, 0x05),
         ),
         # Iron Castle
         ItemLocData(
@@ -1928,7 +1931,12 @@ class LocationHandler:
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD3C, 0x02),
         ),
-        ItemLocData("Million Year Old Key", Regions.MILLION_YEAR_OLD_MANS_ROOM, Items.MILLION_YEAR_OLD_KEY),
+        ItemLocData(
+            "Million Year Old Key",
+            Regions.MILLION_YEAR_OLD_MANS_ROOM,
+            Items.MILLION_YEAR_OLD_KEY,
+            event=Events.SOURCE_OF_EVIL_MAGIC,
+        ),
         # The Mermaid's Singing Rock
         # TODO: Find where this is called in game (reverse)
         # Not yet working. This Max Vit+1 is given by the Mermaid after getting the Bronze Medal which clears the event I Want a Bronze Medal
