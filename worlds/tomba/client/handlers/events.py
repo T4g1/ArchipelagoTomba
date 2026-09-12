@@ -13,8 +13,18 @@ class EventsHandler(AbstractHandler):
 
     handlers_by_value: dict[Hashable, Handler]
 
-    event_states: bytearray = bytearray(0xFF)
+    _event_states: bytearray = bytearray(0xFF)
     externaly_triggered: list[str] = []
+
+    initialized: bool = False
+
+    async def get_event_states(self) -> bytearray:
+        if not self.initialized:
+            await self.update_events()
+
+            self.initialized = True
+
+        return self._event_states
 
     async def start_beginner_dwarf_language(self):
         await self.tomba.events_handler.start(Events.BEGINNERS_DWARF_LANGUAGE)
@@ -211,7 +221,7 @@ class EventsHandler(AbstractHandler):
         event = EventHandler.by_name[event_name]
 
         try:
-            return EventStatus(self.event_states[event.id])
+            return EventStatus((await self.get_event_states())[event.id])
         except Exception:
             return EventStatus.STARTED
 
@@ -224,10 +234,10 @@ class EventsHandler(AbstractHandler):
             await self.tomba.show_event(event, status)
 
     async def update_events(self):
-        old_states = self.event_states
+        old_states = self._event_states
         new_states = await self.tomba.playstation.read_memory_block(Addresses.EVENT_FLAGS, 0xFF)
 
-        self.event_states = new_states
+        self._event_states = new_states
 
         for id in range(len(new_states)):
             if old_states[id] == new_states[id]:
