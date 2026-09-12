@@ -473,6 +473,7 @@ def get_randomizable_doors(player: int) -> list[Door]:
             end_id=0x00,
             back_start_id=0x00,
             back_end_id=0x05,
+            rule=lambda state: state.has(Items.BIG_KEY, player),
         ),
         Door(
             "Laughing Room Door",

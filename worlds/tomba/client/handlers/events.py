@@ -22,6 +22,17 @@ class EventsHandler(AbstractHandler):
         # Event giver state to make sure Dwarf Language is correctly started
         await self.tomba.playstation.write_memory(0x09C214, 0x05.to_bytes())
 
+    async def clear_i_cant_swim(self):
+        await self.clear(Events.I_CANT_SWIM)
+
+        # Make sure access to river is possible
+        await self.tomba.playstation.write_memory(0x09C3E0, 0x04.to_bytes())
+
+    async def clear_save_the_dwarves(self):
+        await self.clear(Events.SAVE_THE_DWARVES)
+
+        await self.tomba.playstation.write_memory(0x09C244, 0x01.to_bytes())
+
     async def handle_value(self, event_name: str, value: int):
         """Handler for specific value of event state"""
         handler = self.handlers_by_value.get(event_name, None)
@@ -108,7 +119,7 @@ class EventsHandler(AbstractHandler):
 
         # The Swimming event is bugged upon clearing the Jungle (Tomba! will learn to swim in the trees...)
         await self.clear(Events.A_REFRESHING_DRINK)
-        await self.clear(Events.I_CANT_SWIM)
+        await self.clear_i_cant_swim()
 
     async def on_baccus_village(self):
         """Clear related events"""
@@ -134,7 +145,8 @@ class EventsHandler(AbstractHandler):
     async def on_the_100_flower_forest(self):
         """Clear related events"""
         await self.clear(Events.THE_EVIL_PIG_BAG)
-        await self.clear(Events.SAVE_THE_DWARVES)
+
+        await self.clear_save_the_dwarves()
 
         if await self.tomba.events_handler.get_event_state(Events.BEGINNERS_DWARF_LANGUAGE) is EventStatus.UNDISCOVERED:
             await self.start_beginner_dwarf_language()

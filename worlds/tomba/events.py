@@ -165,8 +165,8 @@ class EventHandler:
             0x1E,
             Events.PHOENIX_MOUNTAIN,
             Regions.STORMY_MOUNTAIN,
-            started_rule=HasCleared(Events.A_STORMY_PIG_BAG),
-            cleared_rule=Has(Items.RED_EVIL_PIG_BAG) & CanReachRegion(Regions.CHARITY_SQUARE),
+            started_rule=Has(Items.RED_EVIL_PIG_BAG),
+            cleared_rule=CanReachRegion(Regions.CHARITY_SQUARE) & Rules.CAN_BIG_JUMP,
         ),
         EventData(0x1F, Events.WHERE_DID_I_COME_FROM, Regions.STORMY_MOUNTAIN),
         # EventData(0x20, Events., Regions.), # Unused
