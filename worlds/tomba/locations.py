@@ -14,7 +14,7 @@ from .items import ItemHandler, ItemData, TombaItem, PANTS
 from .sections import Section, Sections
 from .helpers import HasStarted, HasCleared, Started, Cleared, Rules
 from .events import EventHandler
-from .bitutils import Bitmask
+from .bitutils import Bitmask, Trigger
 
 if TYPE_CHECKING:
     from .world import TombaWorld
@@ -43,6 +43,7 @@ class LocationData:
     rule: Rule | None
     at: Bitmask | None
     type: LocationType
+    trigger: Trigger | None
 
     def __init__(
         self,
@@ -54,6 +55,7 @@ class LocationData:
         rule: Rule | None = None,
         at: Bitmask | None = None,
         type: LocationType = LocationType.PICKUP,
+        trigger: Trigger | None = None,
     ):
         self.id = LocationData._id_counter
         LocationData._id_counter += 1
@@ -66,6 +68,7 @@ class LocationData:
         self.rule = rule
         self.at = at
         self.type = type
+        self.trigger = trigger
 
     def with_section(self, section: Section) -> Self:
         self.section = section
@@ -97,6 +100,7 @@ class ItemLocData(LocationData):
         at: Bitmask | None = None,
         event: str | None = None,
         type: LocationType = LocationType.PICKUP,
+        trigger: Trigger | None = None,
     ):
         self.base_name = name
 
@@ -106,7 +110,7 @@ class ItemLocData(LocationData):
         if item is None:
             raise Exception(f"Trying to create a location {name} with an unknown item: {item_name}")
 
-        super().__init__(name, region, item, section, progress_type, rule, at, type)
+        super().__init__(name, region, item, section, progress_type, rule, at, type, trigger)
 
         self.event = event
 
@@ -284,6 +288,7 @@ class LocationHandler:
                 Sections.FOREST_OF_100_FLOWERS_PART_1.name,
                 Items.LEAF_BUTTERFLY,
                 Sections.FOREST_OF_100_FLOWERS_PART_1,
+                trigger=Trigger(0x09C272, lambda value, butterfly_index=index: value >= butterfly_index),
             )
             for index in range(1, 26)
         ],
@@ -1443,7 +1448,11 @@ class LocationHandler:
         ),
         *[
             ItemLocData(
-                f"Leaf Butterfly {index}", Regions.MASAKARI_JUNGLE, Items.LEAF_BUTTERFLY, Sections.MASAKARI_JUNGLE
+                f"Leaf Butterfly {index}",
+                Regions.MASAKARI_JUNGLE,
+                Items.LEAF_BUTTERFLY,
+                Sections.MASAKARI_JUNGLE,
+                trigger=Trigger(0x09C330, lambda value, butterfly_index=index: value >= butterfly_index),
             )
             for index in range(1, 5)
         ],
@@ -2022,6 +2031,7 @@ class LocationHandler:
     by_event: dict[str, list[int]] = defaultdict(list)
     name_to_id: dict[str, int] = {}
     with_bitmask: list[LocationData] = []
+    with_trigger: list[LocationData] = []
 
     for location in location_table:
         by_id[location.id] = location
@@ -2038,6 +2048,9 @@ class LocationHandler:
 
         if location.at is not None:
             with_bitmask.append(location)
+
+        if location.trigger is not None:
+            with_trigger.append(location)
 
     @staticmethod
     def filter_and_sort(item: ItemData, section: Section) -> list[ItemLocData]:
