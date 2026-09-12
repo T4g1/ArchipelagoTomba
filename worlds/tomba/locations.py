@@ -2087,24 +2087,24 @@ def create_regular_locations(world: TombaWorld) -> None:
 
     if not world.options.furious_tornado_randomized:
         # Force furious tornado to be on Mailbox
-        MAILBOX = world.get_location(get_name(Locations.MAILBOX, Regions.VILLAGE_OF_ALL_BEGINNINGS))
+        MAILBOX = world.get_location(get_name(Locations.MAILBOX, Sections.VILLAGE_OF_ALL_BEGINNING.name))
         MAILBOX.place_locked_item(ItemHandler.create_item(world, Items.FURIOUS_TORNADO))
 
     if not world.options.chick_randomized:
-        CHICK_1 = world.get_location(get_name(Locations.KOKKA_EGG_1, Regions.VILLAGE_OF_ALL_BEGINNINGS))
+        CHICK_1 = world.get_location(get_name(Locations.KOKKA_EGG_1, Sections.VILLAGE_OF_ALL_BEGINNING.name))
         CHICK_1.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
 
-        CHICK_2 = world.get_location(get_name(Locations.KOKKA_EGG_2, Regions.FOREST_OF_ALL_BEGINNINGS))
+        CHICK_2 = world.get_location(get_name(Locations.KOKKA_EGG_2, Sections.FOREST_OF_ALL_BEGINNING_PART_1.name))
         CHICK_2.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
 
-        CHICK_3 = world.get_location(get_name(Locations.KOKKA_EGG_3, Regions.FOREST_OF_ALL_BEGINNINGS))
+        CHICK_3 = world.get_location(get_name(Locations.KOKKA_EGG_3, Sections.FOREST_OF_ALL_BEGINNING_PART_2.name))
         CHICK_3.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
 
-        CHICK_4 = world.get_location(get_name(Locations.KOKKA_EGG_4, Regions.FOREST_OF_ALL_BEGINNINGS))
+        CHICK_4 = world.get_location(get_name(Locations.KOKKA_EGG_4, Sections.FOREST_OF_ALL_BEGINNING_PART_2.name))
         CHICK_4.place_locked_item(ItemHandler.create_item(world, Items.CHICK))
 
     # Force baron to be on the original location
-    BARON = world.get_location(get_name(Locations.BARON, Regions.DWARF_VILLAGE))
+    BARON = world.get_location(get_name(Locations.BARON, Sections.DWARF_VILLAGE.name))
     BARON.place_locked_item(ItemHandler.create_item(world, Items.BARON))
 
     if not world.options.optional_randomized:
@@ -2113,7 +2113,7 @@ def create_regular_locations(world: TombaWorld) -> None:
         PIPE.place_locked_item(ItemHandler.create_item(world, Items.PIPE))
 
         # Force Broken Vase
-        JAIL = world.get_location(get_name(Locations.JAIL, Regions.DWARF_VILLAGE))
+        JAIL = world.get_location(get_name(Locations.JAIL, Sections.DWARF_VILLAGE.name))
         JAIL.place_locked_item(ItemHandler.create_item(world, Items.BROKEN_VASE))
 
 
