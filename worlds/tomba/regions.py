@@ -125,15 +125,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             start_id=0x00,
             end_id=0x02,
         ),
-        Door(
-            "Ol' Pond Door",
-            source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
-            target=Sections.OL_POND,
-            start_id=0x00,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Ol' Pond Door",
+        #     source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+        #     target=Sections.OL_POND,
+        #     start_id=0x00,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Underground Maze Door",
             source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
@@ -891,6 +891,11 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         Sections.FOREST_OF_ALL_BEGINNING_PART_1.name,
         Sections.FOREST_OF_ALL_BEGINNING_PART_2.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.FOREST_OF_ALL_BEGINNING_PART_1.name,
+        Sections.OL_POND.name,
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
