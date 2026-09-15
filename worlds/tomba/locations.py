@@ -1561,7 +1561,13 @@ class LocationHandler:
             event=Events.WE_NEED_POWER,
         ),
         # Hidden Village
-        ItemLocData(Locations.FIND_MY_SON, Regions.HIDDEN_VILLAGE, Items.YANS_LUNCH_BOX, event=Events.TAKE_OUT),
+        ItemLocData(
+            Locations.FIND_MY_SON,
+            Regions.HIDDEN_VILLAGE,
+            Items.YANS_LUNCH_BOX,
+            event=Events.TAKE_OUT,
+            at=Bitmask(0x09C27B, 0x01),
+        ),
         ItemLocData(
             "Golden Butterfly",
             Regions.HIDDEN_VILLAGE,
