@@ -248,7 +248,7 @@ class TombaGame:
         section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
         new_section = Section(area_id, section_id)
 
-        if new_section != self.section:
+        if new_section != self.section and await self.is_playing():
             old_section = self.section
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")

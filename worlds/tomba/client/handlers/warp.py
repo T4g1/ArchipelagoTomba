@@ -148,6 +148,9 @@ class WarpHandler(AbstractHandler):
             # Door is open both side
             await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
+            # Remove Clock Tower cinematics to prevent wrong door transition
+            await self.tomba.playstation.write_memory(0x09C368, 0x01.to_bytes())
+
     async def on_ol_pond_entry(self, coming_from: Section):
         await self.fix_forest_of_all_beginning()
 

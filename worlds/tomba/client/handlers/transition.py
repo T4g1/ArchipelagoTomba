@@ -8,6 +8,12 @@ from ...constants import CustomCommand
 
 AREAS_ARRAY_ADDRESS = 0x07C54C
 
+# Indicates which animation should be used for the door transition
+specific_animations = {
+    Sections.CLOCK_TOWER_ENTRANCE.area_id: {Sections.CLOCK_TOWER_ENTRANCE.section_id: {0x00: 0x02}},
+    Sections.CHARITY_SQUARE.area_id: {Sections.CHARITY_SQUARE.section_id: {0x01: 0x02}},
+}
+
 
 class Entrance:
     SIZE = 0x08
@@ -99,7 +105,7 @@ class TransitionHandler(AbstractHandler):
 
             entrance_address = entrances_array + Entrance.SIZE * int(entrance_id)
             data = bytearray(4)
-            data[0] = 0x00
+            data[0] = self.get_entrance_animation(target_area, target_section, target_spawn)
             data[1] = target_area
             data[2] = target_section
             data[3] = target_spawn
@@ -125,3 +131,6 @@ class TransitionHandler(AbstractHandler):
         await self.tomba.set_command(CustomCommand.UPDATE_TRANSITION)
 
         return True
+
+    def get_entrance_animation(self, area_id: int, section_id: int, spawn_id: int) -> int:
+        return specific_animations.get(area_id, {}).get(section_id, {}).get(spawn_id, 0x00)

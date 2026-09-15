@@ -197,17 +197,20 @@ LAB_TRANSITION_UPDATE_START:
     lw      t2, 4(t0)
     nop
 
+    andi    t3, t2, 0xFF
+    bne     t3, zero, LAB_TRANSITION_UPDATE_END_SKIP_MERGE
+    nop
+
     # Take first original byte
     sll     a1, a1, 24
     srl     a1, a1, 24
-    # lui     a2, 0xFF00
-    # and     a1, a1, a2
     nop
 
     # Merge new and hold (assume first byte of new data is 0x00)
     or      t2, t2, a1
     nop 
 
+LAB_TRANSITION_UPDATE_END_SKIP_MERGE:
     sw      t2, 0(a0)
     nop
 
