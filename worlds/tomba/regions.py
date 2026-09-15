@@ -262,17 +262,17 @@ def get_randomizable_doors(player: int) -> list[Door]:
         #     start_id=0x02, end_id=0x00,
         #     rule=lambda state: state.can_reach_location(Cleared(Events.LEAF_SLIDER), player)
         # ),
-        Door(
-            "Flower Tower",
-            source=Sections.CHARITY_SQUARE,
-            target=Sections.FLOWER_TOWER,
-            start_id=0x03,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x04,
-            rule=lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
-            related_events=[Events.THE_FLOWER_TOWER],
-        ),
+        # Door(
+        #     "Flower Tower",
+        #     source=Sections.CHARITY_SQUARE,
+        #     target=Sections.FLOWER_TOWER,
+        #     start_id=0x03,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x04,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
+        #     related_events=[Events.THE_FLOWER_TOWER],
+        # ),
         Door(
             "Right Door",
             source=Sections.DWARF_VILLAGE,
@@ -922,6 +922,11 @@ def connect_regions(world: TombaWorld) -> None:
         Sections.HIDDEN_VILLAGE.name,
         rule=Has(Items.LEAF_BUTTERFLY, 29),
         entrance_type=EntranceType.ONE_WAY,
+    )
+    connect(
+        Sections.CHARITY_SQUARE.name,
+        Sections.FLOWER_TOWER.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
         Sections.CHARITY_SQUARE.name,
