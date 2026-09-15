@@ -4,6 +4,7 @@ from . import AbstractHandler
 from ..emulators.emulator import Emulator
 from ...sections import Section, Sections
 from ...bitutils import TypeSize, read_int, write_int, is_address
+from ...constants import CustomCommand
 
 AREAS_ARRAY_ADDRESS = 0x07C54C
 
@@ -65,7 +66,7 @@ class Entrance:
 class TransitionHandler(AbstractHandler):
     """Handles transitions manipulations"""
 
-    async def update_transitions(self, section: Section):
+    async def update_transitions(self, section: Section) -> bool:
         """Re-writes all transitions to align on the randomized entrances"""
         pairings: dict[str, dict[int, tuple[int, int, int]]] = self.ctx.slot_data.get("entrance_pairings", [])
 
@@ -84,24 +85,43 @@ class TransitionHandler(AbstractHandler):
                 target_spawn,
             )
 
-        entrances_array = await Entrance.compute_entrances_array(self.tomba.playstation, section)
+        try:
+            entrances_array = await Entrance.compute_entrances_array(self.tomba.playstation, section)
+        except AttributeError:
+            # Transition/Entrance arrays not loaded yet
+            return False
 
+        transition_command_address = 0xAC00
         for entrance_id, target in pairings.get(section.get_unpurified().network_key(), {}).items():
             target_area = target[0]
             target_section = target[1]
             target_spawn = target[2]
 
             entrance_address = entrances_array + Entrance.SIZE * int(entrance_id)
-            data = bytearray(3)
-            data[0] = target_area
-            data[1] = target_section
-            data[2] = target_spawn
+            data = bytearray(4)
+            data[0] = 0x00
+            data[1] = target_area
+            data[2] = target_section
+            data[3] = target_spawn
 
-            await self.tomba.playstation.write_memory(entrance_address + 5, data)
+            # Skip the 4 first bytes of the transition struct
+            entrance_address += 4
 
-            logger.debug(
+            await self.tomba.playstation.write_memory(
+                transition_command_address, entrance_address.to_bytes(4, byteorder="little")
+            )
+            await self.tomba.playstation.write_memory(transition_command_address + 4, data)
+
+            logger.info(
                 f"Update transition 0x{entrance_address:08X} "
                 f"0x{int(entrance_id):02X} "
                 f"to 0x{target_area:02X}-0x{target_section:02X} "
                 f"at 0x{target_spawn:02X}"
             )
+
+            transition_command_address += 8
+
+        await self.tomba.playstation.write_memory(transition_command_address, 0xFFFFFFFF.to_bytes(4))
+        await self.tomba.set_command(CustomCommand.UPDATE_TRANSITION)
+
+        return True

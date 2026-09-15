@@ -624,3 +624,6 @@ class CustomCommand(IntEnum):
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
     KILL_TOMBA = 0x04  # Bit 3 W = 1: Calls the registered method (currently: kill tomba)
     SET_MUSIC = 0x08  # Bit 4 W = 1: Calls the registered method (show event status)
+    UPDATE_TRANSITION = (
+        0x10  # Bit 5 W = 1: Asks the game to update transitions to other areas from a given list at AC00
+    )
