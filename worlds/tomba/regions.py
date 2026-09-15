@@ -642,15 +642,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
             related_events=[Events.A_DRINK_FOR_GROWNUPS],
         ),
-        Door(
-            "Parc Door",
-            source=Sections.BACCUS_VILLAGE,
-            target=Sections.CENTRAL_PARK,
-            start_id=0x02,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x03,
-        ),
+        # Door(
+        #     "Parc Door",
+        #     source=Sections.BACCUS_VILLAGE,
+        #     target=Sections.CENTRAL_PARK,
+        #     start_id=0x02,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x03,
+        # ),
         Door(
             "River Door",
             source=Sections.THE_MERMAIDS_SINGING_BEACH,
@@ -972,6 +972,11 @@ def connect_regions(world: TombaWorld) -> None:
         rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), world.player),
         entrance_type=EntranceType.TWO_WAY,
         related_events=[Events.A_DRINK_FOR_GROWNUPS],
+    )
+    connect(
+        Sections.BACCUS_VILLAGE.name,
+        Sections.CENTRAL_PARK.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
         Sections.STORMY_MOUNTAINS_PART_2.name,
