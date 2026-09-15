@@ -248,7 +248,7 @@ class TombaGame:
         section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
         new_section = Section(area_id, section_id)
 
-        if new_section != self.section:
+        if new_section != self.section and await self.is_playing():
             old_section = self.section
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
@@ -258,9 +258,12 @@ class TombaGame:
             await self.warp_hanlder.handle_leaving(old_section, to=self.section)
             await self.warp_hanlder.handle(self.section, coming_from=old_section)
 
-        if self.should_update_entrances and await self.has_game_in_progress():
-            await self.transition_handler.update_transitions(new_section)
-            self.should_update_entrances = False
+        if await self.get_menu_state() == MenuState.OPEN:
+            self.should_update_entrances = True
+
+        elif self.should_update_entrances:
+            if await self.transition_handler.update_transitions(new_section):
+                self.should_update_entrances = False
 
     async def update_events(self):
         await self.events_handler.update_events()

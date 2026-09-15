@@ -125,15 +125,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             start_id=0x00,
             end_id=0x02,
         ),
-        Door(
-            "Ol' Pond Door",
-            source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
-            target=Sections.OL_POND,
-            start_id=0x00,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Ol' Pond Door",
+        #     source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
+        #     target=Sections.OL_POND,
+        #     start_id=0x00,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Underground Maze Door",
             source=Sections.FOREST_OF_ALL_BEGINNING_PART_1,
@@ -180,40 +180,43 @@ def get_randomizable_doors(player: int) -> list[Door]:
             rule=lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), player),
             related_events=[Events.INSIDE_THE_KOKKA_EGGS],
         ),
-        Door(
-            "Big House",
-            source=Sections.FOREST_OF_100_FLOWERS_PART_1,
-            target=Sections.WOBBLY_WHARF,
-            start_id=0x01,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x02,
-            rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
-            related_events=[
-                Events.SAVE_THE_DWARVES,
-                Events.BEGINNERS_DWARF_LANGUAGE,
-            ],
-        ),
-        Door(
-            "Stone Slab",
-            source=Sections.FOREST_OF_100_FLOWERS_PART_2,
-            target=Sections.WATCH_TOWER,
-            start_id=0x01,
-            end_id=0x03,
-            back_start_id=0x00,
-            back_end_id=0x01,
-            rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
-            related_events=[Events.SAVE_THE_DWARVES],
-        ),
-        Door(
-            "Big Red Arrow",
-            source=Sections.FOREST_OF_100_FLOWERS_PART_2,
-            target=Sections.DWARF_VILLAGE,
-            start_id=0x02,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x02,
-        ),
+        # Door(
+        #     "Big House",
+        #     source=Sections.FOREST_OF_100_FLOWERS_PART_1,
+        #     target=Sections.WOBBLY_WHARF,
+        #     start_id=0x01,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        #     rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
+        #     related_events=[
+        #         Events.SAVE_THE_DWARVES,
+        #         Events.BEGINNERS_DWARF_LANGUAGE,
+        #     ],
+        # ),
+        # Door(
+        #     "Stone Slab",
+        #     source=Sections.FOREST_OF_100_FLOWERS_PART_2,
+        #     target=Sections.WATCH_TOWER,
+        #     start_id=0x01,
+        #     end_id=0x03,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        #     rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
+        #     related_events=[
+        #         Events.SAVE_THE_DWARVES,
+        #         Events.BEGINNERS_DWARF_LANGUAGE,
+        #     ],
+        # ),
+        # Door(
+        #     "Big Red Arrow",
+        #     source=Sections.FOREST_OF_100_FLOWERS_PART_2,
+        #     target=Sections.DWARF_VILLAGE,
+        #     start_id=0x02,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        # ),
         Door(
             "Wobbly Stairs",
             source=Sections.WOBBLY_WHARF,
@@ -262,26 +265,26 @@ def get_randomizable_doors(player: int) -> list[Door]:
         #     start_id=0x02, end_id=0x00,
         #     rule=lambda state: state.can_reach_location(Cleared(Events.LEAF_SLIDER), player)
         # ),
-        Door(
-            "Flower Tower",
-            source=Sections.CHARITY_SQUARE,
-            target=Sections.FLOWER_TOWER,
-            start_id=0x03,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x04,
-            rule=lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
-            related_events=[Events.THE_FLOWER_TOWER],
-        ),
-        Door(
-            "Right Door",
-            source=Sections.DWARF_VILLAGE,
-            target=Sections.DWARF_ELDER_HUT,
-            start_id=0x01,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Flower Tower",
+        #     source=Sections.CHARITY_SQUARE,
+        #     target=Sections.FLOWER_TOWER,
+        #     start_id=0x03,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x04,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
+        #     related_events=[Events.THE_FLOWER_TOWER],
+        # ),
+        # Door(
+        #     "Right Door",
+        #     source=Sections.DWARF_VILLAGE,
+        #     target=Sections.DWARF_ELDER_HUT,
+        #     start_id=0x01,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Hole",
             source=Sections.DWARF_ELDER_HUT,
@@ -434,29 +437,29 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x01,
         ),
-        Door(
-            "Right Door",
-            source=Sections.LAVA_CAVES,
-            target=Sections.PHOENIXS_NEST,
-            start_id=0x01,
-            end_id=0x01,
-            back_start_id=0x00,
-            back_end_id=0x02,
-            rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
-            related_events=[Events.LAVA_CAVES],
-        ),
-        Door(
-            "Ladder",
-            source=Sections.LAVA_CAVES,
-            target=Sections.HIDDEN_VILLAGE,
-            start_id=0x02,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x03,
-            rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player)
-            and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
-            related_events=[Events.LAVA_CAVES],
-        ),
+        # Door(
+        #     "Right Door",
+        #     source=Sections.LAVA_CAVES,
+        #     target=Sections.PHOENIXS_NEST,
+        #     start_id=0x01,
+        #     end_id=0x01,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
+        #     related_events=[Events.LAVA_CAVES],
+        # ),
+        # Door(
+        #     "Ladder",
+        #     source=Sections.LAVA_CAVES,
+        #     target=Sections.HIDDEN_VILLAGE,
+        #     start_id=0x02,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x03,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player)
+        #     and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
+        #     related_events=[Events.LAVA_CAVES],
+        # ),
         Door(
             "Shadow Room Door",
             source=Sections.HAUNTED_MANSION_NORTH,
@@ -642,15 +645,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             rule=lambda state: state.can_reach_location(Cleared(Events.A_DRINK_FOR_GROWNUPS), player),
             related_events=[Events.A_DRINK_FOR_GROWNUPS],
         ),
-        Door(
-            "Parc Door",
-            source=Sections.BACCUS_VILLAGE,
-            target=Sections.CENTRAL_PARK,
-            start_id=0x02,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x03,
-        ),
+        # Door(
+        #     "Parc Door",
+        #     source=Sections.BACCUS_VILLAGE,
+        #     target=Sections.CENTRAL_PARK,
+        #     start_id=0x02,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x03,
+        # ),
         Door(
             "River Door",
             source=Sections.THE_MERMAIDS_SINGING_BEACH,
@@ -894,6 +897,11 @@ def connect_regions(world: TombaWorld) -> None:
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
+        Sections.FOREST_OF_ALL_BEGINNING_PART_1.name,
+        Sections.OL_POND.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
         Sections.GARAGE.name,
         Sections.MOTOCROSS_COURSE.name,
         rule=Has(Items.FUEL_BAR),
@@ -913,10 +921,39 @@ def connect_regions(world: TombaWorld) -> None:
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
+        Sections.FOREST_OF_100_FLOWERS_PART_1.name,
+        Sections.WOBBLY_WHARF.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
+        related_events=[Events.SAVE_THE_DWARVES],
+    )
+    connect(
+        Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        Sections.WATCH_TOWER.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
+        related_events=[Events.SAVE_THE_DWARVES],
+    )
+    connect(
+        Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        Sections.DWARF_VILLAGE.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.DWARF_VILLAGE.name,
+        Sections.DWARF_ELDER_HUT.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
         Sections.CHARITY_SQUARE.name,
         Sections.HIDDEN_VILLAGE.name,
         rule=Has(Items.LEAF_BUTTERFLY, 29),
         entrance_type=EntranceType.ONE_WAY,
+    )
+    connect(
+        Sections.CHARITY_SQUARE.name,
+        Sections.FLOWER_TOWER.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
     connect(
         Sections.CHARITY_SQUARE.name,
@@ -964,6 +1001,11 @@ def connect_regions(world: TombaWorld) -> None:
         related_events=[Events.A_DRINK_FOR_GROWNUPS],
     )
     connect(
+        Sections.BACCUS_VILLAGE.name,
+        Sections.CENTRAL_PARK.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
         Sections.STORMY_MOUNTAINS_PART_2.name,
         Sections.BACCUS_VILLAGE.name,
         entrance_type=EntranceType.ONE_WAY,
@@ -997,6 +1039,16 @@ def connect_regions(world: TombaWorld) -> None:
         entrance_type=EntranceType.TWO_WAY,
         rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), world.player),
         related_events=[Events.BREAK_THE_RUSTY_DOOR],
+    )
+    connect(
+        Sections.LAVA_CAVES.name,
+        Sections.HIDDEN_VILLAGE.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.LAVA_CAVES.name,
+        Sections.PHOENIXS_NEST.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
 
     connect(

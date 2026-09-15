@@ -35,7 +35,7 @@ LAB_PLAY_SFX:
 LAB_POP_STACK:
     # Check command
     lui     a0,0x8001
-    addiu   a0,a0,-0x4ebf
+    addiu   a0,a0,0xB141
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x1
@@ -89,7 +89,7 @@ LAB_EMPTY_STACK:
 LAB_SHOW_MESSAGE:
     # Check command
     lui     a0,0x8001
-    addiu   a0,a0,-0x4ebf
+    addiu   a0,a0,0xB141
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x2
@@ -104,7 +104,7 @@ LAB_SHOW_MESSAGE:
     jal     FUN_PRINT_INFO_MESSAGE
     nop
     lui     s0,0x8001
-    addiu   s0,s0,-0x4ebf
+    addiu   s0,s0,0xB141
     lbu     a0,0x0(s0)      # Read DAT_COMMAND
     nop
     andi    a0,a0,0xfd
@@ -114,7 +114,7 @@ LAB_SHOW_MESSAGE:
 LAB_KILL_METHOD:
     # Check command
     lui     a0,0x8001
-    addiu   a0,a0,-0x4ebf
+    addiu   a0,a0,0xB141
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x4
@@ -128,7 +128,7 @@ LAB_KILL_METHOD:
     jal     FUN_KILL_CALL
     nop
     lui     s0,0x8001
-    addiu   s0,s0,-0x4ebf
+    addiu   s0,s0,0xB141
     lbu     a0,0x0(s0)      # Read DAT_COMMAND
     nop
     andi    a0,a0,0xfb
@@ -142,7 +142,7 @@ LAB_MUSIC_METHOD:
     lbu     a0,0x0(a0)      # Read DAT_COMMAND
     addiu   a1,zero,0x0
     andi    a1,a0,0x8
-    beq     a1,zero,LAB_RETURN
+    beq     a1,zero,LAB_TRANSITION_UPDATE
     nop
 
     # Load info message
@@ -154,10 +154,78 @@ LAB_MUSIC_METHOD:
     jal     FUN_MUTE_MUSIC_CALL
     nop
     lui     s0,0x8001
-    addiu   s0,s0,-0x4ebf
+    addiu   s0,s0,0xB141
     lbu     a0,0x0(s0)      # Read DAT_COMMAND
     nop
     andi    a0,a0,0xf7
+    nop
+    sb      a0,0x0(s0)  # Reset DAT_COMMAND
+
+LAB_TRANSITION_UPDATE:
+    # Check command
+    lui     a0,0x8001
+    addiu   a0,a0,0xB141
+    lbu     a0,0x0(a0)      # Read DAT_COMMAND
+    addiu   a1,zero,0x0
+    andi    a1,a0,0x10
+    beq     a1,zero,LAB_RETURN
+    nop
+
+    # t0: where the transition array is
+    # a0: current target address
+    # t2: data to write
+
+    # Process transitions
+    lui     t0,0x8001       # Transition array
+    addiu   t0,t0,0xAC00
+
+LAB_TRANSITION_UPDATE_START:
+    # Load 4 bytes: target address
+    lw      a0, 0(t0)
+    nop
+
+    # Stop processing if target address is 0xFFFFFFFF
+    addiu   t1, zero, -1
+    beq     a0, t1, LAB_TRANSITION_UPDATE_END
+    nop
+
+    # Read current transition
+    lw      a1, 0(a0)
+    nop
+
+    # Read new values transition
+    lw      t2, 4(t0)
+    nop
+
+    andi    t3, t2, 0xFF
+    bne     t3, zero, LAB_TRANSITION_UPDATE_END_SKIP_MERGE
+    nop
+
+    # Take first original byte
+    sll     a1, a1, 24
+    srl     a1, a1, 24
+    nop
+
+    # Merge new and hold (assume first byte of new data is 0x00)
+    or      t2, t2, a1
+    nop 
+
+LAB_TRANSITION_UPDATE_END_SKIP_MERGE:
+    sw      t2, 0(a0)
+    nop
+
+    # Next iteration
+    addiu   t0, t0, 8
+    j       LAB_TRANSITION_UPDATE_START
+    nop
+
+LAB_TRANSITION_UPDATE_END:
+    # Clear command bit
+    lui     s0,0x8001
+    addiu   s0,s0,0xB141
+    lbu     a0,0x0(s0)      # Read DAT_COMMAND
+    nop
+    andi    a0,a0,0xef
     nop
     sb      a0,0x0(s0)  # Reset DAT_COMMAND
 

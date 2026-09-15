@@ -97,7 +97,8 @@ class FoundHandler(AbstractHandler):
             await self.request_pop_stack()
 
     async def on_item_get(self, found_item: FoundItem) -> bool:
-        """Deprecated: All locations should be self sufficient without checking picked up items"""
+        """Deprecated: All locations should be self sufficient without checking picked up items
+        Kept for the Healing Mushroom feature"""
         item = found_item.item
         logger.debug(f"Player has found {item.name}")
 

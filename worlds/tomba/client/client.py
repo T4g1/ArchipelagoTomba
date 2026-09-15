@@ -262,6 +262,8 @@ class TombaContext(CommonContext):
 
                         await self.process_items_received()
 
+                        await self.found_handler.update_found_items()
+
                         await self.tomba.update_section()
 
                     now = time.time()
