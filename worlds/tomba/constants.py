@@ -33,7 +33,7 @@ class Locations(str):
     CHARLES_PANTS = "Charles' Pants"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
-    DEATH_FRUIT_JUICE_STARTED = "Death Fuit Juice started"
+    DEATH_FRUIT_JUICE_STARTED = "Death Fruit Juice started"
     DROWN = "Drown"
     FILL_THE_BUCKET = "Fill the Bucket"
     FIND_MY_SON = "Find my Son"
