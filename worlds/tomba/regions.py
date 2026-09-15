@@ -434,29 +434,29 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x01,
         ),
-        Door(
-            "Right Door",
-            source=Sections.LAVA_CAVES,
-            target=Sections.PHOENIXS_NEST,
-            start_id=0x01,
-            end_id=0x01,
-            back_start_id=0x00,
-            back_end_id=0x02,
-            rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
-            related_events=[Events.LAVA_CAVES],
-        ),
-        Door(
-            "Ladder",
-            source=Sections.LAVA_CAVES,
-            target=Sections.HIDDEN_VILLAGE,
-            start_id=0x02,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x03,
-            rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player)
-            and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
-            related_events=[Events.LAVA_CAVES],
-        ),
+        # Door(
+        #     "Right Door",
+        #     source=Sections.LAVA_CAVES,
+        #     target=Sections.PHOENIXS_NEST,
+        #     start_id=0x01,
+        #     end_id=0x01,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player),
+        #     related_events=[Events.LAVA_CAVES],
+        # ),
+        # Door(
+        #     "Ladder",
+        #     source=Sections.LAVA_CAVES,
+        #     target=Sections.HIDDEN_VILLAGE,
+        #     start_id=0x02,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x03,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.LAVA_CAVES), player)
+        #     and (state.has(Items.GRAPPLE, player) or state.has(Items.GRAPPLEJACK, player)),
+        #     related_events=[Events.LAVA_CAVES],
+        # ),
         Door(
             "Shadow Room Door",
             source=Sections.HAUNTED_MANSION_NORTH,
@@ -1012,6 +1012,16 @@ def connect_regions(world: TombaWorld) -> None:
         entrance_type=EntranceType.TWO_WAY,
         rule=lambda state: state.can_reach_location(Cleared(Events.BREAK_THE_RUSTY_DOOR), world.player),
         related_events=[Events.BREAK_THE_RUSTY_DOOR],
+    )
+    connect(
+        Sections.LAVA_CAVES.name,
+        Sections.HIDDEN_VILLAGE.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.LAVA_CAVES.name,
+        Sections.PHOENIXS_NEST.name,
+        entrance_type=EntranceType.TWO_WAY,
     )
 
     connect(
