@@ -180,40 +180,43 @@ def get_randomizable_doors(player: int) -> list[Door]:
             rule=lambda state: state.can_reach_location(Cleared(Events.INSIDE_THE_KOKKA_EGGS), player),
             related_events=[Events.INSIDE_THE_KOKKA_EGGS],
         ),
-        Door(
-            "Big House",
-            source=Sections.FOREST_OF_100_FLOWERS_PART_1,
-            target=Sections.WOBBLY_WHARF,
-            start_id=0x01,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x02,
-            rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
-            related_events=[
-                Events.SAVE_THE_DWARVES,
-                Events.BEGINNERS_DWARF_LANGUAGE,
-            ],
-        ),
-        Door(
-            "Stone Slab",
-            source=Sections.FOREST_OF_100_FLOWERS_PART_2,
-            target=Sections.WATCH_TOWER,
-            start_id=0x01,
-            end_id=0x03,
-            back_start_id=0x00,
-            back_end_id=0x01,
-            rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
-            related_events=[Events.SAVE_THE_DWARVES],
-        ),
-        Door(
-            "Big Red Arrow",
-            source=Sections.FOREST_OF_100_FLOWERS_PART_2,
-            target=Sections.DWARF_VILLAGE,
-            start_id=0x02,
-            end_id=0x02,
-            back_start_id=0x00,
-            back_end_id=0x02,
-        ),
+        # Door(
+        #     "Big House",
+        #     source=Sections.FOREST_OF_100_FLOWERS_PART_1,
+        #     target=Sections.WOBBLY_WHARF,
+        #     start_id=0x01,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        #     rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
+        #     related_events=[
+        #         Events.SAVE_THE_DWARVES,
+        #         Events.BEGINNERS_DWARF_LANGUAGE,
+        #     ],
+        # ),
+        # Door(
+        #     "Stone Slab",
+        #     source=Sections.FOREST_OF_100_FLOWERS_PART_2,
+        #     target=Sections.WATCH_TOWER,
+        #     start_id=0x01,
+        #     end_id=0x03,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        #     rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), player),
+        #     related_events=[
+        #         Events.SAVE_THE_DWARVES,
+        #         Events.BEGINNERS_DWARF_LANGUAGE,
+        #     ],
+        # ),
+        # Door(
+        #     "Big Red Arrow",
+        #     source=Sections.FOREST_OF_100_FLOWERS_PART_2,
+        #     target=Sections.DWARF_VILLAGE,
+        #     start_id=0x02,
+        #     end_id=0x02,
+        #     back_start_id=0x00,
+        #     back_end_id=0x02,
+        # ),
         Door(
             "Wobbly Stairs",
             source=Sections.WOBBLY_WHARF,
@@ -273,15 +276,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
         #     rule=lambda state: state.can_reach_location(Cleared(Events.THE_FLOWER_TOWER), player),
         #     related_events=[Events.THE_FLOWER_TOWER],
         # ),
-        Door(
-            "Right Door",
-            source=Sections.DWARF_VILLAGE,
-            target=Sections.DWARF_ELDER_HUT,
-            start_id=0x01,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Right Door",
+        #     source=Sections.DWARF_VILLAGE,
+        #     target=Sections.DWARF_ELDER_HUT,
+        #     start_id=0x01,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Hole",
             source=Sections.DWARF_ELDER_HUT,
@@ -915,6 +918,30 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         Sections.FOREST_OF_100_FLOWERS_PART_1.name,
         Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.FOREST_OF_100_FLOWERS_PART_1.name,
+        Sections.WOBBLY_WHARF.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
+        related_events=[Events.SAVE_THE_DWARVES],
+    )
+    connect(
+        Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        Sections.WATCH_TOWER.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Started(Events.SAVE_THE_DWARVES), world.player),
+        related_events=[Events.SAVE_THE_DWARVES],
+    )
+    connect(
+        Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        Sections.DWARF_VILLAGE.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.DWARF_VILLAGE.name,
+        Sections.DWARF_ELDER_HUT.name,
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
