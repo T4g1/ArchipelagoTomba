@@ -1177,7 +1177,7 @@ class LocationHandler:
             event=Events.PEACH_FLOWER_GAS,
         ),
         ItemLocData(
-            "Death Fuit Juice cleared",
+            "Death Fruit Juice cleared",
             Regions.BACCUS_VILLAGE,
             Items.CHARITY_WINGS,
             Sections.BACCUS_VILLAGE,
