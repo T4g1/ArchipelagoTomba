@@ -177,17 +177,23 @@ class TombaGame:
 
         return hud_visibility == HudState.VISIBLE and hud_visibility_timer == HudState.VISIBLE
 
-    async def is_playing(self):
-        status = await self.get_status()
-        return status == GameState.PLAYING or status == GameState.NO_HUD
+    async def is_playing(self, status: GameState | None = None):
+        if status is None:
+            status = await self.get_status()
 
-    async def is_in_menu(self):
-        status = await self.get_status()
+        return status == GameState.PLAYING or status == GameState.NO_HUD or status == GameState.DIALOGS
+
+    async def is_in_menu(self, status: GameState | None = None):
+        if status is None:
+            status = await self.get_status()
+
         return status == GameState.IN_MENU
 
-    async def has_game_in_progress(self):
-        status = await self.get_status()
-        return status == GameState.IN_MENU or status == GameState.PLAYING or status == GameState.NO_HUD
+    async def has_game_in_progress(self, status: GameState | None = None):
+        if status is None:
+            status = await self.get_status()
+
+        return await self.is_in_menu(status) or await self.is_playing(status)
 
     async def patch_game(self):
         await self.patcher.patch_game()
@@ -228,6 +234,8 @@ class TombaGame:
             state_3 = await self.get_game_state_3()
             if state_3 == GameState3.LOADING:
                 status = GameState.LOADING
+            elif state_3 == GameState3.CUTSCENE:
+                status = GameState.CUTSCENE
             elif await self.get_menu_state() == MenuState.OPEN:
                 status = GameState.IN_MENU
             elif await self.is_hud_visible():
@@ -235,7 +243,7 @@ class TombaGame:
             elif await self.inventory_handler.is_accessible():
                 status = GameState.NO_HUD
             else:
-                status = GameState.CUTSCENE
+                status = GameState.DIALOGS
         elif state_1 == GameState1.OPTION_SCREEN:
             status = GameState.OPTIONS
         elif state_1 == GameState1.TRAILER_SCREEN or state_1 == GameState1.TITLE_SCREEN:

@@ -550,6 +550,7 @@ class GameState(Enum):
     OPTIONS = 5
     TITLE = 6
     LOADING = 7
+    DIALOGS = 8
 
 
 class HudState(IntEnum):
@@ -576,7 +577,7 @@ class GameState3(IntEnum):
     PLAYING_NO_HUD = 0x02
     IN_MENU = 0x03
     PLAYING_TOP_DOWN_A = 0x04
-    PLAYING_TOP_DOWN_B = 0x05
+    CUTSCENE = 0x05
     PLAYING_TOP_DOWN_C = 0x06
     LOADING = 0x07
 

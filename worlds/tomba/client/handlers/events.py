@@ -78,7 +78,8 @@ class EventsHandler(AbstractHandler):
             await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
 
     async def on_clear_the_fog(self):
-        """Remove the fog"""
+        """Remove the fog and tornado"""
+        await self.ctx.check_handler.check(Locations.MAILBOX, Sections.VILLAGE_OF_ALL_BEGINNING.name)
         await self.tomba.playstation.write_memory(0x09BCCE, 0x03.to_bytes())
 
     async def on_mermaid_necklace(self):
