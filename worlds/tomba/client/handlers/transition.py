@@ -12,6 +12,7 @@ AREAS_ARRAY_ADDRESS = 0x07C54C
 specific_animations = {
     Sections.CLOCK_TOWER_ENTRANCE.area_id: {Sections.CLOCK_TOWER_ENTRANCE.section_id: {0x00: 0x02}},
     Sections.CHARITY_SQUARE.area_id: {Sections.CHARITY_SQUARE.section_id: {0x01: 0x02}},
+    Sections.Y_CROSSING.area_id: {Sections.Y_CROSSING.section_id: {0x00: 0x02, 0x01: 0x02, 0x02: 0x02, 0x03: 0x02}},
 }
 
 

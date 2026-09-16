@@ -1433,7 +1433,7 @@ class LocationHandler:
         # Masakari Jungle
         ChestLocData(
             Locations.VITALITY_INCREASE,
-            Regions.MASAKARI_JUNGLE,
+            Sections.MASAKARI_JUNGLE.name,
             Items.MAX_VITALITY_1,
             Sections.MASAKARI_JUNGLE,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
@@ -1441,7 +1441,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "Get the Drum",
-            Regions.MASAKARI_JUNGLE,
+            Sections.MASAKARI_JUNGLE.name,
             Items.FUNGA_DRUM,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
             at=Bitmask(0x09BE3D, 0x80),
@@ -1449,7 +1449,7 @@ class LocationHandler:
         *[
             ItemLocData(
                 f"Leaf Butterfly {index}",
-                Regions.MASAKARI_JUNGLE,
+                Sections.MASAKARI_JUNGLE.name,
                 Items.LEAF_BUTTERFLY,
                 Sections.MASAKARI_JUNGLE,
                 trigger=Trigger(0x09C330, lambda value, butterfly_index=index: value >= butterfly_index),
@@ -1457,18 +1457,22 @@ class LocationHandler:
             for index in range(1, 5)
         ],
         ItemLocData(
-            "Bananas", Regions.MASAKARI_JUNGLE, Items.BANANAS, Sections.MASAKARI_JUNGLE, at=Bitmask(0x09BE42, 0x20)
+            "Bananas",
+            Sections.MASAKARI_JUNGLE.name,
+            Items.BANANAS,
+            Sections.MASAKARI_JUNGLE,
+            at=Bitmask(0x09BE42, 0x20),
         ),
         ItemLocData(
             "Coconut Tree",
-            Regions.MASAKARI_JUNGLE,
+            Sections.MASAKARI_JUNGLE.name,
             Items.BOMB,
             rule=HasStarted(Events.I_NEED_A_BOMB),
             event=Events.I_NEED_A_BOMB,
         ),
         ChestLocData(
             Locations.MASAKARI_JUNGLE_PANTS,
-            Regions.MASAKARI_JUNGLE,
+            Sections.MASAKARI_JUNGLE.name,
             Items.FLASH_PANTS,
             Sections.MASAKARI_JUNGLE,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY),
@@ -1476,7 +1480,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "100 Year Old Chest",
-            Regions.MASAKARI_JUNGLE,
+            Sections.MASAKARI_JUNGLE.name,
             Items.LARGE_LUNCH_BOX,
             Section(0x0A, 0x00),
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY)
@@ -1496,7 +1500,7 @@ class LocationHandler:
         ),
         ItemLocData(
             "Drown a Second Time",
-            Regions.MASAKARI_JUNGLE,
+            Sections.MASAKARI_JUNGLE.name,
             Items.MINERS_HAT,
             at=Bitmask(0x09C3E0, 0x01),
         ),
