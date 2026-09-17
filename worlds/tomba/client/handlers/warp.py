@@ -87,7 +87,6 @@ class WarpHandler(AbstractHandler):
 
         # Handlers for when we enter a section
         self.handlers = {
-            Sections.VILLAGE_OF_ALL_BEGINNING: Handler(self.on_starting_area),
             Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
@@ -136,20 +135,6 @@ class WarpHandler(AbstractHandler):
             if await self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
-
-    async def on_starting_area(self, coming_from: Section):
-        # When entrance randomization is enabled, we disable haunted mansion initial events
-        if self.ctx.slot_data.get("entrance_randomization", False):
-            await self.on_haunted_mansion_irregular_entry(coming_from)
-
-            # Door will open from Baccus Village
-            # await self.tomba.playstation.write_memory(Doors.BACCUS_DOOR.address, 0x01.to_bytes())
-
-            # Door is open both side
-            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
-
-            # Remove Clock Tower cinematics to prevent wrong door transition
-            await self.tomba.playstation.write_memory(0x09C368, 0x01.to_bytes())
 
     async def on_ol_pond_entry(self, coming_from: Section):
         await self.fix_forest_of_all_beginning()

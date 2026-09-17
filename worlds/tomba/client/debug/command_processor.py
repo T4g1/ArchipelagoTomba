@@ -76,7 +76,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """Unlock all warp targets and gives a charity wing"""
         if isinstance(self.ctx, TombaContext):
             for section in warp_masks.keys():
-                await self.ctx.tomba.warp_hanlder.unlock_warp(section)
+                await self.ctx.tomba.warp_handler.unlock_warp(section)
 
             item = ItemHandler.by_name[Items.CHARITY_WINGS]
             await self.ctx.tomba.inventory_handler.give_item(item)

@@ -2095,11 +2095,22 @@ def create_all_locations(world: TombaWorld) -> None:
     create_events(world)
 
 
+er_forced_checks = [
+    Cleared(Events.A_DRINK_FOR_GROWNUPS),
+    Cleared(Events.ROAD_TO_BACCUS_LAKE),
+    Cleared(Events.CLEAR_THE_FOG),
+]
+
+
 def create_regular_locations(world: TombaWorld) -> None:
     for name, locations in LocationHandler.by_region.items():
         # Settings: Remove cleared event from locations
         if not world.options.cleared_event_rewards:
             locations = [location for location in locations if isinstance(location, ItemLocData)]
+
+        # Removed force cleared events from Randomization
+        if world.options.entrance_randomization:
+            locations = [location for location in locations if location.name not in er_forced_checks]
 
         # Settings: Remove bonus chests from locations
         if not world.options.bonus_chests_randomized:
@@ -2108,7 +2119,7 @@ def create_regular_locations(world: TombaWorld) -> None:
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 
-    if not world.options.furious_tornado_randomized:
+    if not world.options.furious_tornado_randomized or world.options.entrance_randomization:
         # Force furious tornado to be on Mailbox
         MAILBOX = world.get_location(get_name(Locations.MAILBOX, Sections.VILLAGE_OF_ALL_BEGINNING.name))
         MAILBOX.place_locked_item(ItemHandler.create_item(world, Items.FURIOUS_TORNADO))
@@ -2149,6 +2160,16 @@ def create_events(world: TombaWorld) -> None:
         # Adds cleared as events instead of locations
         if not world.options.cleared_event_rewards:
             region.add_event(Cleared(event.name), location_type=TombaLocation, item_type=TombaItem)
+
+    # Add force cleared events from Randomization as events
+    if world.options.entrance_randomization:
+        for location_name in er_forced_checks:
+            location = LocationHandler.by_name.get(location_name)
+
+            assert location is not None
+
+            region = world.get_region(location.region)
+            region.add_event(location.name, location_type=TombaLocation, item_type=TombaItem)
 
     VILLAGE_OF_ALL_BEGINNINGS = world.get_region(Regions.VILLAGE_OF_ALL_BEGINNINGS)
     VILLAGE_OF_ALL_BEGINNINGS.add_event(Locations.AP_150_000, location_type=TombaLocation, item_type=TombaItem)

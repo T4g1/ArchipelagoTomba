@@ -17,13 +17,14 @@ from ..constants import (
     GameState3,
     Regions,
     CustomCommand,
+    Events,
 )
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
 from .handlers.transition import TransitionHandler
 from .handlers.events import EventsHandler
-from .handlers.door import DoorHandler
+from .handlers.door import DoorHandler, Doors
 from .handlers.message import MessageHandler
 from .handlers.player import PlayerHandler
 from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
@@ -48,7 +49,7 @@ class TombaGame:
 
     inventory_handler: InventoryHandler
     pickup_handler: PickupHandler
-    warp_hanlder: WarpHandler
+    warp_handler: WarpHandler
     events_handler: EventsHandler
     doors_handler: DoorHandler
     transition_handler: TransitionHandler
@@ -69,7 +70,7 @@ class TombaGame:
 
         self.inventory_handler = InventoryHandler(self.ctx, self)
         self.pickup_handler = PickupHandler(self.ctx, self)
-        self.warp_hanlder = WarpHandler(self.ctx, self)
+        self.warp_handler = WarpHandler(self.ctx, self)
         self.events_handler = EventsHandler(self.ctx, self)
         self.doors_handler = DoorHandler(self.ctx, self)
         self.message_handler = MessageHandler(self.ctx, self)
@@ -195,6 +196,24 @@ class TombaGame:
 
         return await self.is_in_menu(status) or await self.is_playing(status)
 
+    async def on_new_game_start(self):
+        # When entrance randomization is enabled, we disable haunted mansion initial events
+        if self.ctx.slot_data.get("entrance_randomization", False):
+            await self.events_handler.clear(Events.A_DRINK_FOR_GROWNUPS, is_silent=True)
+            await self.events_handler.clear(Events.ROAD_TO_BACCUS_LAKE, is_silent=True)
+
+            # Prevent issues when accessing that area later
+            await self.events_handler.clear(Events.CLEAR_THE_FOG, is_silent=True)
+
+            # Door will open from Baccus Village
+            # await self.playstation.write_memory(Doors.BACCUS_DOOR.address, 0x01.to_bytes())
+
+            # Door is open both side
+            await self.doors_handler.open(Doors.BACCUS_DOOR)
+
+            # Remove Clock Tower cinematics to prevent wrong door transition
+            await self.playstation.write_memory(0x09C368, 0x01.to_bytes())
+
     async def patch_game(self):
         await self.patcher.patch_game()
 
@@ -218,7 +237,7 @@ class TombaGame:
             return
 
         # Patch only if its unpurified
-        if self.section != Sections.CHARITY_SQUARE or await self.warp_hanlder.is_purified(
+        if self.section != Sections.CHARITY_SQUARE or await self.warp_handler.is_purified(
             Regions.FOREST_OF_100_FLOWERS
         ):
             return
@@ -264,8 +283,8 @@ class TombaGame:
 
             self.should_update_entrances = True
 
-            await self.warp_hanlder.handle_leaving(old_section, to=self.section)
-            await self.warp_hanlder.handle(self.section, coming_from=old_section)
+            await self.warp_handler.handle_leaving(old_section, to=self.section)
+            await self.warp_handler.handle(self.section, coming_from=old_section)
 
         if await self.get_menu_state() == MenuState.OPEN:
             self.should_update_entrances = True

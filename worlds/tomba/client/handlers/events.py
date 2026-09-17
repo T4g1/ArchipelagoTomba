@@ -16,7 +16,7 @@ class EventsHandler(AbstractHandler):
 
     _event_states: bytearray = bytearray(0xFF)
 
-    _event_commands: list[tuple[EventData, EventStatus]] = []
+    _event_commands: list[tuple[EventData, EventStatus, bool]] = []
     _event_commands_lock: Lock = Lock()
 
     initialized: bool = False
@@ -65,7 +65,6 @@ class EventsHandler(AbstractHandler):
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
-            Events.CLEAR_THE_FOG: Handler(self.on_clear_the_fog),
         }
 
         self.handlers_by_value = {
@@ -76,11 +75,6 @@ class EventsHandler(AbstractHandler):
         """Prevents softlock when all dwarves are saved but language is not learned"""
         if value == 0x08:
             await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
-
-    async def on_clear_the_fog(self):
-        """Remove the fog and tornado"""
-        await self.ctx.check_handler.check(Locations.MAILBOX, Sections.VILLAGE_OF_ALL_BEGINNING.name)
-        await self.tomba.playstation.write_memory(0x09BCCE, 0x03.to_bytes())
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared
@@ -204,14 +198,14 @@ class EventsHandler(AbstractHandler):
         event = self.get_event_location(Cleared(event_name))
         return event.id in self.ctx.sent_checks
 
-    async def clear(self, event_name: str):
-        await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
+    async def clear(self, event_name: str, is_silent: bool = False):
+        await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED, is_silent)
 
     async def forget(self, event_name: str):
         await self.set_event_state(self.get_event(event_name), EventStatus.UNDISCOVERED)
 
-    async def start(self, event_name: str):
-        await self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
+    async def start(self, event_name: str, is_silent: bool = False):
+        await self.set_event_state(self.get_event(event_name), EventStatus.STARTED, is_silent)
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
@@ -221,17 +215,17 @@ class EventsHandler(AbstractHandler):
         except Exception:
             return EventStatus.STARTED
 
-    async def set_event_state(self, event: EventData, status: EventStatus):
+    async def set_event_state(self, event: EventData, status: EventStatus, is_silent: bool = False):
         """Queue a change of event state"""
         async with self._event_commands_lock:
-            self._event_commands.append((event, status))
+            self._event_commands.append((event, status, is_silent))
 
-    async def _set_event_state(self, event: EventData, status: EventStatus):
+    async def _set_event_state(self, event: EventData, status: EventStatus, is_silent: bool = False):
         """Effectively applies the event state"""
         previous_status = await self.get_event_state(event.name)
         await self.tomba.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
 
-        if status != EventStatus.UNDISCOVERED and previous_status != status:
+        if status != EventStatus.UNDISCOVERED and previous_status != status and not is_silent:
             await self.tomba.show_event(event, status)
 
     async def update_events(self):
@@ -278,6 +272,10 @@ class EventsHandler(AbstractHandler):
         """Applies forced event status"""
         if await self.tomba.is_playing() or not self.initialized:
             async with self._event_commands_lock:
-                for event, status in self._event_commands:
-                    await self._set_event_state(event, status)
+                for command in self._event_commands:
+                    event = command[0]
+                    status = command[1]
+                    is_silent = command[2]
+
+                    await self._set_event_state(event, status, is_silent)
                 self._event_commands = []

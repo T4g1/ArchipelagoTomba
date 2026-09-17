@@ -1060,7 +1060,7 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         Sections.MASAKARI_RIVER.name,
         Sections.TRICK_VILLAGE.name,
-        entrance_type=EntranceType.TWO_WAY,
+        entrance_type=EntranceType.ONE_WAY,
         rule=lambda state: state.can_reach_location(Cleared(Events.TRICK_VILLAGE), world.player)
         & state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
         related_events=[Events.TRICK_VILLAGE, Events.I_CANT_SWIM],
@@ -1068,7 +1068,7 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         Sections.TRICK_VILLAGE.name,
         Sections.MASAKARI_RIVER.name,
-        entrance_type=EntranceType.TWO_WAY,
+        entrance_type=EntranceType.ONE_WAY,
         rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
         related_events=[Events.I_CANT_SWIM],
     )
