@@ -285,17 +285,17 @@ def get_randomizable_doors(player: int) -> list[Door]:
         #     back_start_id=0x00,
         #     back_end_id=0x01,
         # ),
-        Door(
-            "Hole",
-            source=Sections.DWARF_ELDER_HUT,
-            target=Sections.UNDERGROUND_PRISON,
-            start_id=0x01,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x01,
-            rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
-            related_events=[Events.TO_PHOENIX_MOUNTAIN],
-        ),
+        # Door(
+        #     "Hole",
+        #     source=Sections.DWARF_ELDER_HUT,
+        #     target=Sections.UNDERGROUND_PRISON,
+        #     start_id=0x01,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        #     rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), player),
+        #     related_events=[Events.TO_PHOENIX_MOUNTAIN],
+        # ),
         Door(
             "Million Year Old Man Door",
             source=Sections.UNDERGROUND_MAZE,
@@ -943,6 +943,13 @@ def connect_regions(world: TombaWorld) -> None:
         Sections.DWARF_VILLAGE.name,
         Sections.DWARF_ELDER_HUT.name,
         entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.DWARF_ELDER_HUT.name,
+        Sections.UNDERGROUND_PRISON.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
+        related_events=[Events.TO_PHOENIX_MOUNTAIN],
     )
     connect(
         Sections.CHARITY_SQUARE.name,
