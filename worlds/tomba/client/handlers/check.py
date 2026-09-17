@@ -72,7 +72,6 @@ class CheckHandler(AbstractHandler):
         self.handlers = {
             get_name(Locations.GOLDEN_FRUIT, Regions.BACCUS_VILLAGE): Handler(self.on_golden_fruit),
             get_name(Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS): Handler(self.on_campfire),
-            get_name(Locations.CAMPFIRE, Regions.FOREST_OF_100_FLOWERS): Handler(self.on_campfire),
         }
 
         self.ram_update_handlers = {Bitmask(0x09C1BD, 0xFF): Handler(self.on_campfire_extinguished)}
@@ -87,7 +86,7 @@ class CheckHandler(AbstractHandler):
     async def on_campfire(self):
         """When this is checked, check if the Something Cookin event should be cleared too
         This can happen when the player clears that event before this campfire location
-        We disable the event clear in order to leave the campfire accessible"""
+        We disable the event clear in order to leave the campfire accessible (see on_somethings_cookin)"""
         if self.tomba.events_handler.is_cleared(Events.SOMETHINGS_COOKIN):
             await self.tomba.events_handler.clear(Events.SOMETHINGS_COOKIN)
 

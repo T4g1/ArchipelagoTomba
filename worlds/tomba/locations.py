@@ -1427,7 +1427,7 @@ class LocationHandler:
             "Green Jewel",
             Regions.PHOENIXS_NEST,
             Items.JEWEL_OF_WIND,
-            rule=HasCleared(Events.THE_PHOENIXS_FAVORITE),
+            rule=HasStarted(Events.THE_JUNGLE_PIG_BAG),
             at=Bitmask(0x09BD62, 0x40),
         ),
         # Masakari Jungle

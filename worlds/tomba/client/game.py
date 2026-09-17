@@ -248,6 +248,7 @@ class TombaGame:
             status = GameState.OPTIONS
         elif state_1 == GameState1.TRAILER_SCREEN or state_1 == GameState1.TITLE_SCREEN:
             status = GameState.TITLE
+            self.section = Section(0xFF, 0xFF)
 
         return status
 

@@ -680,17 +680,17 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_end_id=0x02,
             rule=Has(Items.MINERS_HAT),
         ),
-        Door(
-            "Right Jump",
-            source=Sections.MASAKARI_JUNGLE,
-            target=Sections.MASAKARI_RIVER,
-            start_id=0x01,
-            end_id=0x01,
-            back_start_id=0x00,
-            back_end_id=0x03,
-            rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
-            related_events=[Events.I_CANT_SWIM],
-        ),
+        # Door(
+        #     "Right Jump",
+        #     source=Sections.MASAKARI_JUNGLE,
+        #     target=Sections.MASAKARI_RIVER,
+        #     start_id=0x01,
+        #     end_id=0x01,
+        #     back_start_id=0x00,
+        #     back_end_id=0x03,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        #     related_events=[Events.I_CANT_SWIM],
+        # ),
         Door(
             "Middle Ladder",
             source=Sections.MASAKARI_RIVER,
@@ -702,25 +702,25 @@ def get_randomizable_doors(player: int) -> list[Door]:
             rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
             related_events=[Events.I_CANT_SWIM],
         ),
-        Door(
-            "Right Tunnel",
-            source=Sections.MASAKARI_RIVER,
-            target=Sections.TRICK_VILLAGE,
-            start_id=0x02,
-            end_id=0x04,
-            rule=lambda state: state.can_reach_location(Cleared(Events.TRICK_VILLAGE), player)
-            & state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
-            related_events=[Events.TRICK_VILLAGE, Events.I_CANT_SWIM],
-        ),
-        Door(
-            "Right Chute",
-            source=Sections.TRICK_VILLAGE,
-            target=Sections.MASAKARI_RIVER,
-            start_id=0x02,
-            end_id=0x03,
-            rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
-            related_events=[Events.I_CANT_SWIM],
-        ),
+        # Door(
+        #     "Right Tunnel",
+        #     source=Sections.MASAKARI_RIVER,
+        #     target=Sections.TRICK_VILLAGE,
+        #     start_id=0x02,
+        #     end_id=0x04,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.TRICK_VILLAGE), player)
+        #     & state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        #     related_events=[Events.TRICK_VILLAGE, Events.I_CANT_SWIM],
+        # ),
+        # Door(
+        #     "Right Chute",
+        #     source=Sections.TRICK_VILLAGE,
+        #     target=Sections.MASAKARI_RIVER,
+        #     start_id=0x02,
+        #     end_id=0x03,
+        #     rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), player),
+        #     related_events=[Events.I_CANT_SWIM],
+        # ),
         Door(
             "Chimney",
             source=Sections.TRICK_VILLAGE,
@@ -1049,6 +1049,28 @@ def connect_regions(world: TombaWorld) -> None:
         Sections.LAVA_CAVES.name,
         Sections.PHOENIXS_NEST.name,
         entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.MASAKARI_JUNGLE.name,
+        Sections.MASAKARI_RIVER.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+        related_events=[Events.I_CANT_SWIM],
+    )
+    connect(
+        Sections.MASAKARI_RIVER.name,
+        Sections.TRICK_VILLAGE.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Cleared(Events.TRICK_VILLAGE), world.player)
+        & state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+        related_events=[Events.TRICK_VILLAGE, Events.I_CANT_SWIM],
+    )
+    connect(
+        Sections.TRICK_VILLAGE.name,
+        Sections.MASAKARI_RIVER.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=lambda state: state.can_reach_location(Cleared(Events.I_CANT_SWIM), world.player),
+        related_events=[Events.I_CANT_SWIM],
     )
 
     connect(
