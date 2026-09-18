@@ -64,8 +64,8 @@ class InventoryHandler(AbstractHandler):
                     self.given_items.pop(0)
 
     async def on_inventory_updated(self):
-        # Assume its the start of a new game if not checked locations
-        if len(self.ctx.sent_checks) > 0:
+        # Check first guide interaction state to determine game start
+        if (await self.tomba.playstation.read_memory(0x09C212))[0] != 0x00:
             return
 
         # Check if this is enabled
@@ -75,6 +75,8 @@ class InventoryHandler(AbstractHandler):
             blackjack = ItemHandler.by_name[Items.BLACKJACK]
             await self.tomba.inventory_handler.remove_item(blackjack)
             await self.tomba.inventory_handler.equip_weapon(Weapons.NOTHING)
+
+        await self.tomba.on_new_game_start()
 
     async def get_inventory_counter(self) -> int:
         return (await self.tomba.playstation.async_read_memory(Addresses.INVENTORY_COUNTER))[0]

@@ -1,3 +1,4 @@
+from asyncio import Lock
 from collections.abc import Hashable
 
 from . import Handler, AbstractHandler
@@ -14,17 +15,11 @@ class EventsHandler(AbstractHandler):
     handlers_by_value: dict[Hashable, Handler]
 
     _event_states: bytearray = bytearray(0xFF)
-    externaly_triggered: list[str] = []
+
+    _event_commands: list[tuple[EventData, EventStatus, bool]] = []
+    _event_commands_lock: Lock = Lock()
 
     initialized: bool = False
-
-    async def get_event_states(self) -> bytearray:
-        if not self.initialized:
-            await self.update_events()
-
-            self.initialized = True
-
-        return self._event_states
 
     async def start_beginner_dwarf_language(self):
         await self.tomba.events_handler.start(Events.BEGINNERS_DWARF_LANGUAGE)
@@ -70,7 +65,6 @@ class EventsHandler(AbstractHandler):
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
-            Events.CLEAR_THE_FOG: Handler(self.on_clear_the_fog),
         }
 
         self.handlers_by_value = {
@@ -81,10 +75,6 @@ class EventsHandler(AbstractHandler):
         """Prevents softlock when all dwarves are saved but language is not learned"""
         if value == 0x08:
             await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
-
-    async def on_clear_the_fog(self):
-        """Remove the fog"""
-        await self.tomba.playstation.write_memory(0x09BCCE, 0x03.to_bytes())
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared
@@ -208,32 +198,42 @@ class EventsHandler(AbstractHandler):
         event = self.get_event_location(Cleared(event_name))
         return event.id in self.ctx.sent_checks
 
-    async def clear(self, event_name: str):
-        await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED)
+    async def clear(self, event_name: str, is_silent: bool = False):
+        await self.set_event_state(self.get_event(event_name), EventStatus.CLEARED, is_silent)
 
     async def forget(self, event_name: str):
         await self.set_event_state(self.get_event(event_name), EventStatus.UNDISCOVERED)
 
-    async def start(self, event_name: str):
-        await self.set_event_state(self.get_event(event_name), EventStatus.STARTED)
+    async def start(self, event_name: str, is_silent: bool = False):
+        await self.set_event_state(self.get_event(event_name), EventStatus.STARTED, is_silent)
 
     async def get_event_state(self, event_name: str) -> EventStatus:
         event = EventHandler.by_name[event_name]
 
         try:
-            return EventStatus((await self.get_event_states())[event.id])
+            return EventStatus(self._event_states[event.id])
         except Exception:
             return EventStatus.STARTED
 
-    async def set_event_state(self, event: EventData, status: EventStatus):
-        self.externaly_triggered.append(event.name)
+    async def set_event_state(self, event: EventData, status: EventStatus, is_silent: bool = False):
+        """Queue a change of event state"""
+        async with self._event_commands_lock:
+            self._event_commands.append((event, status, is_silent))
+
+    async def _set_event_state(self, event: EventData, status: EventStatus, is_silent: bool = False):
+        """Effectively applies the event state"""
         previous_status = await self.get_event_state(event.name)
         await self.tomba.playstation.write_memory(Addresses.EVENT_FLAGS + event.id, status.to_bytes())
 
-        if status != EventStatus.UNDISCOVERED and previous_status != status:
+        if status != EventStatus.UNDISCOVERED and previous_status != status and not is_silent:
             await self.tomba.show_event(event, status)
 
     async def update_events(self):
+        await self.check_game_event_updates()
+        await self.handle_event_commands()
+
+    async def check_game_event_updates(self):
+        """Check event updates from the game"""
         old_states = self._event_states
         new_states = await self.tomba.playstation.read_memory_block(Addresses.EVENT_FLAGS, 0xFF)
 
@@ -266,5 +266,16 @@ class EventsHandler(AbstractHandler):
 
             await self.handle_value(event.name, new_states[id])
 
-    def is_externaly_triggered(self, event_name: str):
-        return event_name in self.externaly_triggered
+        self.initialized = True
+
+    async def handle_event_commands(self):
+        """Applies forced event status"""
+        if await self.tomba.is_playing() or not self.initialized:
+            async with self._event_commands_lock:
+                for command in self._event_commands:
+                    event = command[0]
+                    status = command[1]
+                    is_silent = command[2]
+
+                    await self._set_event_state(event, status, is_silent)
+                self._event_commands = []

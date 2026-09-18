@@ -10,20 +10,20 @@ from CommonClient import logger
 from ..constants import (
     GameState,
     HudState,
-    MenuState,
     EventStatus,
     Addresses,
     GameState1,
     GameState3,
     Regions,
     CustomCommand,
+    Events,
 )
 from .handlers.inventory import InventoryHandler
 from .handlers.pickup import PickupHandler
 from .handlers.warp import WarpHandler
 from .handlers.transition import TransitionHandler
 from .handlers.events import EventsHandler
-from .handlers.door import DoorHandler
+from .handlers.door import DoorHandler, Doors
 from .handlers.message import MessageHandler
 from .handlers.player import PlayerHandler
 from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
@@ -48,7 +48,7 @@ class TombaGame:
 
     inventory_handler: InventoryHandler
     pickup_handler: PickupHandler
-    warp_hanlder: WarpHandler
+    warp_handler: WarpHandler
     events_handler: EventsHandler
     doors_handler: DoorHandler
     transition_handler: TransitionHandler
@@ -69,7 +69,7 @@ class TombaGame:
 
         self.inventory_handler = InventoryHandler(self.ctx, self)
         self.pickup_handler = PickupHandler(self.ctx, self)
-        self.warp_hanlder = WarpHandler(self.ctx, self)
+        self.warp_handler = WarpHandler(self.ctx, self)
         self.events_handler = EventsHandler(self.ctx, self)
         self.doors_handler = DoorHandler(self.ctx, self)
         self.message_handler = MessageHandler(self.ctx, self)
@@ -177,17 +177,41 @@ class TombaGame:
 
         return hud_visibility == HudState.VISIBLE and hud_visibility_timer == HudState.VISIBLE
 
-    async def is_playing(self):
-        status = await self.get_status()
-        return status == GameState.PLAYING or status == GameState.NO_HUD
+    async def is_playing(self, status: GameState | None = None):
+        if status is None:
+            status = await self.get_status()
 
-    async def is_in_menu(self):
-        status = await self.get_status()
+        return status == GameState.PLAYING or status == GameState.NO_HUD or status == GameState.DIALOGS
+
+    async def is_in_menu(self, status: GameState | None = None):
+        if status is None:
+            status = await self.get_status()
+
         return status == GameState.IN_MENU
 
-    async def has_game_in_progress(self):
-        status = await self.get_status()
-        return status == GameState.IN_MENU or status == GameState.PLAYING or status == GameState.NO_HUD
+    async def has_game_in_progress(self, status: GameState | None = None):
+        if status is None:
+            status = await self.get_status()
+
+        return await self.is_in_menu(status) or await self.is_playing(status)
+
+    async def on_new_game_start(self):
+        # When entrance randomization is enabled, we disable haunted mansion initial events
+        if self.ctx.slot_data.get("entrance_randomization", False):
+            await self.events_handler.clear(Events.A_DRINK_FOR_GROWNUPS, is_silent=True)
+            await self.events_handler.clear(Events.ROAD_TO_BACCUS_LAKE, is_silent=True)
+
+            # Prevent issues when accessing that area later
+            await self.events_handler.clear(Events.CLEAR_THE_FOG, is_silent=True)
+
+            # Door will open from Baccus Village
+            # await self.playstation.write_memory(Doors.BACCUS_DOOR.address, 0x01.to_bytes())
+
+            # Door is open both side
+            await self.doors_handler.open(Doors.BACCUS_DOOR)
+
+            # Remove Clock Tower cinematics to prevent wrong door transition
+            await self.playstation.write_memory(0x09C368, 0x01.to_bytes())
 
     async def patch_game(self):
         await self.patcher.patch_game()
@@ -212,7 +236,7 @@ class TombaGame:
             return
 
         # Patch only if its unpurified
-        if self.section != Sections.CHARITY_SQUARE or await self.warp_hanlder.is_purified(
+        if self.section != Sections.CHARITY_SQUARE or await self.warp_handler.is_purified(
             Regions.FOREST_OF_100_FLOWERS
         ):
             return
@@ -228,18 +252,21 @@ class TombaGame:
             state_3 = await self.get_game_state_3()
             if state_3 == GameState3.LOADING:
                 status = GameState.LOADING
-            elif await self.get_menu_state() == MenuState.OPEN:
+            elif state_3 == GameState3.CUTSCENE:
+                status = GameState.CUTSCENE
+            elif state_3 == GameState3.IN_MENU:
                 status = GameState.IN_MENU
             elif await self.is_hud_visible():
                 status = GameState.PLAYING
             elif await self.inventory_handler.is_accessible():
                 status = GameState.NO_HUD
             else:
-                status = GameState.CUTSCENE
+                status = GameState.DIALOGS
         elif state_1 == GameState1.OPTION_SCREEN:
             status = GameState.OPTIONS
         elif state_1 == GameState1.TRAILER_SCREEN or state_1 == GameState1.TITLE_SCREEN:
             status = GameState.TITLE
+            self.section = Section(0xFF, 0xFF)
 
         return status
 
@@ -248,19 +275,23 @@ class TombaGame:
         section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
         new_section = Section(area_id, section_id)
 
-        if new_section != self.section:
+        status = await self.get_status()
+        if new_section != self.section and await self.is_playing(status):
             old_section = self.section
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
 
             self.should_update_entrances = True
 
-            await self.warp_hanlder.handle_leaving(old_section, to=self.section)
-            await self.warp_hanlder.handle(self.section, coming_from=old_section)
+            await self.warp_handler.handle_leaving(old_section, to=self.section)
+            await self.warp_handler.handle(self.section, coming_from=old_section)
 
-        if self.should_update_entrances and await self.has_game_in_progress():
-            await self.transition_handler.update_transitions(new_section)
-            self.should_update_entrances = False
+        if status == GameState.IN_MENU:
+            self.should_update_entrances = True
+
+        elif self.should_update_entrances:
+            if await self.transition_handler.update_transitions(new_section):
+                self.should_update_entrances = False
 
     async def update_events(self):
         await self.events_handler.update_events()

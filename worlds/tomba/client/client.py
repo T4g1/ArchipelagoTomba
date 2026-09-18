@@ -105,7 +105,6 @@ class TombaContext(CommonContext):
         locations = [location for location in raw_locations if location not in self.sent_checks]
 
         if len(locations) <= 0:
-            logger.debug(f"All locations from {raw_locations} are sent")
             return
 
         self.sent_checks.extend(locations)
@@ -261,6 +260,8 @@ class TombaContext(CommonContext):
                                     pass  # logger.debug(f"[SLOW WARNING] Handler {handler.callback.__name__} took {handler_duration:.2f}ms")
 
                         await self.process_items_received()
+
+                        await self.found_handler.update_found_items()
 
                         await self.tomba.update_section()
 

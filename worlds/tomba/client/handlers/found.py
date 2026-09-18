@@ -7,7 +7,6 @@ from ... import constants
 from ...constants import Addresses, CustomCommand, Items
 from ...items import ItemData, ItemHandler, ItemException, ItemBehavior
 from ...sections import Section
-from ...locations import LocationHandler
 
 
 @dataclass
@@ -97,7 +96,8 @@ class FoundHandler(AbstractHandler):
             await self.request_pop_stack()
 
     async def on_item_get(self, found_item: FoundItem) -> bool:
-        """Deprecated: All locations should be self sufficient without checking picked up items"""
+        """Deprecated: All locations should be self sufficient without checking picked up items
+        Kept for the Healing Mushroom feature"""
         item = found_item.item
         logger.debug(f"Player has found {item.name}")
 
@@ -108,27 +108,5 @@ class FoundHandler(AbstractHandler):
         elif item.behavior is ItemBehavior.HANLDER:
             return await self.handle(item.name)
 
-        locations = LocationHandler.filter_and_sort(item, found_item.section)
-        if locations is None:
-            logger.error(f"Player got an item with no location: {item.name}")
-            logger.debug(f"Found item: {found_item.section}")
-            # TODO: Should be removed for release so player can't get unintended items
-            return await self.tomba.inventory_handler.receive_item(item)
-
-        # Location checks with an at parameter will be triggered elsewhere
-        first_unchecked = next(
-            (location for location in locations if (location.id not in self.ctx.sent_checks and location.at is None)),
-            None,
-        )
-
-        location = first_unchecked
-        if location is None:
-            logger.debug(f"Player has found {item.name} but there are no location left to send it.")
-            logger.debug(f"Found item: {found_item.section}")
-            logger.debug(f"Candidates were: {[location.name for location in locations]}")
-            return True
-
-        logger.debug(f"Sending location check to server for {location.id}: {location.name}")
-        await self.ctx.check_locations([location.id])
-
+        # Handled by default
         return True

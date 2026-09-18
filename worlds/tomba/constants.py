@@ -33,7 +33,7 @@ class Locations(str):
     CHARLES_PANTS = "Charles' Pants"
     CRY_CHEESE_LEFT = "Cry Cheese Left"
     CRY_CHEESE_RIGHT = "Cry Cheese Right"
-    DEATH_FRUIT_JUICE_STARTED = "Death Fuit Juice started"
+    DEATH_FRUIT_JUICE_STARTED = "Death Fruit Juice started"
     DROWN = "Drown"
     FILL_THE_BUCKET = "Fill the Bucket"
     FIND_MY_SON = "Find my Son"
@@ -550,6 +550,7 @@ class GameState(Enum):
     OPTIONS = 5
     TITLE = 6
     LOADING = 7
+    DIALOGS = 8
 
 
 class HudState(IntEnum):
@@ -576,7 +577,7 @@ class GameState3(IntEnum):
     PLAYING_NO_HUD = 0x02
     IN_MENU = 0x03
     PLAYING_TOP_DOWN_A = 0x04
-    PLAYING_TOP_DOWN_B = 0x05
+    CUTSCENE = 0x05
     PLAYING_TOP_DOWN_C = 0x06
     LOADING = 0x07
 
@@ -624,3 +625,6 @@ class CustomCommand(IntEnum):
     SHOW_MESSAGE = 0x02  # Bit 1 R/W = 1: Display info message (B142 and B143)
     KILL_TOMBA = 0x04  # Bit 3 W = 1: Calls the registered method (currently: kill tomba)
     SET_MUSIC = 0x08  # Bit 4 W = 1: Calls the registered method (show event status)
+    UPDATE_TRANSITION = (
+        0x10  # Bit 5 W = 1: Asks the game to update transitions to other areas from a given list at AC00
+    )

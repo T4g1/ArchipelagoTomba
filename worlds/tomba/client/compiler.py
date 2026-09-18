@@ -30,6 +30,8 @@ class OpCodeHandler:
         OpCode("srlv", 0x00, 0x06),
         OpCode("srav", 0x00, 0x07),
         OpCode("addu", 0x00, 0x21),
+        OpCode("and", 0x00, 0x24),
+        OpCode("or", 0x00, 0x25),
         OpCode("j", 0x02),
         OpCode("jal", 0x03),
         OpCode("beq", 0x04),

@@ -335,7 +335,8 @@ class ItemHandler:
                 Items.MILLION_YEAR_OLD_BELL,
             ]
 
-        if not world.options.furious_tornado_randomized:
+        # Dont put Furious Tornado in item pool if ER is enabled or tornado randomization is disabled
+        if not world.options.furious_tornado_randomized or world.options.entrance_randomization:
             disabled_items += [
                 Items.FURIOUS_TORNADO,
             ]
