@@ -554,7 +554,7 @@ def get_randomizable_doors(player: int) -> list[Door]:
             target=Sections.HAUNTED_MANSION_SOUTH,
             start_id=0x01,
             end_id=0x07,
-            back_start_id=0x00,
+            back_start_id=0x07,
             back_end_id=0x02,
             rule=lambda state: state.can_reach_location(Started(Events.A_DRINK_FOR_GROWNUPS), player),
             related_events=[Events.A_DRINK_FOR_GROWNUPS],

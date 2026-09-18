@@ -1,4 +1,4 @@
-# from CommonClient import logger
+from CommonClient import logger
 
 from . import AbstractHandler
 from ..emulators.emulator import Emulator
@@ -16,6 +16,8 @@ specific_animations = {
     Sections.IRON_CASTLE_MAIN_ROOM.area_id: {
         Sections.IRON_CASTLE_MAIN_ROOM.section_id: {0x00: 0x03, 0x01: 0x03, 0x02: 0x03, 0x03: 0x03}
     },
+    Sections.IRON_CASTLE_LEFT_ROOM.area_id: {Sections.IRON_CASTLE_LEFT_ROOM.section_id: {0x00: 0x02}},
+    Sections.IRON_CASTLE_RIGHT_ROOM.area_id: {Sections.IRON_CASTLE_RIGHT_ROOM.section_id: {0x00: 0x02}},
     Sections.LUMBERJACK_FACTORY.area_id: {Sections.LUMBERJACK_FACTORY.section_id: {0x00: 0x02, 0x01: 0x02}},
 }
 
@@ -123,12 +125,12 @@ class TransitionHandler(AbstractHandler):
             )
             await self.tomba.playstation.write_memory(transition_command_address + 4, data)
 
-            # logger.info(
-            #     f"Update transition 0x{entrance_address:08X} "
-            #     f"0x{int(entrance_id):02X} "
-            #     f"to 0x{target_area:02X}-0x{target_section:02X} "
-            #     f"at 0x{target_spawn:02X}"
-            # )
+            logger.info(
+                f"Update transition 0x{entrance_address:08X} "
+                f"0x{int(entrance_id):02X} "
+                f"to 0x{target_area:02X}-0x{target_section:02X} "
+                f"at 0x{target_spawn:02X}"
+            )
 
             transition_command_address += 8
 

@@ -165,7 +165,7 @@ class TombaGame:
             return GameState1.TITLE_SCREEN
 
     async def get_game_state_2(self) -> GameState2:
-        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_3))[0]
+        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_2))[0]
 
         try:
             return GameState2(state_raw)
