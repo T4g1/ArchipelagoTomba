@@ -117,21 +117,26 @@ class RetroArch(Emulator):
                 f"Unexpected response to {command} on 0x{address:08X} for {size} bytes: {response}"
             )
 
-    async def write_memory(self, address, bytes: bytearray | bytes):
+    async def write_memory(self, address, data: bytearray | bytes):
         command = "WRITE_CORE_MEMORY"
+        chunk_size = 250
 
         address = self.sanitize_address(address)
 
-        self.send(f'{command} {hex(address)} {" ".join(hex(b) for b in bytes)}')
-        select.select([self.socket], [], [])
-        response, _ = self.socket.recvfrom(4096)
-        self.check_command_response(command, response)
-        splits = response.decode().split(" ", 3)
+        for i in range(0, len(data), chunk_size):
+            chunk = data[i : i + chunk_size]
+            current_address = address + i
 
-        assert splits[0] == command
+            self.send(f'{command} {hex(current_address)} {" ".join(hex(b) for b in chunk)}')
+            select.select([self.socket], [], [])
+            response, _ = self.socket.recvfrom(4096)
+            self.check_command_response(command, response)
+            splits = response.decode().split(" ", 3)
 
-        if splits[2] == "-1":
-            logger.info(splits[3])
+            assert splits[0] == command
+
+            if splits[2] == "-1":
+                logger.info(splits[3])
 
     def sanitize_address(self, address: int) -> int:
         """RetroArch does not handle 0x8XXXXXXX addresses"""
