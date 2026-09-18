@@ -10,7 +10,6 @@ from CommonClient import logger
 from ..constants import (
     GameState,
     HudState,
-    MenuState,
     EventStatus,
     Addresses,
     GameState1,
@@ -255,7 +254,7 @@ class TombaGame:
                 status = GameState.LOADING
             elif state_3 == GameState3.CUTSCENE:
                 status = GameState.CUTSCENE
-            elif await self.get_menu_state() == MenuState.OPEN:
+            elif state_3 == GameState3.IN_MENU:
                 status = GameState.IN_MENU
             elif await self.is_hud_visible():
                 status = GameState.PLAYING
@@ -276,7 +275,8 @@ class TombaGame:
         section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
         new_section = Section(area_id, section_id)
 
-        if new_section != self.section and await self.is_playing():
+        status = await self.get_status()
+        if new_section != self.section and await self.is_playing(status):
             old_section = self.section
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
@@ -286,7 +286,7 @@ class TombaGame:
             await self.warp_handler.handle_leaving(old_section, to=self.section)
             await self.warp_handler.handle(self.section, coming_from=old_section)
 
-        if await self.get_menu_state() == MenuState.OPEN:
+        if status == GameState.IN_MENU:
             self.should_update_entrances = True
 
         elif self.should_update_entrances:
