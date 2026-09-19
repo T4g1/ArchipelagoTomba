@@ -10,15 +10,16 @@ AREAS_ARRAY_ADDRESS = 0x07C54C
 
 # Indicates which animation should be used for the door transition
 specific_animations = {
-    Sections.CLOCK_TOWER_ENTRANCE.area_id: {Sections.CLOCK_TOWER_ENTRANCE.section_id: {0x00: 0x02, 0x01: 0x02}},
-    Sections.CHARITY_SQUARE.area_id: {Sections.CHARITY_SQUARE.section_id: {0x01: 0x02}},
-    Sections.Y_CROSSING.area_id: {Sections.Y_CROSSING.section_id: {0x00: 0x02, 0x01: 0x02, 0x02: 0x02, 0x03: 0x02}},
-    Sections.IRON_CASTLE_MAIN_ROOM.area_id: {
-        Sections.IRON_CASTLE_MAIN_ROOM.section_id: {0x00: 0x03, 0x01: 0x03, 0x02: 0x03, 0x03: 0x03}
+    0x01: {Sections.CHARITY_SQUARE.section_id: {0x01: 0x02}},
+    0x09: {Sections.MANSION.section_id: {0x00: 0x02, 0x01: 0x02}},
+    0x0B: {Sections.LUMBERJACK_FACTORY.section_id: {0x00: 0x02, 0x01: 0x02}},
+    0x10: {Sections.CLOCK_TOWER_ENTRANCE.section_id: {0x00: 0x02, 0x01: 0x02}},
+    0x11: {
+        Sections.IRON_CASTLE_MAIN_ROOM.section_id: {0x00: 0x03, 0x01: 0x03, 0x02: 0x03, 0x03: 0x03},
+        Sections.IRON_CASTLE_LEFT_ROOM.section_id: {0x00: 0x02},
+        Sections.IRON_CASTLE_RIGHT_ROOM.section_id: {0x00: 0x02},
     },
-    Sections.IRON_CASTLE_LEFT_ROOM.area_id: {Sections.IRON_CASTLE_LEFT_ROOM.section_id: {0x00: 0x02}},
-    Sections.IRON_CASTLE_RIGHT_ROOM.area_id: {Sections.IRON_CASTLE_RIGHT_ROOM.section_id: {0x00: 0x02}},
-    Sections.LUMBERJACK_FACTORY.area_id: {Sections.LUMBERJACK_FACTORY.section_id: {0x00: 0x02, 0x01: 0x02}},
+    0x12: {Sections.Y_CROSSING.section_id: {0x00: 0x02, 0x01: 0x02, 0x02: 0x02, 0x03: 0x02}},
 }
 
 
@@ -131,7 +132,8 @@ class TransitionHandler(AbstractHandler):
                 f"Update transition 0x{entrance_address:08X} "
                 f"0x{int(entrance_id):02X} "
                 f"to 0x{target_area:02X}-0x{target_section:02X} "
-                f"at 0x{target_spawn:02X}"
+                f"at 0x{target_spawn:02X} "
+                f"(animation: {data[0]})"
             )
 
             transition_command_address += 8
