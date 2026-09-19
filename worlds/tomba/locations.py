@@ -471,7 +471,7 @@ class LocationHandler:
             Sections.DWARF_VILLAGE.name,
             Items.TORCH,
             rule=HasStarted(Events.WHERED_THE_LIGHTS_GO),
-            at=Bitmask(0x09C1BF, 0x03),
+            trigger=Trigger(0x09C1BF, lambda value: value == 0x03),
         ),
         ItemLocData(
             Locations.JAIL,
