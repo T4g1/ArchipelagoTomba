@@ -727,7 +727,7 @@ class LocationHandler:
         # Stormy Mountain
         ChestLocData(
             "100 Year Old Chest",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.LUNCH_BOX,
             Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
@@ -735,7 +735,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "1,000 Year Old Chest",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.LARGE_LUNCH_BOX,
             Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE,
@@ -743,8 +743,9 @@ class LocationHandler:
         ),
         ChestLocData(
             "Million Year Old Chest",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.IRON_BOOMERANG,
+            Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.MILLION_YEAR_OLD_KEY)
             & (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
@@ -757,7 +758,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "1Up 1,000 Year Old 1",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
@@ -773,7 +774,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "1Up 1,000 Year Old 2",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY)
@@ -789,7 +790,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "1Up 10,000 Year Old 1",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
@@ -799,7 +800,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "1Up 10,000 Year Old 2",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.ONE_UP,
             Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.TEN_THOUSAND_YEAR_OLD_KEY)
@@ -809,8 +810,9 @@ class LocationHandler:
         ),
         ItemLocData(
             "Funga",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.MOLASSES,
+            Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.FUNGA_DRUM)
             & (
                 HasCleared(Events.PHOENIX_MOUNTAIN)
@@ -823,14 +825,14 @@ class LocationHandler:
         ),
         ItemLocData(
             "Smile Wing",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_PART_2,
             at=Bitmask(0x09C3E4, 0x01),
         ),
         ItemLocData(
             "Dig",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.CHEESE,
             Sections.STORMY_MOUNTAINS_PART_2,
             rule=HasCleared(Events.PHOENIX_MOUNTAIN),
@@ -838,7 +840,7 @@ class LocationHandler:
         ),
         ItemLocData(
             "When the Wind Dies Down",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.LARGE_LUNCH_BOX,
             Sections.STORMY_MOUNTAINS_PART_2,
             rule=HasCleared(Events.PHOENIX_MOUNTAIN),
@@ -847,7 +849,7 @@ class LocationHandler:
         ),
         ChestLocData(
             Locations.VITALITY_INCREASE,
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.MAX_VITALITY_1,
             Sections.STORMY_MOUNTAINS_PART_2,
             rule=Has(Items.MILLION_YEAR_OLD_KEY)
@@ -862,28 +864,31 @@ class LocationHandler:
         ),
         ItemLocData(
             "Big Keyhole",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.RED_EVIL_PIG_BAG,
+            Sections.STORMY_MOUNTAINS_PART_2,
             rule=Has(Items.BIG_KEY),
             event=Events.A_STORMY_PIG_BAG,
         ),
         ItemLocData(
             "Herbs",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.HEALING_HERBS,
+            Sections.STORMY_MOUNTAINS_PART_2,
             at=Bitmask(0x09BD5E, 0x08),
         ),
         ItemLocData(
             "Give back the Pants",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_1.name,
             Items.FUNKY_PARASOL,
+            Sections.STORMY_MOUNTAINS_PART_1,
             rule=Has(Items.CHARLES_PANTS)
             & (Rules.CAN_BIG_JUMP | Rules.CAN_GRAPPLE | Rules.HAS_ANY_JEWEL | HasCleared(Events.PHOENIX_MOUNTAIN)),
             event=Events.CHARLES_PANTS,
         ),
         ChestLocData(
             Locations.STORMY_MOUNTAIN_PANTS,
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.DASHING_PANTS,
             Sections.STORMY_MOUNTAINS_PART_2,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY),
@@ -891,7 +896,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "100 Year Old Chest Wing 1",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_PART_2,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE
@@ -909,7 +914,7 @@ class LocationHandler:
         ),
         ChestLocData(
             "100 Year Old Chest Wing 2",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.CHARITY_WINGS,
             Sections.STORMY_MOUNTAINS_PART_2,
             rule=Has(Items.HUNDRED_YEAR_OLD_KEY) & Rules.CAN_GRAPPLE
@@ -927,8 +932,9 @@ class LocationHandler:
         ),
         ChestLocData(
             "Grapple",
-            Regions.STORMY_MOUNTAIN,
+            Sections.STORMY_MOUNTAINS_PART_2.name,
             Items.GRAPPLE,
+            Sections.STORMY_MOUNTAINS_PART_2,
             rule=Has(Items.THOUSAND_YEAR_OLD_KEY),
             at=Bitmask(0x09BD5D, 0x40),
         ),
