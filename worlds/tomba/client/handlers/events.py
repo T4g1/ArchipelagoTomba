@@ -274,7 +274,7 @@ class EventsHandler(AbstractHandler):
 
     async def handle_event_commands(self):
         """Applies forced event status"""
-        if await self.tomba.is_playing() or not self.initialized:
+        if await self.tomba.state_handler.is_playing() or not self.initialized:
             async with self._event_commands_lock:
                 for command in self._event_commands:
                     event = command[0]

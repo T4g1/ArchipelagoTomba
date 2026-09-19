@@ -97,6 +97,7 @@ class TombaContext(CommonContext):
             Handler(self.check_handler.update_locations, interval_ms=500),
             Handler(self.tomba.update_messages, interval_ms=500),
             Handler(self.tomba.update_deathlink, interval_ms=750),
+            Handler(self.tomba.update_status, interval_ms=1000),
         ]
 
         self.sent_checks = []

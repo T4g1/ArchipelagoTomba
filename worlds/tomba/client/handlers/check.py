@@ -33,7 +33,7 @@ class CheckHandler(AbstractHandler):
 
     async def update_locations(self):
         """Process all locations and reset game objects if needed"""
-        if not await self.tomba.has_game_in_progress():
+        if not await self.tomba.state_handler.has_game_in_progress():
             return
 
         psx = self.tomba.playstation

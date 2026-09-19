@@ -9,12 +9,8 @@ from CommonClient import logger
 
 from ..constants import (
     GameState,
-    HudState,
     EventStatus,
     Addresses,
-    GameState1,
-    GameState2,
-    GameState3,
     Regions,
     CustomCommand,
     Events,
@@ -27,6 +23,7 @@ from .handlers.events import EventsHandler
 from .handlers.door import DoorHandler, Doors
 from .handlers.message import MessageHandler
 from .handlers.player import PlayerHandler
+from .handlers.game_state import GameStateHandler
 from .emulators.emulator import Emulator, CORE_TYPE, EmulatorStatus
 from .emulators.retroarch import RetroArch
 from .emulators.bizhawk import BizHawk
@@ -47,12 +44,15 @@ class TombaGame:
     playstation: Emulator
     section: Section
 
+    previous_status: GameState
+
     inventory_handler: InventoryHandler
     pickup_handler: PickupHandler
     warp_handler: WarpHandler
     events_handler: EventsHandler
     doors_handler: DoorHandler
     transition_handler: TransitionHandler
+    state_handler: GameStateHandler
 
     def __init__(self, ctx: TombaContext, emulator_address="127.0.0.1", emulator_port=55355):
         self.ctx = ctx
@@ -76,6 +76,7 @@ class TombaGame:
         self.message_handler = MessageHandler(self.ctx, self)
         self.player_handler = PlayerHandler(self.ctx, self)
         self.transition_handler = TransitionHandler(self.ctx, self)
+        self.state_handler = GameStateHandler(self.ctx, self)
 
     async def wait_for_emulator_connection(self):
         logger.info("Waiting on connection to emulator...")
@@ -153,57 +154,6 @@ class TombaGame:
     async def set_ap_score(self, value: int):
         await self.playstation.write_memory(Addresses.AP_SCORE, value.to_bytes(4, byteorder="little"))
 
-    async def get_menu_state(self):
-        return (await self.playstation.async_read_memory(Addresses.MENU_STATE))[0]
-
-    async def get_game_state_1(self) -> GameState1:
-        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_1))[0]
-
-        try:
-            return GameState1(state_raw)
-        except Exception:
-            return GameState1.TITLE_SCREEN
-
-    async def get_game_state_2(self) -> GameState2:
-        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_2))[0]
-
-        try:
-            return GameState2(state_raw)
-        except Exception:
-            return GameState2.CUTSCENE
-
-    async def get_game_state_3(self) -> GameState3:
-        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_3))[0]
-
-        try:
-            return GameState3(state_raw)
-        except Exception:
-            return GameState3.LOADING
-
-    async def is_hud_visible(self):
-        hud_visibility = (await self.playstation.async_read_memory(Addresses.HUD_VISIBILITY))[0]
-        hud_visibility_timer = (await self.playstation.async_read_memory(Addresses.HUD_VISIBILITY_TIMER))[0]
-
-        return hud_visibility == HudState.VISIBLE and hud_visibility_timer == HudState.VISIBLE
-
-    async def is_playing(self, status: GameState | None = None):
-        if status is None:
-            status = await self.get_status()
-
-        return status == GameState.PLAYING or status == GameState.NO_HUD or status == GameState.DIALOGS
-
-    async def is_in_menu(self, status: GameState | None = None):
-        if status is None:
-            status = await self.get_status()
-
-        return status == GameState.IN_MENU
-
-    async def has_game_in_progress(self, status: GameState | None = None):
-        if status is None:
-            status = await self.get_status()
-
-        return await self.is_in_menu(status) or await self.is_playing(status)
-
     async def on_new_game_start(self):
         # When entrance randomization is enabled, we disable haunted mansion initial events
         if self.ctx.slot_data.get("entrance_randomization", False):
@@ -225,13 +175,12 @@ class TombaGame:
     async def patch_game(self):
         await self.patcher.patch_game()
 
-        status = await self.get_status()
-        if status == GameState.IN_MENU:
+        if await self.state_handler.is_in_menu():
             await self.check_inventory_patch()
 
     async def check_inventory_patch(self):
         # Patch only if the menu is fully loaded
-        if not await self.is_in_menu():
+        if not await self.state_handler.is_in_menu():
             return
 
         if (await self.playstation.async_read_memory(Addresses.GAME_STATE_4))[0] != 0x03:
@@ -252,42 +201,16 @@ class TombaGame:
 
         await self.patcher.patch_inventory_flower_tears()
 
-    async def get_status(self) -> GameState:
-        """Called when needed in order to always have the most updated status"""
-        state_1 = await self.get_game_state_1()
-        status = GameState.UNKNOWN
-
-        if state_1 == GameState1.GAME_SCREEN:
-            state_2 = await self.get_game_state_2()
-            if state_2 == GameState2.CUTSCENE:
-                status = GameState.CUTSCENE
-            else:
-                state_3 = await self.get_game_state_3()
-                if state_3 == GameState3.LOADING:
-                    status = GameState.LOADING
-                elif state_3 == GameState3.IN_MENU:
-                    status = GameState.IN_MENU
-                elif await self.is_hud_visible():
-                    status = GameState.PLAYING
-                elif await self.inventory_handler.is_accessible():
-                    status = GameState.NO_HUD
-                else:
-                    status = GameState.DIALOGS
-        elif state_1 == GameState1.OPTION_SCREEN:
-            status = GameState.OPTIONS
-        elif state_1 == GameState1.TRAILER_SCREEN or state_1 == GameState1.TITLE_SCREEN:
-            status = GameState.TITLE
-            self.section = Section(0xFF, 0xFF)
-
-        return status
-
     async def update_section(self):
         area_id = (await self.playstation.async_read_memory(Addresses.SELECTED_AREA))[0]
         section_id = (await self.playstation.async_read_memory(Addresses.SELECTED_SECTION))[0]
         new_section = Section(area_id, section_id)
 
-        status = await self.get_status()
-        if new_section != self.section and await self.is_playing(status):
+        status = await self.state_handler.get_status()
+        if status == GameState.TITLE:
+            self.section = Section(0xFF, 0xFF)
+
+        if new_section != self.section and await self.state_handler.is_playing(status):
             old_section = self.section
             self.section = new_section
             logger.debug(f"Player is now entering: {self.section}")
@@ -297,7 +220,7 @@ class TombaGame:
             await self.warp_handler.handle_leaving(old_section, to=self.section)
             await self.warp_handler.handle(self.section, coming_from=old_section)
 
-        if status == GameState.IN_MENU:
+        if await self.state_handler.is_in_menu(status):
             self.should_update_entrances = True
 
         elif self.should_update_entrances:
@@ -317,6 +240,9 @@ class TombaGame:
 
     async def update_deathlink(self):
         await self.player_handler.update_deathlink()
+
+    async def update_status(self):
+        await self.state_handler.update_status()
 
     async def keep_alive(self):
         """Raise error if the emulator is no longer working"""
