@@ -996,7 +996,7 @@ def connect_regions(world: TombaWorld) -> None:
         Sections.LAKE.name,
         Sections.LAKE_LEFT_BANK.name,
         rule=lambda state: state.can_reach_location(Started(Events.I_CANT_SWIM), world.player),
-        entrance_type=EntranceType.TWO_WAY,
+        entrance_type=EntranceType.ONE_WAY,
         related_events=[Events.I_CANT_SWIM],
     )
     connect(Sections.HAUNTED_MANSION_NORTH.name, Sections.SUN_TORCH_STAND.name, entrance_type=EntranceType.TWO_WAY)

@@ -81,6 +81,8 @@ class TransitionHandler(AbstractHandler):
 
     async def update_transitions(self, section: Section) -> bool:
         """Re-writes all transitions to align on the randomized entrances"""
+
+        # Wed get a dict of section (as code) with a list of entrances and associated targets
         pairings: dict[str, dict[int, tuple[int, int, int]]] = self.ctx.slot_data.get("entrance_pairings", [])
 
         if not pairings:

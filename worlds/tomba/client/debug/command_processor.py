@@ -12,6 +12,7 @@ from CommonClient import ClientCommandProcessor, logger
 from ...constants import EventStatus, Items, SFX, Addresses
 from ...items import ItemHandler
 from ...events import EventHandler
+from ...sections import Sections, Section
 from ...locations import LocationHandler, ItemLocData
 from ...helpers import codify
 from ..handlers.warp import warp_masks
@@ -149,3 +150,19 @@ class TombaCommandProcessor(ClientCommandProcessor):
         """Spawn event text"""
         if isinstance(self.ctx, TombaContext):
             await display_cube_message(self.ctx.tomba.playstation, message, is_cleared=True)
+
+    async def _cmd_er(self):
+        """Display ER informations"""
+        if isinstance(self.ctx, TombaContext):
+            print("digraph G {")
+
+            pairings: dict[str, dict[int, tuple[int, int, int]]] = self.ctx.slot_data.get("entrance_pairings", [])
+            for section_key, entrances in pairings.items():
+                for entrance, target in entrances.items():
+                    source_section = Sections.get_by_network_key(section_key)
+                    target_section = Sections.get(Section(target[0], target[1]))
+                    print(
+                        f'    "{source_section.name}" -> "{target_section.name}"; // Door {entrance} to door {target[2]}'
+                    )
+
+            print("}")

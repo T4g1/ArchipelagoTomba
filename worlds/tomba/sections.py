@@ -200,6 +200,17 @@ class Sections:
 
         return section
 
+    @classmethod
+    def get_by_network_key(cls, network_key: str) -> Section:
+        for _, value in cls.__dict__.items():
+            if not isinstance(value, Section):
+                continue
+
+            if value.network_key() == network_key:
+                return value
+
+        return Sections.VILLAGE_OF_ALL_BEGINNING
+
 
 purified_sections: dict[Section, Section] = {
     # Dwarf Forest
