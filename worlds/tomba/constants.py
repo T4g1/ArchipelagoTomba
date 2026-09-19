@@ -563,10 +563,15 @@ class HudState(IntEnum):
 class GameState1(IntEnum):
     """Possible screen displayed in game"""
 
-    TITLE_SCREEN = 0x04
     GAME_SCREEN = 0x01
-    TRAILER_SCREEN = 0x03
     OPTION_SCREEN = 0x02
+    TRAILER_SCREEN = 0x03
+    TITLE_SCREEN = 0x04
+
+
+class GameState2(IntEnum):
+    CUTSCENE = 0x00
+    IN_GAME = 0x01
 
 
 class GameState3(IntEnum):
@@ -577,7 +582,9 @@ class GameState3(IntEnum):
     PLAYING_NO_HUD = 0x02
     IN_MENU = 0x03
     PLAYING_TOP_DOWN_A = 0x04
-    CUTSCENE = 0x05
+
+    # BACCUS_LAKE
+    PLAYING_TOP_DOWN_B = 0x05
     PLAYING_TOP_DOWN_C = 0x06
     LOADING = 0x07
 

@@ -13,6 +13,7 @@ from ..constants import (
     EventStatus,
     Addresses,
     GameState1,
+    GameState2,
     GameState3,
     Regions,
     CustomCommand,
@@ -163,6 +164,14 @@ class TombaGame:
         except Exception:
             return GameState1.TITLE_SCREEN
 
+    async def get_game_state_2(self) -> GameState2:
+        state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_2))[0]
+
+        try:
+            return GameState2(state_raw)
+        except Exception:
+            return GameState2.CUTSCENE
+
     async def get_game_state_3(self) -> GameState3:
         state_raw = (await self.playstation.async_read_memory(Addresses.GAME_STATE_3))[0]
 
@@ -249,19 +258,21 @@ class TombaGame:
         status = GameState.UNKNOWN
 
         if state_1 == GameState1.GAME_SCREEN:
-            state_3 = await self.get_game_state_3()
-            if state_3 == GameState3.LOADING:
-                status = GameState.LOADING
-            elif state_3 == GameState3.CUTSCENE:
+            state_2 = await self.get_game_state_2()
+            if state_2 == GameState2.CUTSCENE:
                 status = GameState.CUTSCENE
-            elif state_3 == GameState3.IN_MENU:
-                status = GameState.IN_MENU
-            elif await self.is_hud_visible():
-                status = GameState.PLAYING
-            elif await self.inventory_handler.is_accessible():
-                status = GameState.NO_HUD
             else:
-                status = GameState.DIALOGS
+                state_3 = await self.get_game_state_3()
+                if state_3 == GameState3.LOADING:
+                    status = GameState.LOADING
+                elif state_3 == GameState3.IN_MENU:
+                    status = GameState.IN_MENU
+                elif await self.is_hud_visible():
+                    status = GameState.PLAYING
+                elif await self.inventory_handler.is_accessible():
+                    status = GameState.NO_HUD
+                else:
+                    status = GameState.DIALOGS
         elif state_1 == GameState1.OPTION_SCREEN:
             status = GameState.OPTIONS
         elif state_1 == GameState1.TRAILER_SCREEN or state_1 == GameState1.TITLE_SCREEN:

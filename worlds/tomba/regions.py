@@ -366,21 +366,21 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x04,
         ),
-        Door(
-            "Left Mansion Door",
-            source=Sections.LAKE_LEFT_BANK,
-            target=Sections.MANSION_STAIRS_DOWN,
-            start_id=0x01,
-            end_id=0x00,
-            back_start_id=0x01,
-            back_end_id=0x02,
-            rule=Has(Items.NAVY_EVIL_PIG_BAG),
-        ),
+        # Door(
+        #     "Left Mansion Door",
+        #     source=Sections.LAKE_LEFT_BANK,
+        #     target=Sections.MANSION_STAIRS_DOWN,
+        #     start_id=0x02,
+        #     end_id=0x00,
+        #     back_start_id=0x01,
+        #     back_end_id=0x02,
+        #     rule=Has(Items.NAVY_EVIL_PIG_BAG),
+        # ),
         Door(
             "Right Mansion Door",
             source=Sections.LAKE_LEFT_BANK,
             target=Sections.MANSION_STAIRS_UP,
-            start_id=0x02,
+            start_id=0x01,
             end_id=0x00,
             back_start_id=0x01,
             back_end_id=0x01,
@@ -394,15 +394,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x01,
             back_end_id=0x01,
         ),
-        Door(
-            "Downstair Door",
-            source=Sections.MANSION_STAIRS_DOWN,
-            target=Sections.MANSION_JUNGLE_PIG_ROOM,
-            start_id=0x00,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Downstair Door",
+        #     source=Sections.MANSION_STAIRS_DOWN,
+        #     target=Sections.MANSION_JUNGLE_PIG_ROOM,
+        #     start_id=0x00,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Right Exit",
             source=Sections.STORMY_MOUNTAINS_PART_1,
@@ -554,7 +554,7 @@ def get_randomizable_doors(player: int) -> list[Door]:
             target=Sections.HAUNTED_MANSION_SOUTH,
             start_id=0x01,
             end_id=0x07,
-            back_start_id=0x00,
+            back_start_id=0x07,
             back_end_id=0x02,
             rule=lambda state: state.can_reach_location(Started(Events.A_DRINK_FOR_GROWNUPS), player),
             related_events=[Events.A_DRINK_FOR_GROWNUPS],
@@ -921,6 +921,17 @@ def connect_regions(world: TombaWorld) -> None:
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
+        Sections.LAKE_LEFT_BANK.name,
+        Sections.MANSION_STAIRS_DOWN.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=Has(Items.NAVY_EVIL_PIG_BAG),
+    )
+    connect(
+        Sections.MANSION_STAIRS_DOWN.name,
+        Sections.MANSION_JUNGLE_PIG_ROOM.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
         Sections.FOREST_OF_100_FLOWERS_PART_1.name,
         Sections.WOBBLY_WHARF.name,
         entrance_type=EntranceType.TWO_WAY,
@@ -996,7 +1007,7 @@ def connect_regions(world: TombaWorld) -> None:
         Sections.LAKE.name,
         Sections.LAKE_LEFT_BANK.name,
         rule=lambda state: state.can_reach_location(Started(Events.I_CANT_SWIM), world.player),
-        entrance_type=EntranceType.TWO_WAY,
+        entrance_type=EntranceType.ONE_WAY,
         related_events=[Events.I_CANT_SWIM],
     )
     connect(Sections.HAUNTED_MANSION_NORTH.name, Sections.SUN_TORCH_STAND.name, entrance_type=EntranceType.TWO_WAY)

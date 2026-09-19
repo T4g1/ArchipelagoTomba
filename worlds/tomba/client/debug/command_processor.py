@@ -12,6 +12,7 @@ from CommonClient import ClientCommandProcessor, logger
 from ...constants import EventStatus, Items, SFX, Addresses
 from ...items import ItemHandler
 from ...events import EventHandler
+from ...sections import Sections, Section
 from ...locations import LocationHandler, ItemLocData
 from ...helpers import codify
 from ..handlers.warp import warp_masks
@@ -112,9 +113,9 @@ class TombaCommandProcessor(ClientCommandProcessor):
                 for item in ItemHandler.item_table:
                     name = codify(item.name)
                     if item.countable:
-                        print(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}", nil, {item.amount} }} }},')
+                        logger.info(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}", nil, {item.amount} }} }},')
                     else:
-                        print(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}" }} }},')
+                        logger.info(f'    [BASE_ITEM_ID + {item.id}] = {{ {{ "{name}" }} }},')
 
             elif type == "location":
                 for location in LocationHandler.location_table:
@@ -125,7 +126,7 @@ class TombaCommandProcessor(ClientCommandProcessor):
                     else:
                         name = f"@{location.base_name}/{location.name}"
 
-                    print(f'    [BASE_LOCATION_ID + {location.id}] = {{ {{ "{name}" }} }},')
+                    logger.info(f'    [BASE_LOCATION_ID + {location.id}] = {{ {{ "{name}" }} }},')
 
             elif type == "check":
                 locations = []
@@ -143,9 +144,25 @@ class TombaCommandProcessor(ClientCommandProcessor):
                     locations.append(location_json)
 
                 for location in locations:
-                    print(f"    {json.dumps(location)},")
+                    logger.info(f"    {json.dumps(location)},")
 
     async def _cmd_event(self, message: str):
         """Spawn event text"""
         if isinstance(self.ctx, TombaContext):
             await display_cube_message(self.ctx.tomba.playstation, message, is_cleared=True)
+
+    async def _cmd_er(self):
+        """Display ER informations"""
+        if isinstance(self.ctx, TombaContext):
+            logger.info("digraph G {")
+
+            pairings: dict[str, dict[int, tuple[int, int, int]]] = self.ctx.slot_data.get("entrance_pairings", [])
+            for section_key, entrances in pairings.items():
+                for entrance, target in entrances.items():
+                    source_section = Sections.get_by_network_key(section_key)
+                    target_section = Sections.get(Section(target[0], target[1]))
+                    logger.info(
+                        f'    "{source_section.name}" -> "{target_section.name}"; // Door {entrance} to door {target[2]}'
+                    )
+
+            logger.info("}")
