@@ -637,7 +637,7 @@ class LocationHandler:
             | Has(Items.JEWEL_OF_FIRE)
             | Has(Items.JEWEL_OF_WATER)
             | Has(Items.JEWEL_OF_WIND),
-            at=Bitmask(0x09C11F, 0x03),
+            trigger=Trigger(0x09C11F, lambda value: value >= 0x03),
         ),
         ChestLocData(
             "1Up 1",
