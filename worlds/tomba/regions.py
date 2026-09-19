@@ -366,16 +366,16 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x04,
         ),
-        Door(
-            "Left Mansion Door",
-            source=Sections.LAKE_LEFT_BANK,
-            target=Sections.MANSION_STAIRS_DOWN,
-            start_id=0x01,
-            end_id=0x00,
-            back_start_id=0x01,
-            back_end_id=0x02,
-            rule=Has(Items.NAVY_EVIL_PIG_BAG),
-        ),
+        # Door(
+        #     "Left Mansion Door",
+        #     source=Sections.LAKE_LEFT_BANK,
+        #     target=Sections.MANSION_STAIRS_DOWN,
+        #     start_id=0x01,
+        #     end_id=0x00,
+        #     back_start_id=0x01,
+        #     back_end_id=0x02,
+        #     rule=Has(Items.NAVY_EVIL_PIG_BAG),
+        # ),
         Door(
             "Right Mansion Door",
             source=Sections.LAKE_LEFT_BANK,
@@ -394,15 +394,15 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x01,
             back_end_id=0x01,
         ),
-        Door(
-            "Downstair Door",
-            source=Sections.MANSION_STAIRS_DOWN,
-            target=Sections.MANSION_JUNGLE_PIG_ROOM,
-            start_id=0x00,
-            end_id=0x00,
-            back_start_id=0x00,
-            back_end_id=0x01,
-        ),
+        # Door(
+        #     "Downstair Door",
+        #     source=Sections.MANSION_STAIRS_DOWN,
+        #     target=Sections.MANSION_JUNGLE_PIG_ROOM,
+        #     start_id=0x00,
+        #     end_id=0x00,
+        #     back_start_id=0x00,
+        #     back_end_id=0x01,
+        # ),
         Door(
             "Right Exit",
             source=Sections.STORMY_MOUNTAINS_PART_1,
@@ -918,6 +918,17 @@ def connect_regions(world: TombaWorld) -> None:
     connect(
         Sections.FOREST_OF_100_FLOWERS_PART_1.name,
         Sections.FOREST_OF_100_FLOWERS_PART_2.name,
+        entrance_type=EntranceType.TWO_WAY,
+    )
+    connect(
+        Sections.LAKE_LEFT_BANK.name,
+        Sections.MANSION_STAIRS_DOWN.name,
+        entrance_type=EntranceType.TWO_WAY,
+        rule=Has(Items.NAVY_EVIL_PIG_BAG),
+    )
+    connect(
+        Sections.MANSION_STAIRS_DOWN.name,
+        Sections.MANSION_JUNGLE_PIG_ROOM.name,
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
