@@ -43,7 +43,7 @@ class InventoryHandler(AbstractHandler):
         """Monitor inventory changes"""
         new_stack_size = await self.get_inventory_counter()
 
-        if await self.tomba.get_status() is GameState.TITLE:
+        if await self.tomba.state_handler.get_status() is GameState.TITLE:
             self.inventory_stack_size = -1
             return
 
@@ -118,7 +118,7 @@ class InventoryHandler(AbstractHandler):
             True: The player now owns the item or the item is impossible to give to the player
             False: The item has not been given and should be retried (game is not ready to receive items)
         """
-        if not await self.tomba.is_playing():
+        if not await self.tomba.state_handler.is_playing():
             return False
 
         # Special items handling

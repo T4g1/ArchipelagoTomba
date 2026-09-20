@@ -159,7 +159,7 @@ class MessageHandler(AbstractHandler):
     async def update_event(self):
         """Display event message if possible"""
         # Check the game is running
-        if not await self.tomba.is_playing():
+        if not await self.tomba.state_handler.is_playing():
             return False
 
         async with self.lock:
@@ -189,6 +189,9 @@ class MessageHandler(AbstractHandler):
 
         await self.update_event()
 
+    def print_sync(self, message: str):
+        self.wfm_message_queue.append(message)
+
     async def print(self, message: str):
         self.wfm_message_queue.append(message)
 
@@ -199,7 +202,7 @@ class MessageHandler(AbstractHandler):
             self.wfm = WFMPopup(WFM_POPUP_PTR)
 
         # Check the game is running
-        if not await self.tomba.is_playing():
+        if not await self.tomba.state_handler.is_playing():
             return False
 
         psx = self.tomba.playstation

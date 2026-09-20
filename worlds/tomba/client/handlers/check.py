@@ -33,7 +33,7 @@ class CheckHandler(AbstractHandler):
 
     async def update_locations(self):
         """Process all locations and reset game objects if needed"""
-        if not await self.tomba.has_game_in_progress():
+        if not await self.tomba.state_handler.has_game_in_progress():
             return
 
         psx = self.tomba.playstation
@@ -53,9 +53,10 @@ class CheckHandler(AbstractHandler):
         for location in LocationHandler.with_trigger:
             assert location.trigger is not None
 
-            value = await psx.read_int(location.trigger.address, size=1)
-            if location.trigger.is_triggered(value):
-                await self._check(location)
+            if location.id in self.ctx.missing_locations:
+                value = await psx.read_int(location.trigger.address, size=1)
+                if location.trigger.is_triggered(value):
+                    await self._check(location)
 
         # Check direct memory readings
         for bitmask, handler in self.ram_update_handlers.items():

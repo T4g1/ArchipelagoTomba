@@ -129,6 +129,10 @@ class EventsHandler(AbstractHandler):
         # Allow the player to go to Baccus Village
         await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
+        # Prevent player to be stuck in Baccus Village
+        await self.tomba.events_handler.clear(Events.A_DRINK_FOR_GROWNUPS)
+        await self.tomba.events_handler.clear(Events.ROAD_TO_BACCUS_LAKE)
+
     async def on_phoenix_mountain(self):
         """Clear related events"""
         await self.clear(Events.A_STORMY_PIG_BAG)
@@ -270,7 +274,7 @@ class EventsHandler(AbstractHandler):
 
     async def handle_event_commands(self):
         """Applies forced event status"""
-        if await self.tomba.is_playing() or not self.initialized:
+        if await self.tomba.state_handler.is_playing() or not self.initialized:
             async with self._event_commands_lock:
                 for command in self._event_commands:
                     event = command[0]
