@@ -189,6 +189,9 @@ class MessageHandler(AbstractHandler):
 
         await self.update_event()
 
+    def print_sync(self, message: str):
+        self.wfm_message_queue.append(message)
+
     async def print(self, message: str):
         self.wfm_message_queue.append(message)
 

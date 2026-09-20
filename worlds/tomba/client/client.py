@@ -7,13 +7,13 @@ from argparse import Namespace
 from enum import Enum
 
 from Utils import init_logging, tuplize_version, loglevel_mapping
+from NetUtils import ClientStatus, NetworkItem
 from CommonClient import (
     CommonContext,
     gui_enabled,
     logger,
     server_loop,
 )
-from NetUtils import ClientStatus
 
 from .. import constants
 from ..world import TombaWorld
@@ -76,7 +76,10 @@ class TombaContext(CommonContext):
     ) -> None:
         super().__init__(server_address, password)
 
-        self.package_handlers = {"Connected": self.on_connected}
+        self.package_handlers = {
+            "Connected": self.on_connected,
+            "PrintJSON": self.on_print_json_intercepted,
+        }
 
         self.tomba = TombaGame(self)
         self.should_reset_auth = False
@@ -184,6 +187,29 @@ class TombaContext(CommonContext):
         self.sent_checks.extend(self.checked_locations)
 
         self.connection_status = ConnectionStatus.CONNECTED
+
+    def on_print_json_intercepted(self, cmd: str, args: dict):
+        if args.get("type") != "ItemSend":
+            return
+
+        item = args.get("item", None)
+        if item is None:
+            return
+
+        networkItem = NetworkItem(*item)
+        sender_id = networkItem.player
+
+        receiver_id = args.get("receiving", None)
+        if receiver_id is None:
+            return
+
+        playerName = self.player_names.get(receiver_id, "Unknown")
+
+        is_receiving = receiver_id == self.slot
+        is_sending = sender_id == self.slot
+
+        if is_sending and not is_receiving:
+            self.tomba.message_handler.print_sync(f"Sent to {playerName}")
 
     async def sync(self):
         sync_msg = [{"cmd": "Sync"}]
