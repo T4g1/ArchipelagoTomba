@@ -1002,7 +1002,7 @@ class LocationHandler:
             at=Bitmask(0x09BD60, 0x01),
         ),
         ItemLocData(
-            "Leave Hidden Village",
+            Locations.WHAT_THE_THIEF_LOST,
             Regions.LAVA_CAVES_PURIFIED,
             Items.WHAT_THE_THIEF_LOST,
             rule=Rules.CAN_GRAPPLE | Has(Items.LEAF_BUTTERFLY, 29),

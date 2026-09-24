@@ -65,6 +65,7 @@ class EventsHandler(AbstractHandler):
             Events.A_REAL_EVIL_PIG: Handler(self.on_a_real_evil_pig),
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
+            Events.WHERES_THE_BABY_MOUSE: Handler(self.on_wheres_the_baby_mouse),
         }
 
         self.handlers_by_value = {
@@ -75,6 +76,12 @@ class EventsHandler(AbstractHandler):
         """Prevents softlock when all dwarves are saved but language is not learned"""
         if value == 0x08:
             await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
+
+    async def on_wheres_the_baby_mouse(self):
+        """Make sure the door to exit the village is back open"""
+        # TODO: Tristan unchained report
+        # if self.ctx.slot_data.get("entrance_randomization", False):
+        await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared

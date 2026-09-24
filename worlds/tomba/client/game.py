@@ -173,7 +173,9 @@ class TombaGame:
             await self.playstation.write_memory(0x09C368, 0x01.to_bytes())
 
     async def patch_game(self):
-        await self.patcher.patch_game()
+        if await self.patcher.patch_game():
+            if self.ctx.slot_data.get("entrance_randomization", False):
+                await self.patcher.patch_clear_the_fog()
 
         if await self.state_handler.is_in_menu():
             await self.check_inventory_patch()

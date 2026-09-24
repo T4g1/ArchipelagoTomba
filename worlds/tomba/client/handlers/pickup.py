@@ -26,7 +26,12 @@ class PickupHandler(AbstractHandler):
             Items.JEWEL_OF_WIND: Handler(self.on_jewel_of_wind),
             Items.BOMB: Handler(self.on_bomb),
             Items.BUCKET: Handler(self.on_bucket),
+            Items.WHAT_THE_THIEF_LOST: Handler(self.on_what_the_thief_lost),
         }
+
+    async def on_what_the_thief_lost(self):
+        """Clear the location otherwise the item can't be used"""
+        await self.ctx.check_handler.check(Locations.WHAT_THE_THIEF_LOST, Regions.LAVA_CAVES_PURIFIED)
 
     async def on_bucket(self):
         """Make sure it's equipable"""

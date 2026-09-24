@@ -59,6 +59,7 @@ class Locations(str):
     VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
     WHATS_UNDERWATER = "What's Underwater ?"
+    WHAT_THE_THIEF_LOST = "Leave Hidden Village"
 
 
 class Regions(str):
@@ -500,6 +501,7 @@ class Addresses(IntEnum):
     PATCH_YANS_LUNCH_BOX = ITEM_USABILITY_SCRIPT_OFFSET_TABLE + 0x9A
     PATCH_RAISE_VITALITY = 0x0404E8
     PATCH_RAISE_LIFE = 0x040690
+    PATCH_CLEAR_THE_FOG = 0x017ABC
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
@@ -581,12 +583,25 @@ class GameState3(IntEnum):
     PLAYING = 0x01
     PLAYING_NO_HUD = 0x02
     IN_MENU = 0x03
+
+    # Dwarf Village
     PLAYING_TOP_DOWN_A = 0x04
 
-    # BACCUS_LAKE
+    # Baccus Lake
     PLAYING_TOP_DOWN_B = 0x05
     PLAYING_TOP_DOWN_C = 0x06
     LOADING = 0x07
+
+
+class GameState4(IntEnum):
+    """Fourth status of the current screen"""
+
+    INIT_0 = 0x00
+    INIT_1 = 0x01
+    INIT_2 = 0x02
+    RUNNING = 0x03
+    CLEANING_0 = 0x04
+    CLEANING_1 = 0x05
 
 
 class SFX(IntEnum):
