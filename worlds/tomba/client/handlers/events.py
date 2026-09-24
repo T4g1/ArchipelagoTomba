@@ -79,8 +79,9 @@ class EventsHandler(AbstractHandler):
 
     async def on_wheres_the_baby_mouse(self):
         """Make sure the door to exit the village is back open"""
-        if self.ctx.slot_data.get("entrance_randomization", False):
-            await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
+        # TODO: Tristan unchained report
+        # if self.ctx.slot_data.get("entrance_randomization", False):
+        await self.tomba.doors_handler.open(Doors.BACCUS_DOOR)
 
     async def on_mermaid_necklace(self):
         """Make sure Mighty Fish Food event is not cleared
