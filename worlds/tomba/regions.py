@@ -328,13 +328,14 @@ def get_randomizable_doors(player: int) -> list[Door]:
             back_start_id=0x00,
             back_end_id=0x04,
         ),
-        Door(
-            "Out of Leaf Slider",
-            source=Sections.LEAF_SLIDER,
-            target=Sections.MUSHROOM_FOREST,
-            start_id=0x01,
-            end_id=0x02,
-        ),
+        # This one seems to ignore the transition configuration
+        # Door(
+        #     "Out of Leaf Slider",
+        #     source=Sections.LEAF_SLIDER,
+        #     target=Sections.MUSHROOM_FOREST,
+        #     start_id=0x01,
+        #     end_id=0x02,
+        # ),
         Door(
             "Right Door",
             source=Sections.MUSHROOM_FOREST,
@@ -979,6 +980,11 @@ def connect_regions(world: TombaWorld) -> None:
         rule=lambda state: state.can_reach_location(Cleared(Events.LEAF_SLIDER), world.player),
         entrance_type=EntranceType.ONE_WAY,
         related_events=[Events.LEAF_SLIDER],
+    )
+    connect(
+        Sections.LEAF_SLIDER.name,
+        Sections.MUSHROOM_FOREST.name,
+        entrance_type=EntranceType.ONE_WAY,
     )
     connect(
         Sections.LAVA_CAVES.name,

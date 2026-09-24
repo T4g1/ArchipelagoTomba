@@ -7,6 +7,7 @@ from ...constants import (
     GameState1,
     GameState2,
     GameState3,
+    GameState4,
     Items,
 )
 from ...items import ItemHandler
@@ -31,7 +32,13 @@ class GameStateHandler(AbstractHandler):
                 if state_3 == GameState3.LOADING:
                     status = GameState.LOADING
                 elif state_3 == GameState3.IN_MENU:
-                    status = GameState.IN_MENU
+                    state_4 = await self.get_game_state_4()
+                    if state_4 == GameState4.CLEANING_1:
+                        status = GameState.IN_MENU
+                    else:
+                        status = GameState.IN_MENU
+                elif state_3 == GameState3.TITLE_OR_GAME_OVER:
+                    status = GameState.LOADING
                 elif await self.is_hud_visible():
                     status = GameState.PLAYING
                 elif await self.tomba.inventory_handler.is_accessible():
@@ -71,6 +78,14 @@ class GameStateHandler(AbstractHandler):
             return GameState3(state_raw)
         except Exception:
             return GameState3.LOADING
+
+    async def get_game_state_4(self) -> GameState4:
+        state_raw = (await self.tomba.playstation.async_read_memory(Addresses.GAME_STATE_4))[0]
+
+        try:
+            return GameState4(state_raw)
+        except Exception:
+            return GameState4.RUNNING
 
     async def is_hud_visible(self):
         hud_visibility = (await self.tomba.playstation.async_read_memory(Addresses.HUD_VISIBILITY))[0]

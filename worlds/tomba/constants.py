@@ -591,6 +591,17 @@ class GameState3(IntEnum):
     LOADING = 0x07
 
 
+class GameState4(IntEnum):
+    """Fourth status of the current screen"""
+
+    INIT_0 = 0x00
+    INIT_1 = 0x01
+    INIT_2 = 0x02
+    RUNNING = 0x03
+    CLEANING_0 = 0x04
+    CLEANING_1 = 0x05
+
+
 class SFX(IntEnum):
     """RAM code associated with each SFX"""
 
