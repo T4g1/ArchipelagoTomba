@@ -59,6 +59,7 @@ class Locations(str):
     VITALITY_INCREASE = "Vitality Increase"
     WATCH_TOWER_PANTS = "Tower Pants"
     WHATS_UNDERWATER = "What's Underwater ?"
+    WHAT_THE_THIEF_LOST = "Leave Hidden Village"
 
 
 class Regions(str):
@@ -500,6 +501,7 @@ class Addresses(IntEnum):
     PATCH_YANS_LUNCH_BOX = ITEM_USABILITY_SCRIPT_OFFSET_TABLE + 0x9A
     PATCH_RAISE_VITALITY = 0x0404E8
     PATCH_RAISE_LIFE = 0x040690
+    PATCH_CLEAR_THE_FOG = 0x017ABC
 
     # Those two are stored in little endian (@EE: B0  @EF: B1)
     CAMERA_HORIZONTAL_OFFSET = 0x1F8000EE  # 2bytes, Left: 0x00A0
