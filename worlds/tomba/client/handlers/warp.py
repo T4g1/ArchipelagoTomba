@@ -87,8 +87,7 @@ class WarpHandler(AbstractHandler):
 
         # Handlers for when we enter a section
         self.handlers = {
-            Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
-            Sections.CIVILIZATION_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
+            Sections.CIVILIZATION_ROOM: Handler(self.on_civilization_room),
             Sections.THOUSAND_YEAR_OLD_MANS_ROOM: Handler(self.on_haunted_mansion_irregular_entry),
             Sections.MASAKARI_RIVER: Handler(self.on_masakari_river_entry),
             Sections.FOREST_OF_100_FLOWERS_PART_1: Handler(self.on_forest_of_100_flowers_entry),
@@ -135,6 +134,13 @@ class WarpHandler(AbstractHandler):
             if await self.tomba.events_handler.get_event_state(Events.LAVA_CAVES) is not EventStatus.CLEARED:
                 # TODO: This will be a glitched if player has not received Charle's Pants yet
                 pass
+
+    async def on_civilization_room(self, coming_from: Section):
+        """Unlock the elevator in case we are coming from the wrong direction in ER"""
+        await self.on_haunted_mansion_irregular_entry(coming_from)
+
+        if self.ctx.slot_data.get("entrance_randomization", False):
+            await self.tomba.events_handler.clear(Events.THE_CIVILIZATION_MACHINE)
 
     async def on_ol_pond_entry(self, coming_from: Section):
         await self.fix_forest_of_all_beginning()
