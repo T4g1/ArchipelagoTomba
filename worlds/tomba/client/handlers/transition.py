@@ -6,20 +6,6 @@ from ...constants import CustomCommand
 
 AREAS_ARRAY_ADDRESS = 0x07C54C
 
-# Indicates which animation should be used for the door transition
-specific_animations = {
-    0x01: {Sections.CHARITY_SQUARE.section_id: {0x01: 0x02}},
-    0x09: {Sections.MANSION.section_id: {0x00: 0x02, 0x01: 0x02}},
-    0x0B: {Sections.LUMBERJACK_FACTORY.section_id: {0x00: 0x02, 0x01: 0x02}},
-    0x10: {Sections.CLOCK_TOWER_ENTRANCE.section_id: {0x00: 0x02, 0x01: 0x02}},
-    0x11: {
-        Sections.IRON_CASTLE_MAIN_ROOM.section_id: {0x00: 0x03, 0x01: 0x03, 0x02: 0x03, 0x03: 0x03},
-        Sections.IRON_CASTLE_LEFT_ROOM.section_id: {0x00: 0x02},
-        Sections.IRON_CASTLE_RIGHT_ROOM.section_id: {0x00: 0x02},
-    },
-    0x12: {Sections.Y_CROSSING.section_id: {0x00: 0x02, 0x01: 0x02, 0x02: 0x02, 0x03: 0x02}},
-}
-
 
 class Entrance:
     SIZE = 0x08
@@ -113,7 +99,7 @@ class TransitionHandler(AbstractHandler):
 
             entrance_address = entrances_array + Entrance.SIZE * int(entrance_id)
             data = bytearray(4)
-            data[0] = self.get_entrance_animation(target_area, target_section, target_spawn)
+            data[0] = 0x02  # Default: Fade to black and reset camera
             data[1] = target_area
             data[2] = target_section
             data[3] = target_spawn
@@ -126,14 +112,15 @@ class TransitionHandler(AbstractHandler):
             )
             await self.tomba.playstation.write_memory(transition_command_address + 4, data)
 
-            # from CommonClient import logger
-            # logger.info(
-            #     f"Update transition 0x{entrance_address:08X} "
-            #     f"0x{int(entrance_id):02X} "
-            #     f"to 0x{target_area:02X}-0x{target_section:02X} "
-            #     f"at 0x{target_spawn:02X} "
-            #     f"(animation: {data[0]})"
-            # )
+            from CommonClient import logger
+
+            logger.info(
+                f"Update transition 0x{entrance_address:08X} "
+                f"0x{int(entrance_id):02X} "
+                f"to 0x{target_area:02X}-0x{target_section:02X} "
+                f"at 0x{target_spawn:02X} "
+                f"(animation: {data[0]})"
+            )
 
             transition_command_address += 8
 
@@ -141,6 +128,3 @@ class TransitionHandler(AbstractHandler):
         await self.tomba.set_command(CustomCommand.UPDATE_TRANSITION)
 
         return True
-
-    def get_entrance_animation(self, area_id: int, section_id: int, spawn_id: int) -> int:
-        return specific_animations.get(area_id, {}).get(section_id, {}).get(spawn_id, 0x00)

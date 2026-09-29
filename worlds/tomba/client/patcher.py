@@ -23,8 +23,15 @@ class Patcher:
         add_item_file = pkgutil.get_data(__name__, "asm/add_item.asm")
         raise_vitality = pkgutil.get_data(__name__, "asm/raise_vitality.asm")
         raise_life = pkgutil.get_data(__name__, "asm/raise_life.asm")
+        clear_the_fog = pkgutil.get_data(__name__, "asm/clear_the_fog.asm")
 
-        if interface_file is None or add_item_file is None or raise_vitality is None or raise_life is None:
+        if (
+            interface_file is None
+            or add_item_file is None
+            or raise_vitality is None
+            or raise_life is None
+            or clear_the_fog is None
+        ):
             raise PatchException("Unable to load required ASM files")
 
         try:
@@ -43,16 +50,22 @@ class Patcher:
 
             # Same for lifes
             self.raise_life_patch = compiler.compile(raise_life.decode())
+
+            # Patch clear the fog event on game start
+            self.clear_the_fog_patch = compiler.compile(clear_the_fog.decode())
         except Exception as e:
             logger.critical(e)
             raise PatchException("Unable to initialize the patching interface")
 
-    async def patch_game(self):
-        """Patch a custom method to play SFX on demand"""
+    async def patch_game(self) -> bool:
+        """Patch the game for the randomizer
+        Return True when the patch was done"""
         if await self.is_patched_or_unloaded():
-            return
+            return False
 
         await self._patch()
+
+        return True
 
     async def _patch(self):
         logger.info("Patching custom methods...")
@@ -108,3 +121,8 @@ class Patcher:
     async def patch_inventory_yans_lunch_box(self):
         """Prevent Yan's Lunch Box to be eaten by using the always False script"""
         await self.playstation.write_memory(Addresses.PATCH_YANS_LUNCH_BOX, bytes.fromhex("00"))
+
+    async def patch_clear_the_fog(self):
+        """Automaticaly clears the event: Clear The Fog on game start"""
+        clear_the_fog_patch = bytes.fromhex(self.clear_the_fog_patch)
+        await self.playstation.write_memory(Addresses.PATCH_CLEAR_THE_FOG, clear_the_fog_patch)
