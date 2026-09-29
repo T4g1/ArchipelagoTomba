@@ -78,7 +78,7 @@ class Regions(str):
     DWARF_VILLAGE = "Dwarf Village"
     FLOWER_TOWER = "Flower Tower"
     FOREST_OF_100_FLOWERS = "Forest Of 100 Flowers (part 1)"
-    FOREST_OF_100_FLOWERS_BIS = "Forest of 100 Flowers (part 2)"
+    FOREST_OF_100_FLOWERS_BIS = "Forest Of 100 Flowers (part 2)"
     FOREST_OF_ALL_BEGINNINGS = "Forest Of All Beginnings (part 1)"
     FOREST_OF_ALL_BEGINNINGS_BIS = "Forest Of All Beginnings (part 2)"
     GARAGE = "Motocross Garage"

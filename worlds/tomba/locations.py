@@ -2108,20 +2108,25 @@ er_forced_checks = [
 ]
 
 
+def filter_locations_from_options(world: TombaWorld, locations: list[LocationData]) -> list[LocationData]:
+    # Settings: Remove cleared event from locations
+    if not world.options.cleared_event_rewards:
+        locations = [location for location in locations if isinstance(location, ItemLocData)]
+
+    # Removed force cleared events from Randomization
+    if world.options.entrance_randomization:
+        locations = [location for location in locations if location.name not in er_forced_checks]
+
+    # Settings: Remove bonus chests from locations
+    if not world.options.bonus_chests_randomized:
+        locations = [location for location in locations if not location.is_bonus() or not location.is_chest()]
+
+    return locations
+
+
 def create_regular_locations(world: TombaWorld) -> None:
     for name, locations in LocationHandler.by_region.items():
-        # Settings: Remove cleared event from locations
-        if not world.options.cleared_event_rewards:
-            locations = [location for location in locations if isinstance(location, ItemLocData)]
-
-        # Removed force cleared events from Randomization
-        if world.options.entrance_randomization:
-            locations = [location for location in locations if location.name not in er_forced_checks]
-
-        # Settings: Remove bonus chests from locations
-        if not world.options.bonus_chests_randomized:
-            locations = [location for location in locations if not location.is_bonus() or not location.is_chest()]
-
+        locations = filter_locations_from_options(world, locations)
         region = world.get_region(name)
         region.add_locations({location.name: location.id for location in locations}, TombaLocation)
 

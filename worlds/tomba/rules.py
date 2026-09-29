@@ -6,7 +6,7 @@ from rule_builder.rules import Has, Rule
 
 from .constants import Items, Events
 from .helpers import Cleared, Started, HasCleared
-from .locations import LocationHandler, ItemLocData
+from .locations import LocationHandler, ItemLocData, filter_locations_from_options
 from .items import ItemHandler
 from .events import EventHandler
 
@@ -70,7 +70,8 @@ def integrity_checks():
 
 
 def set_all_location_rules(world: TombaWorld) -> None:
-    for location in LocationHandler.location_table:
+    locations = filter_locations_from_options(world, LocationHandler.location_table)
+    for location in locations:
         if location.rule is not None:
             set_rule(world, location.name, location.rule)
 

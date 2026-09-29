@@ -535,8 +535,6 @@ def get_randomizable_doors(player: int) -> list[Door]:
             end_id=0x00,
             back_start_id=0x00,
             back_end_id=0x00,
-            rule=lambda state: state.can_reach_region(Sections.BACCUS_LAKE_PIER.name, player),
-            related_regions=[Sections.BACCUS_LAKE_PIER.name],
         ),
         Door(
             "Crying Door",
