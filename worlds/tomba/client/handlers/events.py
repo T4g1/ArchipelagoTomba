@@ -66,6 +66,7 @@ class EventsHandler(AbstractHandler):
             Events.SOMETHINGS_COOKIN: Handler(self.on_somethings_cookin),
             Events.THE_MERMAIDS_NECKLACE: Handler(self.on_mermaid_necklace),
             Events.WHERES_THE_BABY_MOUSE: Handler(self.on_wheres_the_baby_mouse),
+            Events.THE_100_YEAR_OLD_WISE_MAN: Handler(self.on_the_100_year_old_wise_man),
         }
 
         self.handlers_by_value = {
@@ -76,6 +77,10 @@ class EventsHandler(AbstractHandler):
         """Prevents softlock when all dwarves are saved but language is not learned"""
         if value == 0x08:
             await self.tomba.events_handler.clear(Events.BEGINNERS_DWARF_LANGUAGE)
+
+    async def on_the_100_year_old_wise_man(self):
+        """Make sure the met 100 YOM flag is set"""
+        await self.tomba.playstation.set_flag(0x09BCEC, 0x10)
 
     async def on_wheres_the_baby_mouse(self):
         """Make sure the door to exit the village is back open"""
