@@ -112,15 +112,15 @@ class TransitionHandler(AbstractHandler):
             )
             await self.tomba.playstation.write_memory(transition_command_address + 4, data)
 
-            from CommonClient import logger
+            # from CommonClient import logger
 
-            logger.info(
-                f"Update transition 0x{entrance_address:08X} "
-                f"0x{int(entrance_id):02X} "
-                f"to 0x{target_area:02X}-0x{target_section:02X} "
-                f"at 0x{target_spawn:02X} "
-                f"(animation: {data[0]})"
-            )
+            # logger.info(
+            #     f"Update transition 0x{entrance_address:08X} "
+            #     f"0x{int(entrance_id):02X} "
+            #     f"to 0x{target_area:02X}-0x{target_section:02X} "
+            #     f"at 0x{target_spawn:02X} "
+            #     f"(animation: {data[0]})"
+            # )
 
             transition_command_address += 8
 
