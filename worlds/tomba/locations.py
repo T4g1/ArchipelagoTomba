@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Self
+from typing import TYPE_CHECKING, ClassVar
 from enum import IntEnum
 
 from collections import defaultdict
@@ -69,10 +69,6 @@ class LocationData:
         self.at = at
         self.type = type
         self.trigger = trigger
-
-    def with_section(self, section: Section) -> Self:
-        self.section = section
-        return self
 
     def is_bonus(self) -> bool:
         return self.item is not None and self.item.is_bonus()
@@ -1431,8 +1427,9 @@ class LocationHandler:
         # Phoenix's Nest
         ItemLocData(
             "Green Jewel",
-            Regions.PHOENIXS_NEST,
+            Sections.PHOENIXS_NEST.name,
             Items.JEWEL_OF_WIND,
+            Sections.PHOENIXS_NEST,
             rule=HasStarted(Events.THE_JUNGLE_PIG_BAG),
             at=Bitmask(0x09BD62, 0x40),
         ),

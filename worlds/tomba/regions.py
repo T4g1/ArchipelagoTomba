@@ -961,12 +961,13 @@ def connect_regions(world: TombaWorld) -> None:
         rule=lambda state: state.can_reach_location(Started(Events.TO_PHOENIX_MOUNTAIN), world.player),
         related_events=[Events.TO_PHOENIX_MOUNTAIN],
     )
-    connect(
-        Sections.CHARITY_SQUARE.name,
-        Sections.HIDDEN_VILLAGE.name,
-        rule=Has(Items.LEAF_BUTTERFLY, 29),
-        entrance_type=EntranceType.ONE_WAY,
-    )
+    # Removed to prevent accessing Lava Caves from the top the first time
+    # connect(
+    #     Sections.CHARITY_SQUARE.name,
+    #     Sections.HIDDEN_VILLAGE.name,
+    #     rule=Has(Items.LEAF_BUTTERFLY, 29),
+    #     entrance_type=EntranceType.ONE_WAY,
+    # )
     connect(
         Sections.CHARITY_SQUARE.name,
         Sections.FLOWER_TOWER.name,
