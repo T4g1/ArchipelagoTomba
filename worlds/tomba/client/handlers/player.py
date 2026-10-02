@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 from . import AbstractHandler
-from ...constants import Addresses, Music
+from ...constants import Addresses, Music, GameState3
 
 KILL_SWITCH = 0x09BCA0
 
@@ -26,7 +26,10 @@ class PlayerHandler(AbstractHandler):
 
     async def update_deathlink(self):
         """Periodically checks if the player is dead"""
-        if not await self.tomba.state_handler.is_playing():
+        if (
+            not await self.tomba.state_handler.is_playing()
+            or await self.tomba.state_handler.get_game_state_3() != GameState3.PLAYING
+        ):
             return
 
         current_lives = (await self.tomba.playstation.async_read_memory(Addresses.LIVES))[0]
