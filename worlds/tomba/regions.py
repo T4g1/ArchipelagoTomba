@@ -1064,12 +1064,12 @@ def connect_regions(world: TombaWorld) -> None:
         related_events=[Events.BREAK_THE_RUSTY_DOOR],
     )
     connect(
-        Sections.LAVA_CAVES.name,
+        Regions.LAVA_CAVES_PURIFIED,
         Sections.HIDDEN_VILLAGE.name,
         entrance_type=EntranceType.TWO_WAY,
     )
     connect(
-        Sections.LAVA_CAVES.name,
+        Regions.LAVA_CAVES_PURIFIED,
         Sections.PHOENIXS_NEST.name,
         entrance_type=EntranceType.TWO_WAY,
     )
